@@ -32,14 +32,15 @@ export class OrderService {
       throw new BadRequestError('Order must contain at least one item');
     }
 
-    // 1. Calculate totals
-    const calculatedSubtotal = itemsInput.reduce(
-      (sum, item) => sum + Math.round(item.unitPrice * item.quantity),
-      0,
+    // 1. Calculate totals (ensuring integers for database integer columns)
+    const calculatedSubtotal = Math.round(
+      itemsInput.reduce((sum, item) => sum + Math.round(item.unitPrice * item.quantity), 0),
     );
-    const taxAmount = input.taxAmount ?? Math.round(calculatedSubtotal * 0.1);
-    const shippingAmount = input.shippingAmount ?? (calculatedSubtotal > 1000 ? 0 : 99);
-    const totalAmount = input.totalAmount ?? calculatedSubtotal + taxAmount + shippingAmount;
+    const taxAmount = Math.round(input.taxAmount ?? calculatedSubtotal * 0.1);
+    const shippingAmount = Math.round(input.shippingAmount ?? (calculatedSubtotal > 1000 ? 0 : 99));
+    const totalAmount = Math.round(
+      input.totalAmount ?? calculatedSubtotal + taxAmount + shippingAmount,
+    );
 
     // 2. Generate unique tracking number
     const randomSuffix = Math.floor(100000 + Math.random() * 900000).toString();

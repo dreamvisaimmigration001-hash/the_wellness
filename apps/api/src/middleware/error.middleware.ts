@@ -21,6 +21,9 @@ export const errorHandler = (err: unknown, req: Request, res: Response, _next: N
       ? errCause.code
       : undefined;
 
+  const errMessage =
+    isObject && 'message' in err && typeof err.message === 'string' ? err.message : 'Unknown error';
+
   if (err instanceof AppError) {
     statusCode = err.statusCode;
     code = err.code;
@@ -46,14 +49,21 @@ export const errorHandler = (err: unknown, req: Request, res: Response, _next: N
     errCauseCode === '22P02' ||
     (errName === 'PostgresError' && errCode === '22P02')
   ) {
-    // Postgres invalid text representation (e.g. malformed UUID)
+    // Postgres invalid text representation (e.g. malformed UUID or integer)
     statusCode = 400;
     code = 'BAD_REQUEST';
-    message = 'Invalid identifier format';
+    if (
+      errMessage.includes('integer') ||
+      errMessage.includes('numeric') ||
+      errMessage.includes('smallint')
+    ) {
+      message = 'Invalid numeric format';
+    } else {
+      message = 'Invalid identifier format';
+    }
   }
 
   // Log error
-  const errMessage = isObject && 'message' in err ? err.message : 'Unknown error';
   if (statusCode === 500) {
     logger.error({ err, reqId: req.id }, 'Unhandled Exception');
   } else {

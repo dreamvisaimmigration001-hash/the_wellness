@@ -329,8 +329,8 @@ export default function OrderPage() {
 
   // Calculate pricing values
   const shippingCost = cartSubtotal > 4000 || cartSubtotal === 0 ? 0 : 400;
-  const taxCost = cartSubtotal * 0.1; // 10% tax
-  const totalCost = cartSubtotal + shippingCost + taxCost;
+  const taxCost = Math.round(cartSubtotal * 0.1); // 10% tax
+  const totalCost = Math.round(cartSubtotal + shippingCost + taxCost);
 
   // Handle Prescription Upload
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

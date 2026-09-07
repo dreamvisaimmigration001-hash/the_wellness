@@ -92,6 +92,23 @@ describe('Error Middleware', () => {
     });
   });
 
+  it('maps Postgres invalid integer representation (22P02) to 400 with Invalid numeric format', () => {
+    const error = Object.assign(new Error('invalid input syntax for type integer: "434.1"'), {
+      code: '22P02',
+    });
+
+    errorHandler(error, req as Request, res as Response, next);
+
+    expect(statusMock).toHaveBeenCalledWith(400);
+    expect(jsonMock).toHaveBeenCalledWith({
+      success: false,
+      error: {
+        code: 'BAD_REQUEST',
+        message: 'Invalid numeric format',
+      },
+    });
+  });
+
   it('maps unknown errors to 500 without leaking details', () => {
     const error = new Error('Secret database password is password123');
 
