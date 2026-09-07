@@ -41,7 +41,7 @@ export const auth = betterAuth({
   },
   onAPIError: {
     // Redirects OAuth errors to your Vercel frontend instead of Render's root
-    errorURL: `${env.CORS_ORIGIN.split(',')[0].trim()}/account`,
+    errorURL: `${(env.CORS_ORIGIN.split(',')[0] ?? '').trim()}/account`,
   },
   user: {
     additionalFields: {
