@@ -15,51 +15,30 @@ if (fs.existsSync(envPath)) {
   dotenv.config();
 }
 
-const envSchema = z
-  .object({
-    NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-    PORT: z.coerce.number().default(5000),
+const envSchema = z.object({
+  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  PORT: z.coerce.number().default(5000),
 
-    DATABASE_URL: z.string().min(1, 'Database URL is required'),
-    GOOGLE_CLIENT_ID: z.string().min(1, 'Google Client ID is required'),
-    GOOGLE_CLIENT_SECRET: z.string().min(1, 'Google Client Secret is required'),
-    APPLE_CLIENT_ID: z.string().optional(),
-    APPLE_CLIENT_SECRET: z.string().optional(),
+  DATABASE_URL: z.string().min(1, 'Database URL is required'),
+  GOOGLE_CLIENT_ID: z.string().min(1, 'Google Client ID is required'),
+  GOOGLE_CLIENT_SECRET: z.string().min(1, 'Google Client Secret is required'),
 
-    BETTER_AUTH_SECRET: z.string().min(1, 'Better Auth Secret is required'),
-    BETTER_AUTH_URL: z.string().url('Better Auth URL must be a valid URL'),
+  BETTER_AUTH_SECRET: z.string().min(1, 'Better Auth Secret is required'),
+  BETTER_AUTH_URL: z.string().url('Better Auth URL must be a valid URL'),
 
-    RAZORPAY_KEY_ID: z.string().min(1, 'Razorpay Key ID is required'),
-    RAZORPAY_KEY_SECRET: z.string().min(1, 'Razorpay Key Secret is required'),
-    RAZORPAY_WEBHOOK_SECRET: z.string().min(1, 'Razorpay Webhook Secret is required'),
+  RAZORPAY_KEY_ID: z.string().min(1, 'Razorpay Key ID is required'),
+  RAZORPAY_KEY_SECRET: z.string().min(1, 'Razorpay Key Secret is required'),
+  RAZORPAY_WEBHOOK_SECRET: z.string().min(1, 'Razorpay Webhook Secret is required'),
 
-    CORS_ORIGIN: z.string().min(1, 'CORS Origin is required'),
+  CORS_ORIGIN: z.string().min(1, 'CORS Origin is required'),
 
-    CLOUDINARY_CLOUD_NAME: z.string().optional(),
-    CLOUDINARY_API_KEY: z.string().optional(),
-    CLOUDINARY_API_SECRET: z.string().optional(),
-    CLOUDINARY_UPLOAD_PRESET: z.string().optional(),
+  CLOUDINARY_CLOUD_NAME: z.string().optional(),
+  CLOUDINARY_API_KEY: z.string().optional(),
+  CLOUDINARY_API_SECRET: z.string().optional(),
+  CLOUDINARY_UPLOAD_PRESET: z.string().optional(),
 
-    LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
-  })
-  .superRefine((val, ctx) => {
-    if (val.NODE_ENV === 'production') {
-      if (!val.APPLE_CLIENT_ID) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Apple Client ID is required in production',
-          path: ['APPLE_CLIENT_ID'],
-        });
-      }
-      if (!val.APPLE_CLIENT_SECRET) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Apple Client Secret is required in production',
-          path: ['APPLE_CLIENT_SECRET'],
-        });
-      }
-    }
-  });
+  LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
+});
 
 const _env = envSchema.safeParse(process.env);
 

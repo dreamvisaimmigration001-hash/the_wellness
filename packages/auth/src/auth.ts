@@ -22,7 +22,7 @@ export const auth = betterAuth({
   }),
   accountLinking: {
     enabled: true,
-    trustedProviders: ['google', 'apple'],
+    trustedProviders: ['google'],
   },
   user: {
     additionalFields: {
@@ -38,13 +38,5 @@ export const auth = betterAuth({
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
     },
-    ...(env.APPLE_CLIENT_ID && env.APPLE_CLIENT_SECRET
-      ? {
-          apple: {
-            clientId: env.APPLE_CLIENT_ID,
-            clientSecret: env.APPLE_CLIENT_SECRET,
-          },
-        }
-      : {}),
   },
 });
