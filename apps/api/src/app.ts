@@ -24,6 +24,7 @@ import paymentRoutes from './routes/payment.routes';
 import productRoutes from './routes/product.routes';
 import promotionRoutes from './routes/promotion.routes';
 import { searchRoutes } from './routes/search.routes';
+import settingsRoutes from './routes/settings.routes';
 
 export const app = express();
 
@@ -65,6 +66,7 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/customer', customerRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/promotions', promotionRoutes);
+app.use('/api/settings', settingsRoutes);
 app.use('/api/cloudinary', cloudinaryRoutes);
 app.use(notFoundHandler);
 app.use(errorHandler);

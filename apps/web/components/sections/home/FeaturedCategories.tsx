@@ -56,8 +56,10 @@ type ApiResponse = {
 
 export default function FeaturedCategories() {
   const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
     async function fetchCounts() {
       try {
         const API_BASE = API_BASE_URL;
@@ -65,7 +67,7 @@ export default function FeaturedCategories() {
         if (res.ok) {
           const json = (await res.json()) as ApiResponse;
           const items = json.data?.products || json.data?.items || json.products || [];
-          if (Array.isArray(items)) {
+          if (Array.isArray(items) && isMounted) {
             const counts: Record<string, number> = {};
             items.forEach((item) => {
               const cat = item.categoryName || item.category || 'Uncategorized';
@@ -76,14 +78,27 @@ export default function FeaturedCategories() {
         }
       } catch (err) {
         console.error('Failed to fetch category product counts:', err);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     }
     void fetchCounts();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const getProductCount = (category: string) => {
     return categoryCounts[category] || 0;
   };
+
+  const activeCategories = categoriesList.filter((cat) => getProductCount(cat.name) > 0);
+
+  if (loading || activeCategories.length === 0) {
+    return null;
+  }
 
   return (
     <section className="py-20 bg-white border-b border-wellness-gray-200">
@@ -105,7 +120,7 @@ export default function FeaturedCategories() {
 
         {/* Categories Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-          {categoriesList.map((cat, idx) => {
+          {activeCategories.map((cat, idx) => {
             const Icon = cat.icon;
             const count = getProductCount(cat.name);
             return (

@@ -103,17 +103,36 @@ export default function PopularProducts() {
     void fetchProducts();
   }, []);
 
+  const bestSellers = productsList.filter((p) => p.isBestSeller);
+  const newArrivals = productsList.filter((p) => p.isNewest);
+  const featured = productsList.filter((p) => p.isFeatured);
+
+  const availableTabs: Array<{ id: TabType; label: string }> = [];
+  if (bestSellers.length > 0) {
+    availableTabs.push({ id: 'best-sellers', label: 'Best Sellers' });
+  }
+  if (newArrivals.length > 0) {
+    availableTabs.push({ id: 'new-arrivals', label: 'New Arrivals' });
+  }
+  if (featured.length > 0) {
+    availableTabs.push({ id: 'featured', label: 'Featured' });
+  }
+
+  // Ensure activeTab is always one of availableTabs
+  useEffect(() => {
+    if (availableTabs.length > 0 && !availableTabs.some((t) => t.id === activeTab)) {
+      setActiveTab(availableTabs[0].id);
+    }
+  }, [availableTabs, activeTab]);
+
   useEffect(() => {
     let items: Product[];
     if (activeTab === 'best-sellers') {
-      const best = productsList.filter((p) => p.isBestSeller);
-      items = (best.length > 0 ? best : productsList).slice(0, 3);
+      items = bestSellers.slice(0, 3);
     } else if (activeTab === 'new-arrivals') {
-      const newest = productsList.filter((p) => p.isNewest);
-      items = (newest.length > 0 ? newest : productsList).slice(0, 3);
+      items = newArrivals.slice(0, 3);
     } else {
-      const feat = productsList.filter((p) => p.isFeatured);
-      items = (feat.length > 0 ? feat : productsList).slice(0, 3);
+      items = featured.slice(0, 3);
     }
     setVisibleProducts(items);
   }, [activeTab, productsList]);
@@ -154,6 +173,11 @@ export default function PopularProducts() {
     { scope: container, dependencies: [visibleProducts] },
   );
 
+  // If loading or if no tab has any products, do not display the section
+  if (loading || availableTabs.length === 0 || visibleProducts.length === 0) {
+    return null;
+  }
+
   return (
     <section ref={container} className="py-24 bg-white border-b border-wellness-gray-200">
       <div className="container mx-auto px-6 md:px-12">
@@ -172,170 +196,145 @@ export default function PopularProducts() {
           </div>
 
           {/* Navigation Tabs */}
-          <div className="flex bg-wellness-gray-100 p-1.5 rounded-2xl border border-wellness-gray-200/80 self-start md:self-auto">
-            <button
-              onClick={() => {
-                setActiveTab('best-sellers');
-              }}
-              className={`px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-300 cursor-pointer ${
-                activeTab === 'best-sellers'
-                  ? 'bg-wellness-navy text-white shadow-md'
-                  : 'text-wellness-charcoal/70 hover:text-wellness-navy hover:bg-white/50'
-              }`}
-            >
-              Best Sellers
-            </button>
-            <button
-              onClick={() => {
-                setActiveTab('new-arrivals');
-              }}
-              className={`px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-300 cursor-pointer ${
-                activeTab === 'new-arrivals'
-                  ? 'bg-wellness-navy text-white shadow-md'
-                  : 'text-wellness-charcoal/70 hover:text-wellness-navy hover:bg-white/50'
-              }`}
-            >
-              New Arrivals
-            </button>
-            <button
-              onClick={() => {
-                setActiveTab('featured');
-              }}
-              className={`px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-300 cursor-pointer ${
-                activeTab === 'featured'
-                  ? 'bg-wellness-navy text-white shadow-md'
-                  : 'text-wellness-charcoal/70 hover:text-wellness-navy hover:bg-white/50'
-              }`}
-            >
-              Featured
-            </button>
-          </div>
+          {availableTabs.length > 1 && (
+            <div className="flex bg-wellness-gray-100 p-1.5 rounded-2xl border border-wellness-gray-200/80 self-start md:self-auto">
+              {availableTabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => {
+                    setActiveTab(tab.id);
+                  }}
+                  className={`px-5 py-2.5 rounded-xl text-xs font-black transition-all duration-300 cursor-pointer ${
+                    activeTab === tab.id
+                      ? 'bg-wellness-navy text-white shadow-md'
+                      : 'text-wellness-charcoal/70 hover:text-wellness-navy hover:bg-white/50'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Products Grid */}
-        {loading ? (
-          <div className="py-16 text-center text-wellness-charcoal/50">Loading products...</div>
-        ) : visibleProducts.length === 0 ? (
-          <div className="py-16 text-center text-wellness-charcoal/50">No products available.</div>
-        ) : (
-          <div
-            ref={gridRef}
-            className="popular-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-          >
-            {visibleProducts.map((product) => {
-              const stock = product.availableQty ?? product.inventoryQty ?? product.stockQty ?? 0;
-              const isOutOfStock =
-                stock <= 0 ||
-                product.stockStatus === 'out_of_stock' ||
-                product.stockStatus === 'discontinued';
+        <div
+          ref={gridRef}
+          className="popular-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+        >
+          {visibleProducts.map((product) => {
+            const stock = product.availableQty ?? product.inventoryQty ?? product.stockQty ?? 0;
+            const isOutOfStock =
+              stock <= 0 ||
+              product.stockStatus === 'out_of_stock' ||
+              product.stockStatus === 'discontinued';
 
-              return (
-                <div
-                  key={product.id}
-                  className="popular-card group bg-wellness-gray-50/50 hover:bg-white border border-wellness-gray-200/80 rounded-[32px] overflow-hidden hover:shadow-[0_20px_50px_rgba(43,122,120,0.08)] hover:border-wellness-green/30 transition-all duration-500 flex flex-col justify-between"
-                >
-                  <div className="p-6 space-y-6">
-                    {/* Image & Type Badge */}
-                    <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-wellness-gray-100/60">
-                      <Image
-                        src={product.image}
-                        alt={product.name}
-                        fill
-                        className={`object-cover transition-transform duration-700 ${
-                          isOutOfStock ? 'grayscale-[30%]' : 'group-hover:scale-105'
-                        }`}
-                        referrerPolicy="no-referrer"
-                      />
+            return (
+              <div
+                key={product.id}
+                className="popular-card group bg-wellness-gray-50/50 hover:bg-white border border-wellness-gray-200/80 rounded-[32px] overflow-hidden hover:shadow-[0_20px_50px_rgba(43,122,120,0.08)] hover:border-wellness-green/30 transition-all duration-500 flex flex-col justify-between"
+              >
+                <div className="p-6 space-y-6">
+                  {/* Image & Type Badge */}
+                  <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-wellness-gray-100/60">
+                    <Image
+                      src={product.image}
+                      alt={product.name}
+                      fill
+                      className={`object-cover transition-transform duration-700 ${
+                        isOutOfStock ? 'grayscale-[30%]' : 'group-hover:scale-105'
+                      }`}
+                      referrerPolicy="no-referrer"
+                    />
 
-                      {/* Stock / Type / Featured / Bestseller Badges */}
-                      {isOutOfStock ? (
-                        <span className="absolute top-4 right-4 bg-red-600 text-white text-[9px] font-extrabold px-2.5 py-1 rounded uppercase tracking-wider shadow-sm z-10">
-                          Out of Stock
-                        </span>
-                      ) : (
-                        <div className="absolute top-4 right-4 flex items-center gap-1.5 z-10">
-                          {product.isFeatured && (
-                            <span className="bg-wellness-green text-wellness-navy font-black text-[9px] uppercase tracking-wider px-2 py-0.5 rounded shadow-sm">
-                              Featured
-                            </span>
-                          )}
-                          {product.isBestSeller && (
-                            <span className="bg-amber-500 text-white font-black text-[9px] uppercase tracking-wider px-2 py-0.5 rounded shadow-sm">
-                              Bestseller
-                            </span>
-                          )}
-                          <span className="bg-wellness-navy text-white text-[9px] font-bold px-2.5 py-1 rounded shadow-sm">
-                            {product.type}
+                    {/* Stock / Type / Featured / Bestseller Badges */}
+                    {isOutOfStock ? (
+                      <span className="absolute top-4 right-4 bg-red-600 text-white text-[9px] font-extrabold px-2.5 py-1 rounded uppercase tracking-wider shadow-sm z-10">
+                        Out of Stock
+                      </span>
+                    ) : (
+                      <div className="absolute top-4 right-4 flex items-center gap-1.5 z-10">
+                        {product.isFeatured && (
+                          <span className="bg-wellness-green text-wellness-navy font-black text-[9px] uppercase tracking-wider px-2 py-0.5 rounded shadow-sm">
+                            Featured
                           </span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Meta & Title */}
-                    <div className="space-y-2.5">
-                      <div className="flex justify-between items-center">
-                        <span className="text-[9px] font-extrabold tracking-wider uppercase text-wellness-green bg-wellness-green/10 border border-wellness-green/20 px-2.5 py-1 rounded-full">
-                          {product.category}
+                        )}
+                        {product.isBestSeller && (
+                          <span className="bg-amber-500 text-white font-black text-[9px] uppercase tracking-wider px-2 py-0.5 rounded shadow-sm">
+                            Bestseller
+                          </span>
+                        )}
+                        <span className="bg-wellness-navy text-white text-[9px] font-bold px-2.5 py-1 rounded shadow-sm">
+                          {product.type}
                         </span>
                       </div>
-
-                      <h3 className="text-xl font-heading font-black text-wellness-navy group-hover:text-wellness-green transition-colors line-clamp-1">
-                        <Link href={`/products/${product.id}`}>{product.name}</Link>
-                      </h3>
-
-                      <p className="text-xs text-wellness-charcoal/60 leading-relaxed font-semibold line-clamp-2">
-                        {product.description}
-                      </p>
-                    </div>
+                    )}
                   </div>
 
-                  {/* Pricing & Actions */}
-                  <div className="p-6 pt-0 border-t border-wellness-gray-150/50 mt-4 flex items-center justify-between gap-4">
-                    <div>
-                      <span className="text-[9px] font-bold text-wellness-charcoal/40 uppercase tracking-wider block">
-                        Price
-                      </span>
-                      <span className="text-xl font-black text-wellness-navy">
-                        ₹
-                        {product.price.toLocaleString('en-IN', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
+                  {/* Meta & Title */}
+                  <div className="space-y-2.5">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[9px] font-extrabold tracking-wider uppercase text-wellness-green bg-wellness-green/10 border border-wellness-green/20 px-2.5 py-1 rounded-full">
+                        {product.category}
                       </span>
                     </div>
 
-                    <div className="flex gap-2">
-                      <button
-                        disabled={isOutOfStock}
-                        onClick={() => {
-                          if (!isOutOfStock) {
-                            void addToCart(product, 1);
-                          }
-                        }}
-                        className={`text-xs font-bold py-2.5 px-4 rounded-xl transition-all duration-300 flex items-center gap-1.5 shadow-sm ${
-                          isOutOfStock
-                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                            : 'bg-wellness-green hover:bg-wellness-navy text-white hover:shadow active:scale-98 cursor-pointer'
-                        }`}
-                      >
-                        <ShoppingCart size={14} />
-                        {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
-                      </button>
+                    <h3 className="text-xl font-heading font-black text-wellness-navy group-hover:text-wellness-green transition-colors line-clamp-1">
+                      <Link href={`/products/${product.id}`}>{product.name}</Link>
+                    </h3>
 
-                      <Link
-                        href={`/products/${product.id}`}
-                        className="p-2.5 bg-wellness-gray-100 hover:bg-wellness-gray-200 text-wellness-navy rounded-xl transition-all duration-300 flex items-center justify-center border border-wellness-gray-200/50 cursor-pointer"
-                        title="View Details"
-                      >
-                        <Eye size={14} />
-                      </Link>
-                    </div>
+                    <p className="text-xs text-wellness-charcoal/60 leading-relaxed font-semibold line-clamp-2">
+                      {product.description}
+                    </p>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        )}
+
+                {/* Pricing & Actions */}
+                <div className="p-6 pt-0 border-t border-wellness-gray-150/50 mt-4 flex items-center justify-between gap-4">
+                  <div>
+                    <span className="text-[9px] font-bold text-wellness-charcoal/40 uppercase tracking-wider block">
+                      Price
+                    </span>
+                    <span className="text-xl font-black text-wellness-navy">
+                      ₹
+                      {product.price.toLocaleString('en-IN', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </span>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      disabled={isOutOfStock}
+                      onClick={() => {
+                        if (!isOutOfStock) {
+                          void addToCart(product, 1);
+                        }
+                      }}
+                      className={`text-xs font-bold py-2.5 px-4 rounded-xl transition-all duration-300 flex items-center gap-1.5 shadow-sm ${
+                        isOutOfStock
+                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                          : 'bg-wellness-green hover:bg-wellness-navy text-white hover:shadow active:scale-98 cursor-pointer'
+                      }`}
+                    >
+                      <ShoppingCart size={14} />
+                      {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
+                    </button>
+
+                    <Link
+                      href={`/products/${product.id}`}
+                      className="p-2.5 bg-wellness-gray-100 hover:bg-wellness-gray-200 text-wellness-navy rounded-xl transition-all duration-300 flex items-center justify-center border border-wellness-gray-200/50 cursor-pointer"
+                      title="View Details"
+                    >
+                      <Eye size={14} />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
 
         {/* View Catalog Banner */}
         <div className="mt-16 text-center">

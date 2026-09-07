@@ -9,6 +9,9 @@ import {
   createOrderSchema,
   createPaymentOrderSchema,
   SearchSchema,
+  announcementSettingsSchema,
+  dealsSettingsSchema,
+  updateSiteSettingsSchema,
 } from './index';
 
 describe('Validation Schemas', () => {
@@ -266,6 +269,47 @@ describe('Validation Schemas', () => {
     it('rejects search query containing HTML tags', () => {
       const result = SearchSchema.safeParse({ q: 'wellness<script>' });
       expect(result.success).toBe(false);
+    });
+  });
+
+  describe('Settings Schemas', () => {
+    it('accepts valid announcement settings payload', () => {
+      const result = announcementSettingsSchema.safeParse({
+        enabled: true,
+        badge: 'Limited Offer',
+        text: 'Save 20% on first order',
+        code: 'SAVE20',
+        cta: 'Shop Now',
+        link: '/products',
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it('accepts valid deals settings payload', () => {
+      const result = dealsSettingsSchema.safeParse({
+        enabled: true,
+        discountPercentage: 25,
+        discountText: 'Save 25% Today',
+        title: 'Daily Deals',
+        endTime: new Date().toISOString(),
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it('rejects deals discount percentage over 100', () => {
+      const result = dealsSettingsSchema.safeParse({
+        enabled: true,
+        discountPercentage: 150,
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('accepts valid partial update site settings payload', () => {
+      const result = updateSiteSettingsSchema.safeParse({
+        announcement: { enabled: false },
+        deals: { discountPercentage: 30 },
+      });
+      expect(result.success).toBe(true);
     });
   });
 });

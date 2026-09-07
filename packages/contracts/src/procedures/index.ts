@@ -8,3 +8,4 @@ export * from './payment';
 export * from './search';
 export * from './customer';
 export * from './promotion';
+export * from './settings';

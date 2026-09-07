@@ -8,8 +8,8 @@ import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from '@/lib/config';
 
 export default function SpecialPromoBanner() {
-  const [bannerImage, setBannerImage] = useState('/images/default-promo-banner.png');
-  const [bannerLink, setBannerLink] = useState('/products');
+  const [banner, setBanner] = useState<{ imageUrl: string; targetUrl?: string } | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
@@ -20,18 +20,24 @@ export default function SpecialPromoBanner() {
         if (res.ok) {
           const result = (await res.json()) as {
             success?: boolean;
-            data?: Array<{ imageUrl?: string; targetUrl?: string }>;
+            data?: Array<{ imageUrl?: string; targetUrl?: string; isActive?: boolean }>;
           };
           if (result.success && Array.isArray(result.data) && result.data.length > 0) {
-            const banner = result.data[0];
-            if (isMounted && banner.imageUrl) {
-              setBannerImage(banner.imageUrl);
-              setBannerLink(banner.targetUrl || '/products');
+            const first = result.data.find((p) => p.imageUrl && p.isActive !== false);
+            if (isMounted && first?.imageUrl) {
+              setBanner({
+                imageUrl: first.imageUrl,
+                targetUrl: first.targetUrl || '/products',
+              });
             }
           }
         }
       } catch (err) {
         console.error('Failed to fetch promotional banner:', err);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     }
     void fetchBanner();
@@ -39,6 +45,13 @@ export default function SpecialPromoBanner() {
       isMounted = false;
     };
   }, []);
+
+  if (loading || !banner) {
+    return null;
+  }
+
+  const bannerImage = banner.imageUrl;
+  const bannerLink = banner.targetUrl || '/products';
 
   return (
     <section className="py-4 md:py-8 bg-white relative overflow-hidden w-full">
