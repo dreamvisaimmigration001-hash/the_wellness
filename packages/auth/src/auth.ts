@@ -22,9 +22,24 @@ export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: 'pg',
   }),
-  accountLinking: {
-    enabled: true,
-    trustedProviders: ['google'],
+  account: {
+    accountLinking: {
+      enabled: true,
+      trustedProviders: ['google'],
+    },
+    // Allows DB-based state verification without being blocked by cross-origin cookie restrictions
+    skipStateCookieCheck: true,
+  },
+  advanced: {
+    // Required for cross-origin cookies between vercel.app and onrender.com
+    defaultCookieAttributes: {
+      sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
+      secure: env.NODE_ENV === 'production',
+    },
+  },
+  onAPIError: {
+    // Redirect auth errors to your frontend instead of backend root
+    errorURL: `${env.CORS_ORIGIN.split(',')[0].trim()}/account`,
   },
   user: {
     additionalFields: {
