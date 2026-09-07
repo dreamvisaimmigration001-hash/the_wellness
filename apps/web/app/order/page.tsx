@@ -25,6 +25,7 @@ import {
 
 import { useCart } from '@/context/CartContext';
 import { authClient } from '@/lib/auth-client';
+import { API_BASE_URL, RAZORPAY_KEY_ID } from '@/lib/config';
 
 declare global {
   interface Window {
@@ -82,7 +83,7 @@ export default function OrderPage() {
   useEffect(() => {
     const fetchSavedAddresses = async () => {
       const addresses: SavedAddress[] = [];
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const backendUrl = API_BASE_URL;
 
       if (session?.user) {
         // 1. Fetch from Customer Addresses API
@@ -359,7 +360,7 @@ export default function OrderPage() {
     provider?: string;
   }): Promise<ApiOrderData | null> => {
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const backendUrl = API_BASE_URL;
       const storedCartId =
         typeof window !== 'undefined' ? localStorage.getItem('wellness_cart_id') : null;
       const headers: Record<string, string> = {
@@ -446,7 +447,7 @@ export default function OrderPage() {
     setIsSubmitting(true);
     setPaymentError('');
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const backendUrl = API_BASE_URL;
       const payHeaders: Record<string, string> = {
         'Content-Type': 'application/json',
       };
@@ -472,8 +473,11 @@ export default function OrderPage() {
         keyId?: string;
       };
 
-      const keyId =
-        data.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_TTtlm8FsLRmEuv';
+      const keyId = data.keyId || RAZORPAY_KEY_ID;
+
+      if (!keyId) {
+        throw new Error('Payment gateway key is not configured. Please contact support.');
+      }
 
       if (!window.Razorpay) {
         throw new Error('Razorpay SDK script is still loading. Please try clicking pay again.');
@@ -606,7 +610,7 @@ export default function OrderPage() {
   const saveNewAddressToBackend = async (addr: ShippingForm) => {
     if (!session?.user) return;
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const backendUrl = API_BASE_URL;
       const reqHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
       if (session.session.token) {
         reqHeaders['Authorization'] = `Bearer ${session.session.token}`;

@@ -15,6 +15,7 @@ import type { ApiProductListItem } from './types';
 
 import { useCart } from '@/context/CartContext';
 import { getCloudinaryImageUrl } from '@/lib/cloudinary';
+import { API_BASE_URL } from '@/lib/config';
 import { Product } from '@/lib/products';
 
 export default function ProductDetailClient({ slug }: { slug: string }) {
@@ -33,7 +34,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
       setIsLoading(true);
 
       let foundProduct: Product | null = null;
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const API_BASE = API_BASE_URL;
 
       // 1. Try fetching live product from backend API first
       try {

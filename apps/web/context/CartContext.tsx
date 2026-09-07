@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
+import { API_BASE_URL } from '@/lib/config';
 import { Product } from '@/lib/products';
 
 export type CartItem = {
@@ -47,7 +48,7 @@ type ApiCartResponseItem = {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API_BASE = API_BASE_URL;
 const isUUID = (id: string) =>
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
 

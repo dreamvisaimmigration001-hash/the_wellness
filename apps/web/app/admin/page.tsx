@@ -28,6 +28,7 @@ import type {
 } from './types';
 
 import { authClient } from '@/lib/auth-client';
+import { API_BASE_URL } from '@/lib/config';
 import { Product } from '@/lib/products';
 import { useAppSelector } from '@/lib/redux/hooks';
 
@@ -114,7 +115,7 @@ export default function AdminPage() {
     folder = 'wellness_catalog',
   ): Promise<string> => {
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const API_BASE = API_BASE_URL;
       const formData = new FormData();
       formData.append('file', fileOrDataUri);
       formData.append('folder', folder);
@@ -138,7 +139,7 @@ export default function AdminPage() {
   const loadProducts = useCallback(async () => {
     setIsRefreshingProducts(true);
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const API_BASE = API_BASE_URL;
       const res = await fetch(`${API_BASE}/api/products`, {
         signal: AbortSignal.timeout(5000),
       });
@@ -230,7 +231,7 @@ export default function AdminPage() {
   const loadCategories = useCallback(async () => {
     setIsRefreshingCategories(true);
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const API_BASE = API_BASE_URL;
       const res = await fetch(`${API_BASE}/api/categories`, {
         signal: AbortSignal.timeout(5000),
       });
@@ -260,7 +261,7 @@ export default function AdminPage() {
   const loadOrders = useCallback(async () => {
     setIsRefreshingOrders(true);
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const API_BASE = API_BASE_URL;
       const res = await fetch(`${API_BASE}/api/orders`, {
         credentials: 'include',
         signal: AbortSignal.timeout(5000),
@@ -323,7 +324,7 @@ export default function AdminPage() {
 
   const loadAnalytics = useCallback(async () => {
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const API_BASE = API_BASE_URL;
       const res = await fetch(`${API_BASE}/api/analytics`, {
         credentials: 'include',
         signal: AbortSignal.timeout(5000),
@@ -342,7 +343,7 @@ export default function AdminPage() {
   const handleAnalyzeProduct = async (productId: string) => {
     setIsLoadingProductAnalysis(productId);
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const API_BASE = API_BASE_URL;
       const res = await fetch(`${API_BASE}/api/analytics/products/${productId}`, {
         credentials: 'include',
       });
@@ -365,7 +366,7 @@ export default function AdminPage() {
   const loadQueries = useCallback(async () => {
     setIsRefreshingQueries(true);
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const API_BASE = API_BASE_URL;
       const res = await fetch(`${API_BASE}/api/customer/inquiries`, {
         credentials: 'include',
         signal: AbortSignal.timeout(5000),
@@ -410,7 +411,7 @@ export default function AdminPage() {
 
   const loadPromotions = useCallback(async () => {
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const API_BASE = API_BASE_URL;
       const res = await fetch(`${API_BASE}/api/promotions`, {
         credentials: 'include',
         signal: AbortSignal.timeout(5000),
@@ -437,32 +438,16 @@ export default function AdminPage() {
   }, [loadProducts, loadCategories, loadOrders, loadAnalytics, loadQueries, loadPromotions]);
 
   // --- Handlers ---
-  const handleAdminLogin = async () => {
+  const handleAdminSignIn = async () => {
     setIsLoggingIn(true);
     setLoginError('');
     try {
-      const res = await authClient.signIn.email({
-        email: 'admin@thewellness.com',
-        password: 'adminpassword',
+      const callbackURL =
+        typeof window !== 'undefined' ? `${window.location.origin}/admin` : '/admin';
+      await authClient.signIn.social({
+        provider: 'google',
+        callbackURL,
       });
-
-      if (res.error) {
-        const signUpRes = await authClient.signUp.email({
-          email: 'admin@thewellness.com',
-          password: 'adminpassword',
-          name: 'Chief Admin Officer',
-        });
-
-        if (signUpRes.error) {
-          setLoginError(signUpRes.error.message || 'Failed to authenticate admin');
-          return;
-        }
-
-        await authClient.signIn.email({
-          email: 'admin@thewellness.com',
-          password: 'adminpassword',
-        });
-      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to authenticate admin';
       setLoginError(msg);
@@ -509,7 +494,7 @@ export default function AdminPage() {
     const filesLimit = files.slice(0, slotsAvailable);
 
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const API_BASE = API_BASE_URL;
       const uploadedUrls = await Promise.all(
         filesLimit.map((file) => uploadToCloudinary(file, 'wellness_products')),
       );
@@ -550,7 +535,7 @@ export default function AdminPage() {
 
     if (editingProduct.id && targetUrl) {
       try {
-        const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+        const API_BASE = API_BASE_URL;
         const imgRes = await fetch(`${API_BASE}/api/products/${editingProduct.id}/images`);
         if (imgRes.ok) {
           const imgData = (await imgRes.json()) as { data?: Array<{ id: string; url: string }> };
@@ -622,7 +607,7 @@ export default function AdminPage() {
 
       if (editingProduct.id) {
         try {
-          const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+          const API_BASE = API_BASE_URL;
           const imgRes = await fetch(`${API_BASE}/api/products/${editingProduct.id}/images`);
           if (imgRes.ok) {
             const imgData = (await imgRes.json()) as { data?: Array<{ id: string; url: string }> };
@@ -745,7 +730,7 @@ export default function AdminPage() {
     );
     const categoryId = selectedCatItem ? selectedCatItem.id : undefined;
 
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const API_BASE = API_BASE_URL;
 
     try {
       const res = await fetch(`${API_BASE}/api/products`, {
@@ -882,7 +867,7 @@ export default function AdminPage() {
       return;
     }
 
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const API_BASE = API_BASE_URL;
 
     try {
       const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
@@ -936,7 +921,7 @@ export default function AdminPage() {
     const target = products.find((p) => p.id === prodId);
     if (!target) return;
 
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const API_BASE = API_BASE_URL;
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(prodId);
 
     setProducts((prev) => prev.map((p) => (p.id === prodId ? { ...p, ...updates } : p)));
@@ -968,7 +953,7 @@ export default function AdminPage() {
       return;
     }
 
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const API_BASE = API_BASE_URL;
 
     try {
       const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
@@ -1006,7 +991,7 @@ export default function AdminPage() {
     draft: { stockQty: number; inventoryQty: number; availableQty: number; reservedQty: number },
     computedStatus: 'in_stock' | 'out_of_stock' | 'discontinued',
   ): Promise<boolean> => {
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const API_BASE = API_BASE_URL;
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(prodId);
 
     setProducts((prev) =>
@@ -1059,7 +1044,7 @@ export default function AdminPage() {
 
   // Category Handlers
   const handleAddCategory = async (categoryName: string): Promise<boolean> => {
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const API_BASE = API_BASE_URL;
     const slug = categoryName
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
@@ -1109,7 +1094,7 @@ export default function AdminPage() {
       return;
     }
 
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const API_BASE = API_BASE_URL;
 
     try {
       const res = await fetch(`${API_BASE}/api/categories/${catItem.id}`, {
@@ -1142,7 +1127,7 @@ export default function AdminPage() {
     setQueries((prev) => prev.map((q) => (q.id === id ? { ...q, status: nextStatus } : q)));
 
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const API_BASE = API_BASE_URL;
       await fetch(`${API_BASE}/api/customer/inquiries/${id}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -1160,7 +1145,7 @@ export default function AdminPage() {
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(orderId);
     if (isUuid) {
       try {
-        const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+        const API_BASE = API_BASE_URL;
         await fetch(`${API_BASE}/api/orders/${orderId}/status`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
@@ -1176,7 +1161,7 @@ export default function AdminPage() {
 
   // Guard Clauses
   const userRole = (session?.user as { role?: string } | undefined)?.role;
-  const isAdmin = userRole === 'admin' || session?.user.email === 'admin@thewellness.com';
+  const isAdmin = userRole === 'admin';
 
   if (sessionLoading) {
     return (
@@ -1196,7 +1181,10 @@ export default function AdminPage() {
         isLoggingIn={isLoggingIn}
         loginError={loginError}
         onLogin={() => {
-          void handleAdminLogin();
+          void handleAdminSignIn();
+        }}
+        onSignOut={() => {
+          void handleSignOut();
         }}
       />
     );

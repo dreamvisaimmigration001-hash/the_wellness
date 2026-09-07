@@ -10,6 +10,7 @@ import ProductHeroBanner from './components/ProductHeroBanner';
 import type { ProductClassification, ProductPriceRange, ProductHighlight } from './types';
 
 import { useCart } from '@/context/CartContext';
+import { API_BASE_URL } from '@/lib/config';
 import { Product } from '@/lib/products';
 
 export default function ProductsClient() {
@@ -36,7 +37,7 @@ export default function ProductsClient() {
   const fetchBackendData = useCallback(async () => {
     setIsLoadingApi(true);
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const API_BASE = API_BASE_URL;
       const prodUrl = searchParam.trim()
         ? `${API_BASE}/api/search?q=${encodeURIComponent(searchParam.trim())}`
         : `${API_BASE}/api/products`;

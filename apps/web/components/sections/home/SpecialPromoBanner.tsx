@@ -5,6 +5,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 
+import { API_BASE_URL } from '@/lib/config';
+
 export default function SpecialPromoBanner() {
   const [bannerImage, setBannerImage] = useState('/images/default-promo-banner.png');
   const [bannerLink, setBannerLink] = useState('/products');
@@ -13,7 +15,7 @@ export default function SpecialPromoBanner() {
     let isMounted = true;
     async function fetchBanner() {
       try {
-        const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+        const API_BASE = API_BASE_URL;
         const res = await fetch(`${API_BASE}/api/promotions?active=true`);
         if (res.ok) {
           const result = (await res.json()) as {

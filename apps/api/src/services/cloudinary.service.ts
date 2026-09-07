@@ -23,7 +23,15 @@ export class CloudinaryService {
       return trimmed;
     }
 
-    const cloudName = env.CLOUDINARY_CLOUD_NAME || 'dqlu0d3xx';
+    const cloudName = env.CLOUDINARY_CLOUD_NAME;
+    if (!cloudName) {
+      if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+        return trimmed;
+      }
+      throw new BadRequestError(
+        'Cloudinary is not configured on the server (CLOUDINARY_CLOUD_NAME missing)',
+      );
+    }
     const uploadPreset = env.CLOUDINARY_UPLOAD_PRESET || 'ml_default';
     const apiKey = env.CLOUDINARY_API_KEY;
     const apiSecret = env.CLOUDINARY_API_SECRET;

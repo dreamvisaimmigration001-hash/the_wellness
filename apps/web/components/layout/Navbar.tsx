@@ -13,6 +13,7 @@ import type { SearchSuggestionItem } from './navbar/types';
 
 import { useCart } from '@/context/CartContext';
 import { authClient } from '@/lib/auth-client';
+import { API_BASE_URL } from '@/lib/config';
 
 export default function Navbar() {
   const router = useRouter();
@@ -49,7 +50,7 @@ export default function Navbar() {
       void (async () => {
         setIsLoadingSuggestions(true);
         try {
-          const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+          const API_BASE = API_BASE_URL;
           const res = await fetch(
             `${API_BASE}/api/search/suggestions?q=${encodeURIComponent(searchQuery.trim())}&limit=6`,
           );

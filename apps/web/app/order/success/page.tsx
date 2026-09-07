@@ -13,6 +13,7 @@ import OrderSuccessItemsCard from './components/OrderSuccessItemsCard';
 import OrderSuccessSidebar from './components/OrderSuccessSidebar';
 import OrderSuccessTimeline from './components/OrderSuccessTimeline';
 
+import { API_BASE_URL } from '@/lib/config';
 import { generateInvoicePDF } from '@/lib/invoiceGenerator';
 
 function OrderSuccessContent() {
@@ -24,7 +25,7 @@ function OrderSuccessContent() {
 
   useEffect(() => {
     async function loadSuccessOrder() {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const backendUrl = API_BASE_URL;
       try {
         if (targetId) {
           const res = await fetch(`${backendUrl}/api/orders/${targetId}`, {

@@ -20,6 +20,7 @@ import type {
 } from './types';
 
 import { authClient } from '@/lib/auth-client';
+import { API_BASE_URL, APP_URL } from '@/lib/config';
 import { useAppSelector } from '@/lib/redux/hooks';
 
 export default function AccountPage() {
@@ -34,10 +35,10 @@ export default function AccountPage() {
 
   // Redirect admin users to admin portal
   useEffect(() => {
-    if (userRole === 'admin' || userEmail === 'admin@thewellness.com') {
+    if (userRole === 'admin') {
       router.push('/admin');
     }
-  }, [userRole, userEmail, router]);
+  }, [userRole, router]);
 
   const isSessionPending = !isInitialized;
   const [activeTab, setActiveTab] = useState<AccountTab>('orders');
@@ -49,7 +50,7 @@ export default function AccountPage() {
   const [isSubmittingAuth, setIsSubmittingAuth] = useState(false);
 
   const loadUserAddresses = useCallback(async () => {
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const backendUrl = API_BASE_URL;
     try {
       const res = await fetch(`${backendUrl}/api/customer/addresses`, {
         credentials: 'include',
@@ -89,7 +90,7 @@ export default function AccountPage() {
 
   useEffect(() => {
     async function loadUserOrders() {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const backendUrl = API_BASE_URL;
       try {
         const res = await fetch(`${backendUrl}/api/orders`, {
           credentials: 'include',
@@ -147,7 +148,7 @@ export default function AccountPage() {
 
   // Address Actions
   const handleAddAddress = async (data: AccountAddressFormData) => {
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const backendUrl = API_BASE_URL;
     try {
       await fetch(`${backendUrl}/api/customer/addresses`, {
         method: 'POST',
@@ -181,7 +182,7 @@ export default function AccountPage() {
   };
 
   const handleDeleteAddress = async (id: string) => {
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const backendUrl = API_BASE_URL;
     try {
       await fetch(`${backendUrl}/api/customer/addresses/${id}`, {
         method: 'DELETE',
@@ -199,10 +200,11 @@ export default function AccountPage() {
     setAuthError('');
 
     try {
-      const APIURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const callbackURL =
+        typeof window !== 'undefined' ? `${window.location.origin}/account` : `${APP_URL}/account`;
       await authClient.signIn.social({
         provider,
-        callbackURL: `${APIURL}/account`,
+        callbackURL,
       });
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Google authentication failed.';

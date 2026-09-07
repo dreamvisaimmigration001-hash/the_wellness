@@ -18,6 +18,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import DropdownField from '@/components/ui/DropdownField';
+import { API_BASE_URL } from '@/lib/config';
 
 const inquiryOptions = [
   {
@@ -128,7 +129,7 @@ export default function ContactPage() {
       inquiryOptions.find((o) => o.id === data.inquiryType) || inquiryOptions[0];
 
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const API_BASE = API_BASE_URL;
       await fetch(`${API_BASE}/api/customer/inquiries`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

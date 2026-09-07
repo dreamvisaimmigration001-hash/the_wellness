@@ -123,7 +123,7 @@ export default function AdminSidebar({
           <div className="min-w-0 flex-1">
             <p className="text-[10px] font-extrabold text-white truncate">Administrator</p>
             <p className="text-[8px] text-white/50 truncate font-mono">
-              {adminEmail || 'admin@thewellness.com'}
+              {adminEmail || 'Administrator'}
             </p>
           </div>
         </div>

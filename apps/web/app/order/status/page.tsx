@@ -11,6 +11,7 @@ import OrderItemsCard from './components/OrderItemsCard';
 import OrderStatusHeader from './components/OrderStatusHeader';
 import OrderStatusTimeline from './components/OrderStatusTimeline';
 
+import { API_BASE_URL } from '@/lib/config';
 import { generateInvoicePDF } from '@/lib/invoiceGenerator';
 
 function OrderStatusContent() {
@@ -27,7 +28,7 @@ function OrderStatusContent() {
     let isSubscribed = true;
 
     async function loadOrderData() {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const API_BASE = API_BASE_URL;
       try {
         let apiOrder: ApiOrder | null = null;
 

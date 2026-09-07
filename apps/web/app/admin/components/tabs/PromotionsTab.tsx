@@ -6,6 +6,8 @@ import React, { useState } from 'react';
 
 import { PromotionItem } from '../../types';
 
+import { API_BASE_URL } from '@/lib/config';
+
 interface PromotionsTabProps {
   promotionsList: PromotionItem[];
   loadPromotions: () => Promise<void>;
@@ -40,7 +42,7 @@ export default function PromotionsTab({
 
   const handleToggleStatus = async (promo: PromotionItem) => {
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const API_BASE = API_BASE_URL;
       const res = await fetch(`${API_BASE}/api/promotions/${promo.id}/status`, {
         method: 'PATCH',
         credentials: 'include',
@@ -54,7 +56,7 @@ export default function PromotionsTab({
   const handleDeletePromotion = async (promo: PromotionItem) => {
     if (!confirm(`Delete banner "${promo.title}" from DB?`)) return;
     try {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const API_BASE = API_BASE_URL;
       const res = await fetch(`${API_BASE}/api/promotions/${promo.id}`, {
         method: 'DELETE',
         credentials: 'include',
@@ -77,7 +79,7 @@ export default function PromotionsTab({
     }
     try {
       setSavingPromotion(true);
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const API_BASE = API_BASE_URL;
       const payload = {
         title: promoTitle || 'Homepage Banner',
         imageUrl: promoImage,

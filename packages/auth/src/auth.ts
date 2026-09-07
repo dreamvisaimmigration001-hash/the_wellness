@@ -9,13 +9,15 @@ export const auth = betterAuth({
   baseURL: env.BETTER_AUTH_URL,
   basePath: '/api/auth',
   trustedOrigins: [
-    (function () {
+    ...(() => {
       if (!env.CORS_ORIGIN || env.CORS_ORIGIN === '*') {
         throw new Error('CORS_ORIGIN must be a specific absolute origin, not a wildcard');
       }
-      return env.CORS_ORIGIN;
+      return env.CORS_ORIGIN.split(',')
+        .map((origin) => origin.trim())
+        .filter(Boolean);
     })(),
-    ...(env.NODE_ENV === 'development' ? ['http://localhost:3000', 'http://localhost:4000'] : []),
+    ...(env.NODE_ENV === 'development' ? ['http://localhost:3000'] : []),
   ],
   database: drizzleAdapter(db, {
     provider: 'pg',

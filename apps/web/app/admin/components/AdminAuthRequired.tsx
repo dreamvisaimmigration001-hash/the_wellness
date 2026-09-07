@@ -1,6 +1,6 @@
 'use client';
 
-import { Sparkles, UserCheck, ArrowLeft, AlertCircle } from 'lucide-react';
+import { Sparkles, ArrowLeft, AlertCircle, LogIn, LogOut, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
 
@@ -12,6 +12,7 @@ interface AdminAuthRequiredProps {
   isLoggingIn: boolean;
   loginError: string;
   onLogin: () => void;
+  onSignOut?: () => void;
 }
 
 export default function AdminAuthRequired({
@@ -19,7 +20,10 @@ export default function AdminAuthRequired({
   isLoggingIn,
   loginError,
   onLogin,
+  onSignOut,
 }: AdminAuthRequiredProps) {
+  const isUnauthorizedUser = Boolean(sessionUser);
+
   return (
     <div className="bg-[#FAF8F5] min-h-screen flex items-center justify-center px-6 relative overflow-hidden">
       {/* Soft Background Orbs */}
@@ -43,24 +47,27 @@ export default function AdminAuthRequired({
 
         <div className="mb-6 space-y-1">
           <h1 className="text-xl font-heading font-bold text-wellness-navy">
-            Administrator Authorization Required
+            {isUnauthorizedUser
+              ? 'Insufficient Privileges'
+              : 'Administrator Authorization Required'}
           </h1>
           <p className="text-xs text-wellness-charcoal/60 leading-relaxed font-semibold">
-            Please sign in with verified clinical administrator credentials to access inventory
-            controls, orders, and diagnostic analytics.
+            {isUnauthorizedUser
+              ? 'Your authenticated account is not authorized as a clinical administrator. Please switch to an authorized administrative account.'
+              : 'Please sign in with verified clinical administrator credentials to access inventory controls, orders, and diagnostic analytics.'}
           </p>
         </div>
 
         {sessionUser && (
-          <div className="mb-6 p-4 rounded-2xl bg-wellness-gray-50/80 border border-wellness-gray-200 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-wellness-navy text-wellness-green flex items-center justify-center font-bold text-xs uppercase shrink-0 border border-wellness-green/20">
-              {(sessionUser.name || 'AD').slice(0, 2)}
+          <div className="mb-6 p-4 rounded-2xl bg-amber-50/80 border border-amber-200 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs shrink-0">
+              <ShieldAlert size={18} />
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-xs font-extrabold text-wellness-navy truncate">
                 {sessionUser.name || 'User'}
               </p>
-              <p className="text-[10px] text-wellness-charcoal/50 truncate font-mono">
+              <p className="text-[10px] text-wellness-charcoal/60 truncate font-mono">
                 {sessionUser.email || ''}
               </p>
             </div>
@@ -68,20 +75,30 @@ export default function AdminAuthRequired({
         )}
 
         <div className="space-y-3">
-          <button
-            onClick={onLogin}
-            disabled={isLoggingIn}
-            className="w-full bg-wellness-navy hover:bg-wellness-green text-white font-extrabold text-xs py-4 rounded-xl shadow-lg transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider disabled:opacity-50"
-          >
-            {isLoggingIn ? (
-              <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-            ) : (
-              <>
-                <UserCheck size={16} />
-                Sign In as Admin
-              </>
-            )}
-          </button>
+          {isUnauthorizedUser ? (
+            <button
+              onClick={onSignOut}
+              className="w-full bg-wellness-navy hover:bg-wellness-green text-white font-extrabold text-xs py-4 rounded-xl shadow-lg transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider"
+            >
+              <LogOut size={16} />
+              Sign Out & Switch Account
+            </button>
+          ) : (
+            <button
+              onClick={onLogin}
+              disabled={isLoggingIn}
+              className="w-full bg-wellness-navy hover:bg-wellness-green text-white font-extrabold text-xs py-4 rounded-xl shadow-lg transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider disabled:opacity-50"
+            >
+              {isLoggingIn ? (
+                <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+              ) : (
+                <>
+                  <LogIn size={16} />
+                  Sign In with Admin Account
+                </>
+              )}
+            </button>
+          )}
 
           <Link
             href="/"

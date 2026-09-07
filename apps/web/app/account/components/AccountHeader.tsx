@@ -16,7 +16,7 @@ interface AccountHeaderProps {
 }
 
 export default function AccountHeader({ user, onSignOut }: AccountHeaderProps) {
-  const isAdmin = user.role === 'admin' || user.email === 'admin@thewellness.com';
+  const isAdmin = user.role === 'admin';
 
   return (
     <div className="relative bg-white/80 border border-wellness-gray-200 rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl glass-premium overflow-hidden">

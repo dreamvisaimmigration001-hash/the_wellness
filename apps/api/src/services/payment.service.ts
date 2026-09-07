@@ -44,11 +44,16 @@ export class PaymentService {
 
   verifyPaymentSignature(input: VerifyPaymentInput): boolean {
     if (
-      !env.RAZORPAY_KEY_SECRET ||
-      env.RAZORPAY_KEY_SECRET.includes('dummy') ||
-      env.RAZORPAY_KEY_SECRET.includes('YOUR_SECRET')
+      env.NODE_ENV === 'test' &&
+      (!env.RAZORPAY_KEY_SECRET ||
+        env.RAZORPAY_KEY_SECRET.includes('dummy') ||
+        env.RAZORPAY_KEY_SECRET.includes('YOUR_SECRET'))
     ) {
       return true;
+    }
+
+    if (!env.RAZORPAY_KEY_SECRET) {
+      return false;
     }
 
     const body = `${input.razorpayOrderId}|${input.razorpayPaymentId}`;

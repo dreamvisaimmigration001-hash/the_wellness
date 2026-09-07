@@ -7,6 +7,7 @@ import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 
 import { useCart } from '@/context/CartContext';
+import { API_BASE_URL } from '@/lib/config';
 import { Product } from '@/lib/products';
 
 type ApiProduct = {
@@ -43,7 +44,7 @@ export default function DailyDeals() {
   useEffect(() => {
     async function loadDeals() {
       try {
-        const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+        const API_BASE = API_BASE_URL;
         const res = await fetch(`${API_BASE}/api/products`, { signal: AbortSignal.timeout(5000) });
         if (res.ok) {
           const json = (await res.json()) as ApiResponse;
