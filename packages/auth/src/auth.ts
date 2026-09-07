@@ -17,7 +17,9 @@ export const auth = betterAuth({
         .map((origin) => origin.trim())
         .filter(Boolean);
     })(),
-    ...(env.NODE_ENV === 'development' ? ['http://localhost:3000'] : []),
+    ...(env.NODE_ENV === 'development'
+      ? ['http://localhost:3000']
+      : ['https://the-wellness-web.vercel.app']),
   ],
   database: drizzleAdapter(db, {
     provider: 'pg',
@@ -27,18 +29,18 @@ export const auth = betterAuth({
       enabled: true,
       trustedProviders: ['google'],
     },
-    // Allows DB-based state verification without being blocked by cross-origin cookie restrictions
+    // Required: uses DB verification table instead of relying on cross-site state cookie
     skipStateCookieCheck: true,
   },
   advanced: {
-    // Required for cross-origin cookies between vercel.app and onrender.com
+    // Required: allows session cookies across vercel.app and onrender.com
     defaultCookieAttributes: {
       sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
       secure: env.NODE_ENV === 'production',
     },
   },
   onAPIError: {
-    // Redirect auth errors to your frontend instead of backend root
+    // Redirects OAuth errors to your Vercel frontend instead of Render's root
     errorURL: `${env.CORS_ORIGIN.split(',')[0].trim()}/account`,
   },
   user: {
