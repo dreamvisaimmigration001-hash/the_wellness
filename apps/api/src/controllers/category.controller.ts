@@ -35,7 +35,15 @@ export class CategoryController {
   async createCategory(req: Request & { auth?: AuthContext }, res: Response, next: NextFunction) {
     try {
       const data = CreateCategorySchema.parse(req.body);
-      const category = await categoryService.createCategory(data, req.auth?.userId);
+      const category = await categoryService.createCategory(
+        {
+          name: data.name,
+          slug: data.slug,
+          description: data.description ?? null,
+          isActive: data.isActive,
+        },
+        req.auth?.userId,
+      );
       res.status(201).json({ success: true, data: category });
     } catch (error) {
       next(error);

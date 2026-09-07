@@ -1,5 +1,20 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalEnv": [
+    "NODE_ENV",
+    "PORT",
+    "BETTER_AUTH_SECRET",
+    "BETTER_AUTH_URL",
+    "RAZORPAY_KEY_ID",
+    "RAZORPAY_KEY_SECRET",
+    "RAZORPAY_WEBHOOK_SECRET",
+    "CORS_ORIGIN",
+    "LOG_LEVEL",
+    "CLOUDINARY_CLOUD_NAME",
+    "CLOUDINARY_API_KEY",
+    "CLOUDINARY_API_SECRET",
+    "CLOUDINARY_UPLOAD_PRESET"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

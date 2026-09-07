@@ -91,7 +91,7 @@ export const CreateProductSchema = applyProductRefinements(
       .uuid('Category ID must be a valid UUID')
       .optional()
       .nullable()
-      .or(z.literal('').transform(() => null)),
+      .or(z.literal('').transform((): null => null)),
     sellingPrice: PriceSchema.refine(
       (val) => {
         const num = typeof val === 'string' ? parseFloat(val) : val;
