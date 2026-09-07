@@ -199,9 +199,10 @@ export default function AccountPage() {
     setAuthError('');
 
     try {
+      const APIURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
       await authClient.signIn.social({
         provider,
-        callbackURL: `http://localhost:3000/account`,
+        callbackURL: `${APIURL}/account`,
       });
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Google authentication failed.';
