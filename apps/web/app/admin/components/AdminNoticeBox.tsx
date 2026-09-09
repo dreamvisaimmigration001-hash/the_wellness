@@ -18,7 +18,7 @@ export default function AdminNoticeBox({ notice, onClose }: AdminNoticeBoxProps)
   return (
     <div
       role="alert"
-      className="fixed top-6 right-6 z-[99999] max-w-md w-full animate-in fade-in slide-in-from-top-5 duration-200"
+      className="fixed top-6 right-4 sm:right-6 left-4 sm:left-auto z-[99999] max-w-md animate-in fade-in slide-in-from-top-5 duration-200"
     >
       <div
         className={`p-4 rounded-2xl shadow-2xl border flex items-start gap-3 backdrop-blur-xl transition-all ${

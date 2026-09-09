@@ -97,11 +97,11 @@ export default function Approach() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
           <div className="approach-image-container relative h-[500px] lg:h-[700px] w-full rounded-[2rem] overflow-hidden">
             <Image
-              src="https://images.unsplash.com/photo-1581093588401-fbb62a02f120?auto=format&fit=crop&q=80&w=1000"
+              src="/images/home/approach_lab.jpg"
               alt="Scientific research in laboratory"
               fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
               className="approach-image object-cover"
-              referrerPolicy="no-referrer"
             />
           </div>
 

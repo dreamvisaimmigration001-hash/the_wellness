@@ -195,7 +195,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                   image:
                     matchedItem.primaryImage ||
                     matchedItem.image ||
-                    'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=400',
+                    '/images/products/product_placeholder.png',
                   images:
                     matchedItem.images && matchedItem.images.length > 0
                       ? matchedItem.images

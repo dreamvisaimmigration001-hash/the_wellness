@@ -609,7 +609,7 @@ export default function ProductsTab({
       {/* Products Table/Grid list */}
       <div className="bg-white border border-wellness-gray-200 rounded-3xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full min-w-[800px] text-left border-collapse">
             <thead>
               <tr className="bg-wellness-gray-50 border-b border-wellness-gray-200 text-[10px] font-extrabold text-wellness-charcoal/40 uppercase tracking-widest">
                 <th className="p-5">Product Details</th>

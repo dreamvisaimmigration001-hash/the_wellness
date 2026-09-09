@@ -118,11 +118,11 @@ export default function AboutPage() {
 
         <div className="about-hero-image relative h-[400px] md:h-[600px] w-full rounded-2xl overflow-hidden shadow-2xl mb-24">
           <Image
-            src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1000"
+            src="/images/about/headquarters.jpg"
             alt="The Wellness Global Headquarters"
             fill
+            sizes="(max-width: 1024px) 100vw, 1200px"
             className="object-cover"
-            referrerPolicy="no-referrer"
             priority
           />
         </div>
@@ -263,26 +263,22 @@ export default function AboutPage() {
               {
                 name: 'Dr. Sarah Chen',
                 role: 'Chief Executive Officer',
-                image:
-                  'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=400',
+                image: '/images/team/dr_elena_rostova.jpg',
               },
               {
                 name: 'Michael Reynolds',
                 role: 'Chief Financial Officer',
-                image:
-                  'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400',
+                image: '/images/team/dr_jonathan_wu.jpg',
               },
               {
                 name: 'Dr. Arthur Vance',
                 role: 'Chief Medical Officer',
-                image:
-                  'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=400',
+                image: '/images/team/sarah_jenkins.jpg',
               },
               {
                 name: 'Elena Rostova',
                 role: 'Global Head of Manufacturing',
-                image:
-                  'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400',
+                image: '/images/team/dr_priya_patel.jpg',
               },
             ].map((leader, i) => (
               <div key={i} className="leader-card group">
@@ -291,8 +287,8 @@ export default function AboutPage() {
                     src={leader.image}
                     alt={leader.name}
                     fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                     className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
-                    referrerPolicy="no-referrer"
                   />
                 </div>
                 <h3 className="text-xl font-heading font-bold text-wellness-navy mb-1">

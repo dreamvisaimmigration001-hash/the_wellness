@@ -143,13 +143,12 @@ export default function Hero() {
               {/* Centered Pill Bottle Image */}
               <div className="relative w-full h-[70%] my-auto flex justify-center items-center">
                 <Image
-                  src="https://images.unsplash.com/photo-1584017911766-d451b3d0e843?auto=format&fit=crop&q=80&w=800"
+                  src="/images/home/hero_formulation.jpg"
                   alt="Premium Healthcare Vitamin Bottle"
                   fill
                   sizes="(max-width: 768px) 100vw, 380px"
                   className="object-contain hover:scale-105 transition-transform duration-700"
                   priority
-                  referrerPolicy="no-referrer"
                 />
               </div>
 

@@ -25,12 +25,12 @@ export default function AdminAuthRequired({
   const isUnauthorizedUser = Boolean(sessionUser);
 
   return (
-    <div className="bg-[#FAF8F5] min-h-screen flex items-center justify-center px-6 relative overflow-hidden">
+    <div className="bg-[#FAF8F5] min-h-screen flex items-center justify-center px-4 sm:px-6 py-12 relative overflow-hidden">
       {/* Soft Background Orbs */}
-      <div className="glow-orb bg-wellness-green/10 absolute -top-40 -left-40 w-96 h-96"></div>
-      <div className="glow-orb bg-wellness-navy/10 absolute -bottom-40 -right-40 w-96 h-96"></div>
+      <div className="glow-orb bg-wellness-green/10 absolute -top-40 -left-40 w-96 h-96 pointer-events-none"></div>
+      <div className="glow-orb bg-wellness-navy/10 absolute -bottom-40 -right-40 w-96 h-96 pointer-events-none"></div>
 
-      <div className="max-w-md w-full bg-white/90 border border-wellness-gray-200 rounded-3xl p-8 sm:p-10 shadow-2xl relative overflow-hidden glass-premium text-left z-10">
+      <div className="max-w-md w-full bg-white/95 border border-wellness-gray-200 rounded-3xl p-6 sm:p-10 shadow-2xl relative overflow-hidden glass-premium text-left z-10">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-12 h-12 rounded-2xl bg-wellness-navy text-wellness-green border border-wellness-green/30 flex items-center justify-center font-black shadow-lg shadow-wellness-navy/20 shrink-0">
             <Sparkles size={24} />

@@ -20,8 +20,7 @@ const boardMembers = [
     icon: Heart,
     quote:
       'Applying rigorous clinical standards to everyday therapeutics is what sets our formulations apart. We design for measurable efficacy and patient safety.',
-    image:
-      'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=600',
+    image: '/images/team/dr_elena_rostova.jpg',
   },
   {
     id: 2,
@@ -31,8 +30,7 @@ const boardMembers = [
     icon: Brain,
     quote:
       'By focusing on cellular bioavailability, we ensure that our cognitive and neural support pathways are both highly active and biochemically stable.',
-    image:
-      'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=600',
+    image: '/images/team/dr_sarah_lin.jpg',
   },
   {
     id: 3,
@@ -42,8 +40,7 @@ const boardMembers = [
     icon: Stethoscope,
     quote:
       'Addressing respiratory health requires a holistic understanding of environmental triggers and cellular defense. Our targeted delivery systems solve this directly.',
-    image:
-      'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&q=80&w=600',
+    image: '/images/team/dr_aris_thorne.jpg',
   },
 ];
 
@@ -114,8 +111,8 @@ export default function ScientificAdvisory() {
                         src={member.image}
                         alt={member.name}
                         fill
+                        sizes="64px"
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
-                        referrerPolicy="no-referrer"
                       />
                     </div>
                     <div className="space-y-1">

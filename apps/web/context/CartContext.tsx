@@ -172,7 +172,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                       type: productType,
                       image:
                         item.product?.primaryImage ||
-                        'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=400',
+                        '/images/products/product_placeholder.png',
                       description: item.product?.description || '',
                       ingredients: [],
                       benefits: [],

@@ -334,7 +334,7 @@ export default function PromotionsTab({
         </div>
 
         {/* Sub-Tabs */}
-        <div className="flex bg-wellness-gray-100 p-1.5 rounded-2xl border border-wellness-gray-200/80 gap-1 self-start">
+        <div className="flex flex-wrap bg-wellness-gray-100 p-1.5 rounded-2xl border border-wellness-gray-200/80 gap-1 self-start">
           <button
             type="button"
             onClick={() => {

@@ -31,7 +31,6 @@ export default function AccountPage() {
   const session = user && reduxSession ? { user, session: reduxSession } : null;
 
   const userRole = user?.role;
-  const userEmail = user?.email;
 
   // Redirect admin users to admin portal
   useEffect(() => {

@@ -57,25 +57,46 @@ export default function AdminSidebar({
   ];
 
   return (
-    <aside
-      className={`w-64 bg-wellness-navy text-white flex flex-col fixed inset-y-0 left-0 z-40 border-r border-white/10 shadow-2xl transition-transform duration-300 lg:translate-x-0 ${
-        mobileOpen ? 'translate-x-0' : '-translate-x-full'
-      }`}
-    >
-      {/* Brand Header */}
-      <div className="p-6 border-b border-white/10 flex items-center gap-3 mt-16 lg:mt-0">
-        <div className="w-10 h-10 rounded-xl bg-wellness-green text-wellness-navy flex items-center justify-center font-black shadow-lg shadow-wellness-green/20 group cursor-pointer">
-          <Sparkles size={20} className="stroke-[2.5]" />
+    <>
+      {/* Mobile Drawer Backdrop */}
+      {mobileOpen && (
+        <div
+          onClick={onCloseMobile}
+          className="fixed inset-0 bg-wellness-navy/60 backdrop-blur-xs z-40 lg:hidden transition-opacity duration-300 cursor-pointer"
+          aria-hidden="true"
+        />
+      )}
+
+      <aside
+        className={`w-64 bg-wellness-navy text-white flex flex-col fixed inset-y-0 left-0 z-50 border-r border-white/10 shadow-2xl transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+          mobileOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        {/* Brand Header */}
+        <div className="p-5 border-b border-white/10 flex items-center justify-between">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-wellness-green text-wellness-navy flex items-center justify-center font-black shadow-lg shadow-wellness-green/20 shrink-0">
+              <Sparkles size={20} className="stroke-[2.5]" />
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-sm font-heading font-black tracking-tight text-white leading-none truncate">
+                The Wellness<span className="text-wellness-green">.</span>
+              </h2>
+              <p className="text-[9px] text-wellness-light-green/90 font-extrabold uppercase tracking-widest mt-1.5 bg-wellness-light-green/10 px-2 py-0.5 rounded border border-wellness-light-green/20 inline-block">
+                Clinical Control Center
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={onCloseMobile}
+            className="lg:hidden w-8 h-8 rounded-lg bg-white/10 text-white/70 hover:text-white flex items-center justify-center cursor-pointer transition-colors shrink-0 ml-2"
+            aria-label="Close sidebar"
+          >
+            <span className="text-lg leading-none font-bold">✕</span>
+          </button>
         </div>
-        <div>
-          <h2 className="text-sm font-heading font-black tracking-tight text-white leading-none">
-            The Wellness<span className="text-wellness-green">.</span>
-          </h2>
-          <p className="text-[9px] text-wellness-light-green/90 font-extrabold uppercase tracking-widest mt-1.5 bg-wellness-light-green/10 px-2 py-0.5 rounded border border-wellness-light-green/20 inline-block">
-            Clinical Control Center
-          </p>
-        </div>
-      </div>
 
       {/* Navigation list */}
       <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
@@ -137,5 +158,6 @@ export default function AdminSidebar({
         </button>
       </div>
     </aside>
+  </>
   );
 }

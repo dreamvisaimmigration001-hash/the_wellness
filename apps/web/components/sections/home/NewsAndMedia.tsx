@@ -18,24 +18,21 @@ const news = [
     category: 'Corporate',
     date: 'August 12, 2026',
     title: 'The Wellness Expands State-of-the-Art Manufacturing Facility in Europe',
-    image:
-      'https://images.unsplash.com/photo-1530026405186-ed1ea0ac7a63?auto=format&fit=crop&q=80&w=600',
+    image: '/images/news/manufacturing_facility.jpg',
   },
   {
     id: 2,
     category: 'R&D',
     date: 'July 28, 2026',
     title: 'Breakthrough Clinical Trial Results Announced for Next-Gen Respiratory Inhaler',
-    image:
-      'https://images.unsplash.com/photo-1576086213369-97a306d36557?auto=format&fit=crop&q=80&w=600',
+    image: '/images/news/clinical_trials_breakthrough.jpg',
   },
   {
     id: 3,
     category: 'CSR',
     date: 'July 15, 2026',
     title: 'Global Health Initiative: Reaching 1 Million Patients in Underserved Communities',
-    image:
-      'https://images.unsplash.com/photo-1584515906207-50c5d63d2744?auto=format&fit=crop&q=80&w=600',
+    image: '/images/news/global_health_initiative.jpg',
   },
 ];
 
@@ -102,8 +99,8 @@ export default function NewsAndMedia() {
                   src={item.image}
                   alt={item.title}
                   fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
-                  referrerPolicy="no-referrer"
                 />
                 <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-md text-xs font-bold text-wellness-navy uppercase tracking-wider">
                   {item.category}

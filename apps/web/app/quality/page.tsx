@@ -189,11 +189,11 @@ export default function QualityPage() {
 
             <div className="relative h-[500px] rounded-3xl overflow-hidden">
               <Image
-                src="https://images.unsplash.com/photo-1582719471384-894fbb16e074?auto=format&fit=crop&q=80&w=800"
+                src="/images/quality/lab_facility.jpg"
                 alt="Quality Control Laboratory"
                 fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover"
-                referrerPolicy="no-referrer"
               />
             </div>
           </div>

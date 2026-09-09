@@ -29,6 +29,7 @@ export default function AccountAuthCard({
             src="/images/login_brand_visual.png"
             alt="Boutique Clinical Serum Formulation"
             fill
+            sizes="(max-width: 1024px) 100vw, 384px"
             className="object-cover"
             priority
           />

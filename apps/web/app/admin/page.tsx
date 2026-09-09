@@ -1191,7 +1191,7 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="bg-[#FAF8F5] min-h-screen flex flex-col md:flex-row relative">
+    <div className="bg-[#FAF8F5] min-h-screen relative flex">
       <AdminNoticeBox
         notice={notice}
         onClose={() => {
@@ -1214,7 +1214,7 @@ export default function AdminPage() {
         }}
       />
 
-      <main className="flex-1 overflow-x-hidden min-h-screen">
+      <div className="flex-1 flex flex-col min-w-0 lg:pl-64">
         <AdminHeader
           activeTab={activeTab}
           mobileOpen={mobileSidebarOpen}
@@ -1223,7 +1223,7 @@ export default function AdminPage() {
           }}
         />
 
-        <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-6">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 pt-20 lg:pt-8 max-w-[1600px] w-full mx-auto space-y-6">
           {activeTab === 'analytics' && (
             <AnalyticsTab
               apiAnalytics={apiAnalytics}
@@ -1312,8 +1312,8 @@ export default function AdminPage() {
               uploadToCloudinary={uploadToCloudinary}
             />
           )}
-        </div>
-      </main>
+        </main>
+      </div>
 
       <EditProductModal
         editingProduct={editingProduct}

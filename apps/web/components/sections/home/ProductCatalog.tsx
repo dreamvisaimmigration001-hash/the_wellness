@@ -17,48 +17,42 @@ const catalogCategories = [
     id: 1,
     name: 'Cardiovascular',
     icon: <Heart size={28} />,
-    image:
-      'https://images.unsplash.com/photo-1507559114002-3f1406087796?auto=format&fit=crop&q=80&w=600',
+    image: '/images/cardiostatin.png',
     desc: 'Comprehensive formulations for heart health, circulation, and hypertension care.',
   },
   {
     id: 2,
     name: 'Respiratory',
     icon: <Wind size={28} />,
-    image:
-      'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=600',
+    image: '/images/respira-inhaler.png',
     desc: 'Advanced inhalation treatments and therapies for respiratory wellness.',
   },
   {
     id: 3,
     name: 'Neurology',
     icon: <Brain size={28} />,
-    image:
-      'https://images.unsplash.com/photo-1559757175-5700dde675bc?auto=format&fit=crop&q=80&w=600',
+    image: '/images/neurocognin.png',
     desc: 'Targeted products for cognitive function, nerve health, and brain support.',
   },
   {
     id: 4,
     name: 'Pediatrics',
     icon: <Baby size={28} />,
-    image:
-      'https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?auto=format&fit=crop&q=80&w=600',
+    image: '/images/pediacetamol.png',
     desc: 'Safe, specialized pediatric formulas developed for children.',
   },
   {
     id: 5,
     name: 'Anti-Infectives',
     icon: <Activity size={28} />,
-    image:
-      'https://images.unsplash.com/photo-1576086213369-97a306d36557?auto=format&fit=crop&q=80&w=600',
+    image: '/images/willmox.png',
     desc: 'Broad-spectrum anti-infective formulations and protective treatments.',
   },
   {
     id: 6,
     name: 'OTC & Wellness',
     icon: <Pill size={28} />,
-    image:
-      'https://images.unsplash.com/photo-1550572017-edd951b55104?auto=format&fit=crop&q=80&w=600',
+    image: '/images/osteoflex.png',
     desc: 'Daily essential supplements, vitamins, and over-the-counter wellness products.',
   },
 ];
@@ -133,8 +127,8 @@ export default function ProductCatalog() {
                 src={category.image}
                 alt={category.name}
                 fill
-                className="object-cover transition-transform duration-700 group-hover:scale-105"
-                referrerPolicy="no-referrer"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="object-contain p-6 transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-wellness-navy/90 via-wellness-navy/40 to-black/10 transition-opacity duration-300"></div>
 

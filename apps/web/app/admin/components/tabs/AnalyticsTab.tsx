@@ -596,7 +596,7 @@ export default function AnalyticsTab({
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs font-medium text-wellness-charcoal/80 border-collapse">
+          <table className="w-full min-w-[700px] text-left text-xs font-medium text-wellness-charcoal/80 border-collapse">
             <thead>
               <tr className="border-b border-wellness-gray-150 text-[10px] text-wellness-charcoal/40 uppercase tracking-widest font-black">
                 <th className="pb-3 pt-1">Product Details</th>

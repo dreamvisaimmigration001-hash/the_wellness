@@ -72,7 +72,7 @@ export default function FeaturedProducts() {
                 image:
                   item.primaryImage ||
                   item.image ||
-                  'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=400',
+                  '/images/products/product_placeholder.png',
                 price,
                 isFeatured: item.isFeatured ?? false,
                 isBestSeller: item.isBestSeller ?? false,

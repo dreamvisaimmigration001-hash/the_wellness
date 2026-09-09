@@ -235,7 +235,7 @@ export default function InventoryTab({
       {/* Inventory Table */}
       <div className="bg-white border border-wellness-gray-200 rounded-2xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full min-w-[950px] text-left border-collapse">
             <thead>
               <tr className="bg-wellness-navy text-white text-[10px] font-extrabold uppercase tracking-wider">
                 <th className="py-4 px-6">Product Details</th>

@@ -114,11 +114,11 @@ export default function ResearchPage() {
           <div className="process-image-container sticky top-32 h-[70vh] rounded-[2rem] overflow-hidden">
             <div className="absolute inset-0 bg-wellness-green/20 mix-blend-overlay z-10"></div>
             <Image
-              src="https://images.unsplash.com/photo-1532187643603-ba119ca4109e?auto=format&fit=crop&q=80&w=800"
+              src="/images/research/research_lab.jpg"
               alt="Scientific research visualization"
               fill
+              sizes="(max-width: 768px) 100vw, 50vw"
               className="object-cover grayscale"
-              referrerPolicy="no-referrer"
             />
           </div>
         </div>
@@ -141,11 +141,11 @@ export default function ResearchPage() {
             <div className="bg-wellness-gray-50 rounded-2xl overflow-hidden shadow-sm border border-wellness-gray-100 hover:shadow-lg transition-shadow duration-300">
               <div className="relative h-64 w-full">
                 <Image
-                  src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=800"
+                  src="/images/research/cellular_biology.jpg"
                   alt="Boston R&D Center"
                   fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className="object-cover"
-                  referrerPolicy="no-referrer"
                 />
               </div>
               <div className="p-8">
@@ -160,11 +160,11 @@ export default function ResearchPage() {
             <div className="bg-wellness-gray-50 rounded-2xl overflow-hidden shadow-sm border border-wellness-gray-100 hover:shadow-lg transition-shadow duration-300">
               <div className="relative h-64 w-full">
                 <Image
-                  src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=800"
+                  src="/images/research/clinical_trials.jpg"
                   alt="Basel R&D Center"
                   fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className="object-cover"
-                  referrerPolicy="no-referrer"
                 />
               </div>
               <div className="p-8">
@@ -179,11 +179,11 @@ export default function ResearchPage() {
             <div className="bg-wellness-gray-50 rounded-2xl overflow-hidden shadow-sm border border-wellness-gray-100 hover:shadow-lg transition-shadow duration-300">
               <div className="relative h-64 w-full">
                 <Image
-                  src="https://images.unsplash.com/photo-1518152006812-edab29b069ac?auto=format&fit=crop&q=80&w=800"
+                  src="/images/research/neuro_therapeutics.jpg"
                   alt="Singapore R&D Center"
                   fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className="object-cover"
-                  referrerPolicy="no-referrer"
                 />
               </div>
               <div className="p-8">
