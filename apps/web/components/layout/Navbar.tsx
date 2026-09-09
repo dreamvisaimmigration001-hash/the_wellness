@@ -32,11 +32,38 @@ export default function Navbar() {
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(-1);
+  const [navCategories, setNavCategories] = useState<string[]>([]);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLHeadingElement>(null);
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const mobileSearchContainerRef = useRef<HTMLDivElement>(null);
+
+  // Fetch real categories from Backend
+  useEffect(() => {
+    let isMounted = true;
+    async function loadNavCategories() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/categories`);
+        if (res.ok) {
+          const json = (await res.json()) as {
+            data?: Array<{ name: string; isActive?: boolean }>;
+          };
+          const list = json.data || [];
+          const names = list.filter((c) => c.isActive !== false && c.name).map((c) => c.name);
+          if (isMounted && names.length > 0) {
+            setNavCategories(names);
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
+    void loadNavCategories();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Fetch Live Search Suggestions from Backend
   useEffect(() => {
@@ -241,6 +268,7 @@ export default function Navbar() {
         setCategoryDropdownOpen={setCategoryDropdownOpen}
         onSelectCategory={selectCategory}
         dropdownRef={dropdownRef}
+        categories={navCategories}
       />
 
       {/* 4. Mobile Menu Drawer */}
@@ -261,6 +289,7 @@ export default function Navbar() {
         onSelectCategory={selectCategory}
         session={session}
         mobileSearchContainerRef={mobileSearchContainerRef}
+        categories={navCategories}
       />
     </header>
   );

@@ -129,44 +129,66 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Right Product Image Visual */}
+          {/* Right Brand Healthcare Visual Showcase */}
           <div className="lg:col-span-6 flex justify-center items-center relative">
-            <div className="hero-image-container relative w-[320px] md:w-[380px] aspect-[4/5] rounded-[36px] bg-white shadow-2xl shadow-wellness-navy/[0.04] p-6 border border-wellness-gray-200/50 flex flex-col justify-between overflow-visible">
-              {/* Product Badge info */}
-              <div className="flex justify-between items-start">
-                <span className="bg-red-500 text-white text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">
-                  OTC Sale
+            <div className="hero-image-container relative w-[320px] md:w-[400px] aspect-[4/5] rounded-[36px] bg-white shadow-2xl shadow-wellness-navy/[0.05] p-6 border border-wellness-gray-200/60 flex flex-col justify-between overflow-visible">
+              {/* Header badge row */}
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-wellness-green animate-pulse" />
+                  <span className="text-[10px] font-black uppercase tracking-wider text-wellness-navy">
+                    Laboratory Verified
+                  </span>
+                </div>
+                <span className="text-[10px] font-extrabold text-wellness-green bg-wellness-green/10 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                  Audited Platform
                 </span>
-                <span className="text-wellness-green font-extrabold text-sm">₹1,224.25</span>
               </div>
 
-              {/* Centered Pill Bottle Image */}
-              <div className="relative w-full h-[70%] my-auto flex justify-center items-center">
+              {/* Centered Brand Healthcare Visual */}
+              <div className="relative w-full h-[68%] my-auto rounded-2xl overflow-hidden bg-wellness-navy/5 flex items-center justify-center group shadow-inner">
                 <Image
-                  src="/images/home/hero_formulation.jpg"
-                  alt="Premium Healthcare Vitamin Bottle"
+                  src="/images/premium_3d_dna_render.png"
+                  alt="Certified Healthcare Formulations and Research"
                   fill
-                  sizes="(max-width: 768px) 100vw, 380px"
-                  className="object-contain hover:scale-105 transition-transform duration-700"
+                  sizes="(max-width: 768px) 100vw, 400px"
+                  className="object-cover group-hover:scale-105 transition-transform duration-700"
                   priority
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-wellness-navy/85 via-wellness-navy/20 to-transparent pointer-events-none" />
+                <div className="absolute bottom-4 left-4 right-4 text-white">
+                  <p className="text-[10px] font-extrabold uppercase tracking-widest text-wellness-green mb-1">
+                    Science & Purity
+                  </p>
+                  <h3 className="text-sm md:text-base font-bold leading-snug">
+                    Audited Healthcare & Certified Therapeutics
+                  </h3>
+                </div>
               </div>
 
-              {/* Product Title Footer Card */}
-              <div className="bg-wellness-gray-100 p-3 rounded-2xl flex items-center justify-between mt-auto">
-                <div>
-                  <h4 className="text-xs font-bold text-wellness-navy">PediaCetamol Suspension</h4>
-                  <p className="text-[10px] text-wellness-charcoal/50 font-semibold uppercase tracking-wider">
-                    Pediatrics • 250mg
-                  </p>
+              {/* Bottom Dispensary Footer Card */}
+              <div className="bg-wellness-gray-100 p-3.5 rounded-2xl flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-wellness-navy text-white flex items-center justify-center font-black text-xs shrink-0">
+                    Rx
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-wellness-navy">Licensed Dispensary</h4>
+                    <p className="text-[10px] text-wellness-charcoal/60 font-medium">
+                      Direct cold-chain logistics
+                    </p>
+                  </div>
                 </div>
-                <div className="w-8 h-8 rounded-full bg-wellness-green/10 text-wellness-green flex items-center justify-center font-bold text-xs">
-                  ★5
+                <div className="text-right shrink-0">
+                  <span className="text-xs font-black text-wellness-green">★ 4.9/5</span>
+                  <p className="text-[9px] text-wellness-charcoal/50 font-bold uppercase">
+                    Clinical Trust
+                  </p>
                 </div>
               </div>
 
               {/* Floating Badges */}
-              <div className="hero-badge-float absolute -top-4 -left-6 bg-white/90 backdrop-blur-md px-4 py-2.5 rounded-full border border-white/60 shadow-lg shadow-wellness-navy/5 flex items-center gap-2">
+              <div className="hero-badge-float absolute -top-4 -left-6 bg-white/95 backdrop-blur-md px-4 py-2.5 rounded-full border border-wellness-gray-200/60 shadow-lg shadow-wellness-navy/5 flex items-center gap-2">
                 <div className="w-5.5 h-5.5 rounded-full bg-wellness-green/15 text-wellness-green flex items-center justify-center">
                   <ShieldCheck size={12} className="stroke-[2.5]" />
                 </div>
@@ -175,7 +197,7 @@ export default function Hero() {
                 </span>
               </div>
 
-              <div className="hero-badge-float absolute top-1/2 -right-8 bg-white/90 backdrop-blur-md px-4 py-2.5 rounded-full border border-white/60 shadow-lg shadow-wellness-navy/5 flex items-center gap-2">
+              <div className="hero-badge-float absolute top-1/2 -right-8 bg-white/95 backdrop-blur-md px-4 py-2.5 rounded-full border border-wellness-gray-200/60 shadow-lg shadow-wellness-navy/5 flex items-center gap-2">
                 <div className="w-5.5 h-5.5 rounded-full bg-wellness-green/15 text-wellness-green flex items-center justify-center">
                   <Activity size={12} className="stroke-[2.5]" />
                 </div>
@@ -184,7 +206,7 @@ export default function Hero() {
                 </span>
               </div>
 
-              <div className="hero-badge-float absolute -bottom-4 -left-4 bg-white/90 backdrop-blur-md px-4 py-2.5 rounded-full border border-white/60 shadow-lg shadow-wellness-navy/5 flex items-center gap-2">
+              <div className="hero-badge-float absolute -bottom-4 -left-4 bg-white/95 backdrop-blur-md px-4 py-2.5 rounded-full border border-wellness-gray-200/60 shadow-lg shadow-wellness-navy/5 flex items-center gap-2">
                 <div className="w-5.5 h-5.5 rounded-full bg-wellness-green/15 text-wellness-green flex items-center justify-center">
                   <Sparkles size={12} className="stroke-[2.5]" />
                 </div>

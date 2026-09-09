@@ -1,4 +1,3 @@
-import CTA from '@/components/sections/home/CTA';
 import DailyDeals from '@/components/sections/home/DailyDeals';
 import FeaturedCategories from '@/components/sections/home/FeaturedCategories';
 import Hero from '@/components/sections/home/Hero';
@@ -12,12 +11,11 @@ export default function Home() {
     <>
       <Hero />
       <FeaturedCategories />
-      <ProductCatalog />
-      <SpecialPromoBanner />
       <DailyDeals />
       <PopularProducts />
+      <SpecialPromoBanner />
+      <ProductCatalog />
       <PromoBanners />
-      <CTA />
     </>
   );
 }

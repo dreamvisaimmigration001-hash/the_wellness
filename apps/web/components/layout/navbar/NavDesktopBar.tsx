@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import Link from 'next/link';
 import React from 'react';
 
-import { categories, navLinks } from './types';
+import { navLinks } from './types';
 
 interface NavDesktopBarProps {
   pathname: string;
@@ -14,6 +14,7 @@ interface NavDesktopBarProps {
   setCategoryDropdownOpen: (open: boolean) => void;
   onSelectCategory: (category: string) => void;
   dropdownRef: React.RefObject<HTMLDivElement | null>;
+  categories?: string[];
 }
 
 export default function NavDesktopBar({
@@ -22,6 +23,7 @@ export default function NavDesktopBar({
   setCategoryDropdownOpen,
   onSelectCategory,
   dropdownRef,
+  categories = [],
 }: NavDesktopBarProps) {
   return (
     <div className="bg-wellness-white border-t border-wellness-gray-200 py-2 hidden md:block w-full">
@@ -57,17 +59,23 @@ export default function NavDesktopBar({
                 <div className="px-4 py-2 text-[10px] font-extrabold text-wellness-charcoal/40 uppercase tracking-widest border-b border-wellness-gray-100 mb-1">
                   Product Categories
                 </div>
-                {categories.map((category) => (
-                  <button
-                    key={category}
-                    onClick={() => {
-                      onSelectCategory(category);
-                    }}
-                    className="w-full text-left px-4 py-2.5 hover:bg-wellness-gray-100 hover:text-wellness-green text-xs font-bold text-wellness-navy transition-colors cursor-pointer"
-                  >
-                    {category}
-                  </button>
-                ))}
+                {categories.length > 0 ? (
+                  categories.map((category) => (
+                    <button
+                      key={category}
+                      onClick={() => {
+                        onSelectCategory(category);
+                      }}
+                      className="w-full text-left px-4 py-2.5 hover:bg-wellness-gray-100 hover:text-wellness-green text-xs font-bold text-wellness-navy transition-colors cursor-pointer"
+                    >
+                      {category}
+                    </button>
+                  ))
+                ) : (
+                  <div className="px-4 py-3 text-xs text-wellness-charcoal/50">
+                    No categories found
+                  </div>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
@@ -101,7 +109,7 @@ export default function NavDesktopBar({
 
         {/* Right Promo Link */}
         <Link
-          href="/products?category=OTC%20%26%20Wellness"
+          href="/products"
           className="flex items-center gap-1.5 text-red-500 text-xs font-extrabold uppercase tracking-wider hover:text-wellness-navy transition-colors animate-pulse"
         >
           <Flame size={14} />

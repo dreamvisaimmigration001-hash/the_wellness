@@ -6,7 +6,7 @@ import Link from 'next/link';
 import React from 'react';
 
 import NavbarSearch from './NavbarSearch';
-import { categories, navLinks } from './types';
+import { navLinks } from './types';
 import type { SearchSuggestionItem } from './types';
 
 interface MobileNavDrawerProps {
@@ -26,6 +26,7 @@ interface MobileNavDrawerProps {
   onSelectCategory: (category: string) => void;
   session: unknown;
   mobileSearchContainerRef: React.RefObject<HTMLDivElement | null>;
+  categories?: string[];
 }
 
 export default function MobileNavDrawer({
@@ -45,6 +46,7 @@ export default function MobileNavDrawer({
   onSelectCategory,
   session,
   mobileSearchContainerRef,
+  categories = [],
 }: MobileNavDrawerProps) {
   return (
     <AnimatePresence>
@@ -124,24 +126,26 @@ export default function MobileNavDrawer({
           </div>
 
           {/* Mobile Categories Links */}
-          <div className="flex flex-col gap-3.5 mb-8">
-            <div className="text-[10px] font-extrabold text-wellness-charcoal/40 uppercase tracking-widest border-b border-wellness-gray-100 pb-1">
-              Shop By Category
+          {categories.length > 0 && (
+            <div className="flex flex-col gap-3.5 mb-8">
+              <div className="text-[10px] font-extrabold text-wellness-charcoal/40 uppercase tracking-widest border-b border-wellness-gray-100 pb-1">
+                Shop By Category
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {categories.map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => {
+                      onSelectCategory(cat);
+                    }}
+                    className="text-left px-3 py-2 bg-wellness-gray-100 rounded-lg text-xs font-bold text-wellness-navy hover:bg-wellness-light-green transition-all"
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              {categories.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => {
-                    onSelectCategory(cat);
-                  }}
-                  className="text-left px-3 py-2 bg-wellness-gray-100 rounded-lg text-xs font-bold text-wellness-navy hover:bg-wellness-light-green transition-all"
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-          </div>
+          )}
 
           {/* Info footer in mobile */}
           <div className="mt-auto pt-6 border-t border-wellness-gray-100 text-center text-xs text-wellness-charcoal/50">

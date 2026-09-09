@@ -77,3 +77,29 @@
   margin-left: auto !important;
   margin-right: auto !important;
 }
+
+/* Custom designed scrollbar for product carousels */
+.wellness-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #2b7a78 #e5e7eb;
+}
+
+.wellness-scrollbar::-webkit-scrollbar {
+  height: 6px;
+}
+
+.wellness-scrollbar::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 9999px;
+  margin: 0 4px;
+}
+
+.wellness-scrollbar::-webkit-scrollbar-thumb {
+  background: #2b7a78;
+  border-radius: 9999px;
+  transition: background-color 0.2s ease;
+}
+
+.wellness-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #0a192f;
+}

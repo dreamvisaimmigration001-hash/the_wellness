@@ -28,15 +28,6 @@ export const navLinks: NavLinkItem[] = [
   { name: 'Contact Us', href: '/contact' },
 ];
 
-export const categories: string[] = [
-  'Respiratory',
-  'Cardiovascular',
-  'Neurology',
-  'Anti-Infectives',
-  'OTC & Wellness',
-  'Pediatrics',
-];
-
 export const announcements: AnnouncementItem[] = [
   {
     badge: 'Limited Offer',

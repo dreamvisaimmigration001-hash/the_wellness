@@ -8,6 +8,7 @@ import {
   and,
   asc,
   count,
+  inArray,
 } from '@wellness/db';
 import { NotFoundError, BadRequestError } from '@wellness/utils';
 
@@ -50,22 +51,32 @@ export class ProductService {
 
     const totalItems = totalCountResult?.count ?? 0;
 
-    const items = await Promise.all(
-      rows.map(async ({ product, categoryName, availableQty, reservedQty }) => {
-        const imgs = await db
-          .select()
-          .from(productImages)
-          .where(eq(productImages.productId, product.id))
-          .orderBy(asc(productImages.displayOrder), asc(productImages.createdAt));
+    const productIds = rows.map((r) => r.product.id);
+    const allImages =
+      productIds.length > 0
+        ? await db
+            .select()
+            .from(productImages)
+            .where(inArray(productImages.productId, productIds))
+            .orderBy(asc(productImages.displayOrder), asc(productImages.createdAt))
+        : [];
 
-        return {
-          ...toProductListDTO(product, imgs, categoryName),
-          inventoryQty: availableQty ?? product.stockQty,
-          availableQty: availableQty ?? product.stockQty,
-          reservedQty: reservedQty ?? 0,
-        };
-      }),
-    );
+    const imagesByProductId = new Map<string, typeof allImages>();
+    for (const img of allImages) {
+      const list = imagesByProductId.get(img.productId) ?? [];
+      list.push(img);
+      imagesByProductId.set(img.productId, list);
+    }
+
+    const items = rows.map(({ product, categoryName, availableQty, reservedQty }) => {
+      const imgs = imagesByProductId.get(product.id) ?? [];
+      return {
+        ...toProductListDTO(product, imgs, categoryName),
+        inventoryQty: availableQty ?? product.stockQty,
+        availableQty: availableQty ?? product.stockQty,
+        reservedQty: reservedQty ?? 0,
+      };
+    });
 
     return {
       items,

@@ -138,7 +138,7 @@ export default function ProductsClient() {
 
             const availQty = item.availableQty ?? item.inventoryQty ?? item.stockQty ?? 0;
             const resvQty = item.reservedQty ?? 0;
-            const catName = item.categoryName || item.category || 'Therapeutics';
+            const catName = item.categoryName || item.category || 'OTC & Wellness';
 
             return {
               id: item.id,
@@ -176,16 +176,12 @@ export default function ProductsClient() {
         const catJson = (await catsRes.json()) as {
           data?: Array<{ id: string; name: string }>;
         };
-        if (catJson.data && Array.isArray(catJson.data)) {
-          const apiCatNames = catJson.data.map((c) => c.name);
-          const merged = Array.from(
-            new Set(['All', ...apiCatNames, ...mappedProducts.map((p) => p.category)]),
-          );
-          setCategories(merged);
-        } else {
-          const distinct = Array.from(new Set(['All', ...mappedProducts.map((p) => p.category)]));
-          setCategories(distinct);
-        }
+        const apiCatNames =
+          catJson.data && Array.isArray(catJson.data) ? catJson.data.map((c) => c.name) : [];
+        const merged = Array.from(
+          new Set(['All', ...apiCatNames, ...mappedProducts.map((p) => p.category)]),
+        );
+        setCategories(merged);
       } else {
         const distinct = Array.from(new Set(['All', ...mappedProducts.map((p) => p.category)]));
         setCategories(distinct);
@@ -214,11 +210,23 @@ export default function ProductsClient() {
 
   // Sync category filter & search query & price/type filters
   useEffect(() => {
-    setActiveCategory(categoryParam);
+    const matchedCategory =
+      categories.find((c) => c.toLowerCase() === categoryParam.toLowerCase()) || categoryParam;
+    setActiveCategory(matchedCategory);
 
     let temp = productsList;
     if (categoryParam !== 'All') {
-      temp = temp.filter((p) => p.category === categoryParam);
+      const target = categoryParam.toLowerCase().trim();
+      temp = temp.filter((p) => {
+        const pCat = p.category.toLowerCase().trim();
+        const pCatName = (p.categoryName || '').toLowerCase().trim();
+        if (pCat === target || pCatName === target) return true;
+        const normTarget = target.replace(/[^a-z0-9]/g, '');
+        const normCat = pCat.replace(/[^a-z0-9]/g, '');
+        if (normCat.length > 0 && normCat === normTarget) return true;
+        if (target.length >= 4 && (pCat.includes(target) || target.includes(pCat))) return true;
+        return false;
+      });
     }
 
     if (activeType === 'Prescription') {
@@ -261,7 +269,15 @@ export default function ProductsClient() {
     }
 
     setFilteredProducts(temp);
-  }, [categoryParam, searchQuery, productsList, activeType, activePrice, activeHighlight]);
+  }, [
+    categoryParam,
+    searchQuery,
+    productsList,
+    activeType,
+    activePrice,
+    activeHighlight,
+    categories,
+  ]);
 
   const handleCategoryChange = (category: string) => {
     router.push(
@@ -281,7 +297,17 @@ export default function ProductsClient() {
 
   const getCategoryCount = (category: string) => {
     if (category === 'All') return productsList.length;
-    return productsList.filter((p) => p.category === category).length;
+    const target = category.toLowerCase().trim();
+    return productsList.filter((p) => {
+      const pCat = p.category.toLowerCase().trim();
+      const pCatName = (p.categoryName || '').toLowerCase().trim();
+      if (pCat === target || pCatName === target) return true;
+      const normTarget = target.replace(/[^a-z0-9]/g, '');
+      const normCat = pCat.replace(/[^a-z0-9]/g, '');
+      if (normCat.length > 0 && normCat === normTarget) return true;
+      if (target.length >= 4 && (pCat.includes(target) || target.includes(pCat))) return true;
+      return false;
+    }).length;
   };
 
   const hasActiveFilters =
