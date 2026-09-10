@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
+import AlertModal, { AlertModalVariant } from '@/components/ui/AlertModal';
 import { API_BASE_URL } from '@/lib/config';
 import { Product } from '@/lib/products';
 
@@ -24,6 +25,7 @@ type CartContextType = {
   hasRxItems: boolean;
   cartId: string | null;
   isLoading: boolean;
+  showCartAlert: (title: string, message: string, variant?: AlertModalVariant) => void;
 };
 
 type ApiCartResponseItem = {
@@ -61,7 +63,30 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cartId, setCartId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [cartAlert, setCartAlert] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    variant: AlertModalVariant;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    variant: 'warning',
+  });
+
+  const showCartAlert = useCallback(
+    (title: string, message: string, variant: AlertModalVariant = 'warning') => {
+      setCartAlert({
+        isOpen: true,
+        title,
+        message,
+        variant,
+      });
+    },
+    [],
+  );
   const [_isInitialized, setIsInitialized] = useState(false);
 
   const saveCartId = (id: string) => {
@@ -219,7 +244,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const isOutOfStock = availableStock <= 0 || product.stockStatus === 'out_of_stock';
 
     if (isOutOfStock) {
-      alert(`Sorry, "${product.name}" is currently out of stock.`);
+      showCartAlert(
+        'Out of Stock',
+        `We're sorry, "${product.name}" is currently out of stock and cannot be added to your cart.`,
+        'warning',
+      );
       return;
     }
 
@@ -228,8 +257,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const desiredTotal = currentQty + quantity;
 
     if (desiredTotal > availableStock) {
-      alert(
+      showCartAlert(
+        'Stock Limit Reached',
         `Cannot add more. Only ${String(availableStock)} unit(s) available in stock for "${product.name}".`,
+        'warning',
       );
       return;
     }
@@ -312,8 +343,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const stock =
         item.product.availableQty ?? item.product.inventoryQty ?? item.product.stockQty ?? 0;
       if (quantity > stock) {
-        alert(
+        showCartAlert(
+          'Maximum Stock Limit',
           `Cannot increase quantity. Maximum available stock for "${item.product.name}" is ${String(stock)} unit(s).`,
+          'warning',
         );
         quantity = stock;
       }
@@ -394,9 +427,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         hasRxItems,
         cartId,
         isLoading,
+        showCartAlert,
       }}
     >
       {children}
+      <AlertModal
+        isOpen={cartAlert.isOpen}
+        onClose={() => {
+          setCartAlert((prev) => ({ ...prev, isOpen: false }));
+        }}
+        title={cartAlert.title}
+        message={cartAlert.message}
+        confirmText="Understood"
+        variant={cartAlert.variant}
+        isAlertOnly
+      />
     </CartContext.Provider>
   );
 }

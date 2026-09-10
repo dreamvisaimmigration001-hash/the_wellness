@@ -27,6 +27,7 @@ import type {
   QuickUpdateProductPayload,
 } from './types';
 
+import AlertModal, { AlertModalVariant } from '@/components/ui/AlertModal';
 import { authClient } from '@/lib/auth-client';
 import { API_BASE_URL } from '@/lib/config';
 import { Product } from '@/lib/products';
@@ -53,6 +54,56 @@ export default function AdminPage() {
   const showNotice = useCallback(
     (message: string, type: 'error' | 'warning' | 'success' = 'error') => {
       setNotice({ message, type });
+    },
+    [],
+  );
+
+  // Custom Alert / Confirm Modal Dialog State
+  const [alertModal, setAlertModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    confirmText?: string;
+    cancelText?: string;
+    variant?: AlertModalVariant;
+    onConfirm?: () => Promise<void> | void;
+    isAlertOnly?: boolean;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    confirmText: 'Confirm',
+    cancelText: 'Cancel',
+    variant: 'danger',
+    isAlertOnly: false,
+  });
+
+  const confirmAction = useCallback(
+    ({
+      title,
+      message,
+      confirmText = 'Confirm',
+      cancelText = 'Cancel',
+      variant = 'danger',
+      onConfirm,
+    }: {
+      title: string;
+      message: string;
+      confirmText?: string;
+      cancelText?: string;
+      variant?: AlertModalVariant;
+      onConfirm: () => Promise<void> | void;
+    }) => {
+      setAlertModal({
+        isOpen: true,
+        title,
+        message,
+        confirmText,
+        cancelText,
+        variant,
+        onConfirm,
+        isAlertOnly: false,
+      });
     },
     [],
   );
@@ -1017,42 +1068,50 @@ export default function AdminPage() {
   };
 
   // Delete product
-  const handleDeleteProduct = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this product? This action is irreversible.')) {
-      return;
-    }
+  const handleDeleteProduct = (id: string) => {
+    const targetProd = products.find((p) => p.id === id);
+    const prodName = targetProd ? `"${targetProd.name}"` : 'this product';
 
-    const API_BASE = API_BASE_URL;
+    confirmAction({
+      title: 'Delete Product',
+      message: `Are you sure you want to delete ${prodName}? This will permanently remove the product and its associated inventory and gallery images. This action cannot be undone.`,
+      confirmText: 'Yes, Delete',
+      cancelText: 'Cancel',
+      variant: 'danger',
+      onConfirm: async () => {
+        const API_BASE = API_BASE_URL;
 
-    try {
-      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+        try {
+          const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
 
-      if (isUuid) {
-        const res = await fetch(`${API_BASE}/api/products/${id}`, {
-          method: 'DELETE',
-          credentials: 'include',
-        });
+          if (isUuid) {
+            const res = await fetch(`${API_BASE}/api/products/${id}`, {
+              method: 'DELETE',
+              credentials: 'include',
+            });
 
-        const responseData = (await res.json()) as {
-          success?: boolean;
-          error?: { message: string };
-        };
+            const responseData = (await res.json()) as {
+              success?: boolean;
+              error?: { message: string };
+            };
 
-        if (!res.ok || !responseData.success) {
-          const errorMsg =
-            responseData.error?.message || res.statusText || 'Failed to delete product';
-          showNotice(`API Error: ${errorMsg}`);
-          return;
+            if (!res.ok || !responseData.success) {
+              const errorMsg =
+                responseData.error?.message || res.statusText || 'Failed to delete product';
+              showNotice(`API Error: ${errorMsg}`);
+              return;
+            }
+          }
+
+          setProducts((prev) => prev.filter((p) => p.id !== id));
+          showNotice('Product deleted successfully.', 'success');
+          void loadProducts();
+        } catch (err: unknown) {
+          const errMsg = err instanceof Error ? err.message : 'Unknown error';
+          showNotice(`Network / Server Error: ${errMsg}`);
         }
-      }
-
-      setProducts((prev) => prev.filter((p) => p.id !== id));
-      showNotice('Product deleted successfully.', 'success');
-      void loadProducts();
-    } catch (err: unknown) {
-      const errMsg = err instanceof Error ? err.message : 'Unknown error';
-      showNotice(`Network / Server Error: ${errMsg}`);
-    }
+      },
+    });
   };
 
   // Inventory Save
@@ -1150,42 +1209,44 @@ export default function AdminPage() {
     }
   };
 
-  const handleDeleteCategory = async (catItem: CategoryItem) => {
+  const handleDeleteCategory = (catItem: CategoryItem) => {
     const assignedProds = products.filter((p) => p.category === catItem.name);
-    if (assignedProds.length > 0) {
-      if (
-        !confirm(
-          `Warning: There are ${assignedProds.length.toString()} products currently categorized under "${catItem.name}". Deleting this category will leave them orphaned. Proceed?`,
-        )
-      ) {
-        return;
-      }
-    } else if (!confirm(`Are you sure you want to delete category "${catItem.name}"?`)) {
-      return;
-    }
+    const message =
+      assignedProds.length > 0
+        ? `Warning: There are ${assignedProds.length.toString()} product(s) currently categorized under "${catItem.name}". Deleting this category will leave them orphaned. Are you sure you want to proceed?`
+        : `Are you sure you want to delete category "${catItem.name}"? This action cannot be undone.`;
 
-    const API_BASE = API_BASE_URL;
+    confirmAction({
+      title: 'Delete Category',
+      message,
+      confirmText: 'Yes, Delete Category',
+      cancelText: 'Cancel',
+      variant: 'danger',
+      onConfirm: async () => {
+        const API_BASE = API_BASE_URL;
 
-    try {
-      const res = await fetch(`${API_BASE}/api/categories/${catItem.id}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
+        try {
+          const res = await fetch(`${API_BASE}/api/categories/${catItem.id}`, {
+            method: 'DELETE',
+            credentials: 'include',
+          });
 
-      const json = (await res.json()) as { success?: boolean; error?: { message: string } };
-      if (!res.ok || !json.success) {
-        showNotice(
-          `API Error: ${json.error?.message || res.statusText || 'Failed to delete category'}`,
-        );
-        return;
-      }
+          const json = (await res.json()) as { success?: boolean; error?: { message: string } };
+          if (!res.ok || !json.success) {
+            showNotice(
+              `API Error: ${json.error?.message || res.statusText || 'Failed to delete category'}`,
+            );
+            return;
+          }
 
-      showNotice('Category deleted successfully.', 'success');
-      void loadCategories();
-    } catch (err: unknown) {
-      const errMsg = err instanceof Error ? err.message : 'Unknown error';
-      showNotice(`Network / Server Error: ${errMsg}`);
-    }
+          showNotice('Category deleted successfully.', 'success');
+          void loadCategories();
+        } catch (err: unknown) {
+          const errMsg = err instanceof Error ? err.message : 'Unknown error';
+          showNotice(`Network / Server Error: ${errMsg}`);
+        }
+      },
+    });
   };
 
   // Queries Handler
@@ -1267,6 +1328,20 @@ export default function AdminPage() {
         onClose={() => {
           setNotice(null);
         }}
+      />
+
+      <AlertModal
+        isOpen={alertModal.isOpen}
+        onClose={() => {
+          setAlertModal((prev) => ({ ...prev, isOpen: false }));
+        }}
+        title={alertModal.title}
+        message={alertModal.message}
+        confirmText={alertModal.confirmText}
+        cancelText={alertModal.cancelText}
+        variant={alertModal.variant}
+        onConfirm={alertModal.onConfirm}
+        isAlertOnly={alertModal.isAlertOnly}
       />
 
       <AdminSidebar
@@ -1383,6 +1458,7 @@ export default function AdminPage() {
               loadPromotions={loadPromotions}
               showNotice={showNotice}
               uploadToCloudinary={uploadToCloudinary}
+              confirmAction={confirmAction}
             />
           )}
         </main>

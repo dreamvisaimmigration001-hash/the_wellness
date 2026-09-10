@@ -4,6 +4,8 @@ import { Sparkles, Truck, ShieldCheck, Clock, Headphones } from 'lucide-react';
 import React from 'react';
 
 export default function ProductCatalogFooter() {
+  const [subscribed, setSubscribed] = React.useState(false);
+
   return (
     <>
       {/* Newsletter Section */}
@@ -24,26 +26,33 @@ export default function ProductCatalogFooter() {
             our network of healthcare practitioners and patients.
           </p>
 
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              alert('Successfully subscribed to updates!');
-            }}
-            className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto pt-2"
-          >
-            <input
-              type="email"
-              required
-              placeholder="Enter your professional email address"
-              className="flex-grow px-5 py-3 rounded-xl border border-white/10 bg-white/5 text-xs text-white placeholder-white/30 focus:outline-none focus:border-wellness-green focus:ring-1 focus:ring-wellness-green transition-all font-semibold"
-            />
-            <button
-              type="submit"
-              className="px-6 py-3 bg-wellness-green hover:bg-white hover:text-wellness-navy text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all duration-300 shadow-md cursor-pointer shrink-0"
+          {subscribed ? (
+            <div className="inline-flex items-center gap-2.5 text-wellness-green bg-wellness-green/10 border border-wellness-green/30 py-3 px-6 rounded-2xl text-xs font-bold animate-in fade-in zoom-in-95 duration-200">
+              <Sparkles size={16} />
+              <span>Thank you for subscribing! We&apos;ll send updates to your inbox.</span>
+            </div>
+          ) : (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setSubscribed(true);
+              }}
+              className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto pt-2"
             >
-              Subscribe
-            </button>
-          </form>
+              <input
+                type="email"
+                required
+                placeholder="Enter your professional email address"
+                className="flex-grow px-5 py-3 rounded-xl border border-white/10 bg-white/5 text-xs text-white placeholder-white/30 focus:outline-none focus:border-wellness-green focus:ring-1 focus:ring-wellness-green transition-all font-semibold"
+              />
+              <button
+                type="submit"
+                className="px-6 py-3 bg-wellness-green hover:bg-white hover:text-wellness-navy text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all duration-300 shadow-md cursor-pointer shrink-0"
+              >
+                Subscribe
+              </button>
+            </form>
+          )}
         </div>
       </div>
 

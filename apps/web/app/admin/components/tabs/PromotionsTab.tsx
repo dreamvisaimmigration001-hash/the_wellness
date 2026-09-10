@@ -23,6 +23,14 @@ interface PromotionsTabProps {
   loadPromotions: () => Promise<void>;
   showNotice: (message: string, type?: 'error' | 'warning' | 'success') => void;
   uploadToCloudinary: (file: File, folder?: string) => Promise<string>;
+  confirmAction?: (options: {
+    title: string;
+    message: string;
+    confirmText?: string;
+    cancelText?: string;
+    variant?: 'danger' | 'warning' | 'info' | 'success';
+    onConfirm: () => Promise<void> | void;
+  }) => void;
 }
 
 type PromoSubTab = 'banners' | 'announcement' | 'deals';
@@ -40,6 +48,7 @@ export default function PromotionsTab({
   loadPromotions,
   showNotice,
   uploadToCloudinary,
+  confirmAction,
 }: PromotionsTabProps) {
   const [subTab, setSubTab] = useState<PromoSubTab>('banners');
 
@@ -166,21 +175,39 @@ export default function PromotionsTab({
     }
   };
 
-  const handleDeletePromotion = async (promo: PromotionItem) => {
-    if (!confirm(`Delete banner "${promo.title}" from DB?`)) return;
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/promotions/${promo.id}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-      if (res.ok) {
-        if (activePromoId === promo.id) {
-          resetForm();
+  const handleDeletePromotion = (promo: PromotionItem) => {
+    const doDelete = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/promotions/${promo.id}`, {
+          method: 'DELETE',
+          credentials: 'include',
+        });
+        if (res.ok) {
+          if (activePromoId === promo.id) {
+            resetForm();
+          }
+          await loadPromotions();
+          showNotice('Banner deleted successfully.', 'success');
+        } else {
+          showNotice('Failed to delete banner.', 'error');
         }
-        await loadPromotions();
+      } catch (e) {
+        console.error('Failed to delete promotion:', e);
+        showNotice('Failed to delete promotion.', 'error');
       }
-    } catch (e) {
-      console.error('Failed to delete promotion:', e);
+    };
+
+    if (confirmAction) {
+      confirmAction({
+        title: 'Delete Banner',
+        message: `Are you sure you want to permanently delete promotional banner "${promo.title}"?`,
+        confirmText: 'Yes, Delete Banner',
+        cancelText: 'Cancel',
+        variant: 'danger',
+        onConfirm: doDelete,
+      });
+    } else {
+      void doDelete();
     }
   };
 
@@ -473,7 +500,7 @@ export default function PromotionsTab({
                           <button
                             type="button"
                             onClick={() => {
-                              void handleDeletePromotion(promo);
+                              handleDeletePromotion(promo);
                             }}
                             className="text-[10px] font-bold text-red-600 hover:text-red-800 cursor-pointer"
                           >

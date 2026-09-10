@@ -44,7 +44,7 @@ interface ProductsTabProps {
   dragOverImgIdx: number | null;
   handleQuickUpdateProduct: (prodId: string, updates: QuickUpdateProductPayload) => Promise<void>;
   setEditingProduct: (prod: Product | null) => void;
-  handleDeleteProduct: (id: string) => Promise<void>;
+  handleDeleteProduct: (id: string) => Promise<void> | void;
 }
 
 export default function ProductsTab({

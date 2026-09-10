@@ -14,7 +14,7 @@ interface CategoriesTabProps {
   isRefreshingCategories: boolean;
   onRefreshCategories: () => Promise<void>;
   onAddCategory: (categoryName: string) => Promise<boolean>;
-  onDeleteCategory: (cat: CategoryItem) => Promise<void>;
+  onDeleteCategory: (cat: CategoryItem) => Promise<void> | void;
 }
 
 export default function CategoriesTab({

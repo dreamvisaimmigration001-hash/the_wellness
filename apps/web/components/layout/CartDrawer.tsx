@@ -18,6 +18,7 @@ export default function CartDrawer() {
     cartSubtotal,
     cartCount,
     hasRxItems,
+    showCartAlert,
   } = useCart();
 
   const drawerRef = useRef<HTMLDivElement>(null);
@@ -314,8 +315,10 @@ export default function CartDrawer() {
                           onClick={(e) => {
                             if (hasOutOfStockInCart) {
                               e.preventDefault();
-                              alert(
+                              showCartAlert(
+                                'Out of Stock Items',
                                 'Please remove or reduce out-of-stock items before proceeding to checkout.',
+                                'warning',
                               );
                               return;
                             }
