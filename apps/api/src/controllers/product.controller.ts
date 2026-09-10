@@ -5,7 +5,7 @@ import { NotFoundError } from '@wellness/utils';
 import {
   CreateProductSchema,
   UpdateProductSchema,
-  paginationSchema,
+  ProductListQuerySchema,
   AddProductImagesSchema,
   ReorderProductImagesSchema,
 } from '@wellness/validation';
@@ -16,12 +16,14 @@ import { productService } from '../services/product.service';
 export class ProductController {
   async getPublicProducts(req: Request, res: Response, next: NextFunction) {
     try {
-      const { page, limit } = paginationSchema.parse({
+      const { page, limit, status, categoryId } = ProductListQuerySchema.parse({
         page: req.query.page,
         limit: req.query.limit ?? 20,
+        status: req.query.status,
+        categoryId: req.query.categoryId,
       });
 
-      const data = await productService.getPublicProducts(page, limit);
+      const data = await productService.getPublicProducts(page, limit, status, categoryId);
       res.json({ success: true, data });
     } catch (error) {
       next(error);
@@ -34,7 +36,8 @@ export class ProductController {
       if (!parsedId.success) {
         throw new NotFoundError('Product not found');
       }
-      const data = await productService.getProductById(parsedId.data);
+      const allowAnyStatus = req.query.allowAnyStatus === 'true';
+      const data = await productService.getProductById(parsedId.data, allowAnyStatus);
       res.json({ success: true, data });
     } catch (error) {
       next(error);

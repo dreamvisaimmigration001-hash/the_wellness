@@ -17,7 +17,8 @@ export type Product = {
   inventoryQty?: number;
   availableQty?: number;
   reservedQty?: number;
-  stockStatus?: 'in_stock' | 'out_of_stock' | 'discontinued';
+  stockStatus?: 'in_stock' | 'out_of_stock';
+  status?: 'listed' | 'unlisted' | 'discontinued';
   isFeatured?: boolean;
   isBestSeller?: boolean;
   isNewest?: boolean;

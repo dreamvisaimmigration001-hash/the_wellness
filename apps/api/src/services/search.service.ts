@@ -13,7 +13,12 @@ export class SearchService {
     const foundProducts = await db
       .select()
       .from(products)
-      .where(or(ilike(products.name, q), ilike(products.description, q)))
+      .where(
+        and(
+          eq(products.status, 'listed'),
+          or(ilike(products.name, q), ilike(products.description, q)),
+        ),
+      )
       .limit(limit);
 
     const foundCategories = await db
@@ -50,7 +55,12 @@ export class SearchService {
         sellingPrice: products.sellingPrice,
       })
       .from(products)
-      .where(or(ilike(products.name, q), ilike(products.description, q)))
+      .where(
+        and(
+          eq(products.status, 'listed'),
+          or(ilike(products.name, q), ilike(products.description, q)),
+        ),
+      )
       .limit(limit);
 
     const cSuggestions = await db

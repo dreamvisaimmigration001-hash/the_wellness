@@ -15,10 +15,13 @@ export class CloudinaryService {
 
     const trimmed = fileSource.trim();
 
-    // If it's already a full Cloudinary URL, return as-is
+    // If it's already a full Cloudinary URL or local upload URL, return as-is
     if (
       trimmed.startsWith('https://res.cloudinary.com/') ||
-      trimmed.startsWith('http://res.cloudinary.com/')
+      trimmed.startsWith('http://res.cloudinary.com/') ||
+      trimmed.includes('/uploads/') ||
+      trimmed.startsWith('/images/') ||
+      trimmed.startsWith('/')
     ) {
       return trimmed;
     }
@@ -69,6 +72,7 @@ export class CloudinaryService {
       const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
         method: 'POST',
         body: formData,
+        signal: AbortSignal.timeout(4000),
       });
 
       if (!response.ok) {

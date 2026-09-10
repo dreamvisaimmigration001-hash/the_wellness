@@ -95,6 +95,7 @@ export default function AdminPage() {
     reservedQty: '0',
     inventoryQty: '10',
     stockStatus: 'in_stock',
+    status: 'listed',
     isFeatured: false,
     isBestSeller: false,
     isNewest: false,
@@ -108,8 +109,12 @@ export default function AdminPage() {
   const [newProductImages, setNewProductImages] = useState<string[]>([]);
   const [draggedImgIdx, setDraggedImgIdx] = useState<number | null>(null);
   const [dragOverImgIdx, setDragOverImgIdx] = useState<number | null>(null);
+  const [isUploadingNewImages, setIsUploadingNewImages] = useState(false);
+  const [deletingNewImageIdx, setDeletingNewImageIdx] = useState<number | null>(null);
+  const [isUploadingEditImages, setIsUploadingEditImages] = useState(false);
+  const [deletingEditImageIdx, setDeletingEditImageIdx] = useState<number | null>(null);
 
-  // Cloudinary Helper
+  // Cloudinary Helper with resilient fallback
   const uploadToCloudinary = async (
     fileOrDataUri: File | string,
     folder = 'wellness_catalog',
@@ -125,13 +130,33 @@ export default function AdminPage() {
         body: formData,
       });
       if (!res.ok) {
-        return typeof fileOrDataUri === 'string' ? fileOrDataUri : '';
+        if (typeof fileOrDataUri === 'string') return fileOrDataUri;
+        return await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            resolve(typeof reader.result === 'string' ? reader.result : '');
+          };
+          reader.onerror = () => {
+            resolve('');
+          };
+          reader.readAsDataURL(fileOrDataUri);
+        });
       }
       const data = (await res.json()) as { url?: string };
       return data.url || (typeof fileOrDataUri === 'string' ? fileOrDataUri : '');
     } catch (err) {
       console.error('Cloudinary upload error:', err);
-      return typeof fileOrDataUri === 'string' ? fileOrDataUri : '';
+      if (typeof fileOrDataUri === 'string') return fileOrDataUri;
+      return await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          resolve(typeof reader.result === 'string' ? reader.result : '');
+        };
+        reader.onerror = () => {
+          resolve('');
+        };
+        reader.readAsDataURL(fileOrDataUri);
+      });
     }
   };
 
@@ -140,7 +165,7 @@ export default function AdminPage() {
     setIsRefreshingProducts(true);
     try {
       const API_BASE = API_BASE_URL;
-      const res = await fetch(`${API_BASE}/api/products`, {
+      const res = await fetch(`${API_BASE}/api/products?status=all&limit=200`, {
         signal: AbortSignal.timeout(5000),
       });
       if (res.ok) {
@@ -163,7 +188,8 @@ export default function AdminPage() {
               inventoryQty?: number;
               availableQty?: number;
               reservedQty?: number;
-              stockStatus?: 'in_stock' | 'out_of_stock' | 'discontinued';
+              stockStatus?: 'in_stock' | 'out_of_stock';
+              status?: 'listed' | 'unlisted' | 'discontinued';
               isFeatured?: boolean;
               isBestSeller?: boolean;
               isNewest?: boolean;
@@ -210,6 +236,7 @@ export default function AdminPage() {
               availableQty: availQty,
               reservedQty: resvQty,
               stockStatus: item.stockStatus ?? 'in_stock',
+              status: item.status ?? 'listed',
               isFeatured: item.isFeatured ?? false,
               isBestSeller: item.isBestSeller ?? false,
               isNewest: item.isNewest ?? false,
@@ -464,35 +491,62 @@ export default function AdminPage() {
   const handleNewProductImagesChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
     const slotsAvailable = 6 - newProductImages.length;
     if (slotsAvailable <= 0) {
       showNotice('Maximum 6 images allowed.', 'warning');
+      e.target.value = '';
       return;
     }
     const filesLimit = files.slice(0, slotsAvailable);
 
+    setIsUploadingNewImages(true);
     try {
       const uploadedUrls = await Promise.all(
         filesLimit.map((file) => uploadToCloudinary(file, 'wellness_products')),
       );
       const validUrls = uploadedUrls.filter((url) => url.length > 0);
-      setNewProductImages((prev) => [...prev, ...validUrls].slice(0, 6));
+      if (validUrls.length > 0) {
+        setNewProductImages((prev) => [...prev, ...validUrls].slice(0, 6));
+        showNotice(`Successfully uploaded ${String(validUrls.length)} image(s).`, 'success');
+      } else {
+        showNotice('Failed to upload image(s). Please try again.', 'error');
+      }
     } catch (err: unknown) {
       console.error('Error uploading product files:', err);
+      showNotice('An error occurred while uploading images.', 'error');
+    } finally {
+      setIsUploadingNewImages(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleRemoveNewProductImage = async (idx: number) => {
+    setDeletingNewImageIdx(idx);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 250));
+      setNewProductImages((prev) => prev.filter((_, i) => i !== idx));
+    } finally {
+      setDeletingNewImageIdx(null);
     }
   };
 
   const handleEditProductImagesChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || !editingProduct) return;
     const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
     const currentImgs = editingProduct.images || [editingProduct.image];
     const slotsAvailable = 6 - currentImgs.length;
     if (slotsAvailable <= 0) {
       showNotice('Maximum 6 images allowed.', 'warning');
+      e.target.value = '';
       return;
     }
     const filesLimit = files.slice(0, slotsAvailable);
 
+    setIsUploadingEditImages(true);
     try {
       const API_BASE = API_BASE_URL;
       const uploadedUrls = await Promise.all(
@@ -523,18 +577,26 @@ export default function AdminPage() {
           images: newImgs,
         };
       });
+      if (validUrls.length > 0) {
+        showNotice(`Successfully uploaded ${String(validUrls.length)} image(s).`, 'success');
+      }
     } catch (err: unknown) {
       console.error('Error uploading edit product files:', err);
+      showNotice('Error uploading image(s).', 'error');
+    } finally {
+      setIsUploadingEditImages(false);
+      e.target.value = '';
     }
   };
 
   const handleRemoveEditProductImage = async (idx: number) => {
     if (!editingProduct) return;
+    setDeletingEditImageIdx(idx);
     const currentImgs = editingProduct.images || [editingProduct.image];
     const targetUrl = currentImgs[idx];
 
-    if (editingProduct.id && targetUrl) {
-      try {
+    try {
+      if (editingProduct.id && targetUrl) {
         const API_BASE = API_BASE_URL;
         const imgRes = await fetch(`${API_BASE}/api/products/${editingProduct.id}/images`);
         if (imgRes.ok) {
@@ -547,21 +609,23 @@ export default function AdminPage() {
             });
           }
         }
-      } catch (err) {
-        console.error('Error deleting image from DB:', err);
       }
-    }
 
-    setEditingProduct((prev) => {
-      if (!prev) return null;
-      const oldImgs = prev.images || [prev.image];
-      const newImgs = oldImgs.filter((_, i) => i !== idx);
-      return {
-        ...prev,
-        image: newImgs[0] || '/images/cardiostatin.png',
-        images: newImgs,
-      };
-    });
+      setEditingProduct((prev) => {
+        if (!prev) return null;
+        const oldImgs = prev.images || [prev.image];
+        const newImgs = oldImgs.filter((_, i) => i !== idx);
+        return {
+          ...prev,
+          image: newImgs[0] || '/images/cardiostatin.png',
+          images: newImgs,
+        };
+      });
+    } catch (err) {
+      console.error('Error deleting image from DB:', err);
+    } finally {
+      setDeletingEditImageIdx(null);
+    }
   };
 
   const handleImageDragStart = (idx: number) => {
@@ -701,9 +765,10 @@ export default function AdminPage() {
 
     const effectiveImgs =
       newProductImages.length > 0 ? newProductImages : newProduct.image ? [newProduct.image] : [];
-    if (effectiveImgs.length < 1) {
+    if (effectiveImgs.length < 2) {
       showNotice(
-        'Validation Error: Upload Gallery Images is compulsory. At least 1 product image must be uploaded.',
+        'Validation Error: At least 2 product gallery images must be uploaded before submitting.',
+        'warning',
       );
       return;
     }
@@ -745,6 +810,7 @@ export default function AdminPage() {
           isBestSeller: newProduct.isBestSeller,
           isNewest: newProduct.isNewest,
           stockStatus: newProduct.stockStatus,
+          status: newProduct.status,
           mrp: mrpNum,
           sellingPrice: sellingPriceNum,
           stockQty: stockQtyNum,
@@ -795,6 +861,7 @@ export default function AdminPage() {
         availableQty: availableQtyNum,
         reservedQty: reservedQtyNum,
         stockStatus: newProduct.stockStatus,
+        status: newProduct.status,
         isFeatured: newProduct.isFeatured,
         isBestSeller: newProduct.isBestSeller,
         isNewest: newProduct.isNewest,
@@ -813,6 +880,7 @@ export default function AdminPage() {
         reservedQty: '0',
         inventoryQty: '10',
         stockStatus: 'in_stock',
+        status: 'listed',
         isFeatured: false,
         isBestSeller: false,
         isNewest: false,
@@ -887,6 +955,7 @@ export default function AdminPage() {
             stockQty: editStockQty,
             inventoryQty: editInventoryQty,
             stockStatus: editingProduct.stockStatus ?? 'in_stock',
+            status: editingProduct.status ?? 'listed',
             isFeatured: editingProduct.isFeatured ?? false,
             isBestSeller: editingProduct.isBestSeller ?? false,
             isNewest: editingProduct.isNewest ?? false,
@@ -979,6 +1048,7 @@ export default function AdminPage() {
 
       setProducts((prev) => prev.filter((p) => p.id !== id));
       showNotice('Product deleted successfully.', 'success');
+      void loadProducts();
     } catch (err: unknown) {
       const errMsg = err instanceof Error ? err.message : 'Unknown error';
       showNotice(`Network / Server Error: ${errMsg}`);
@@ -989,7 +1059,7 @@ export default function AdminPage() {
   const handleUpdateProductInventory = async (
     prodId: string,
     draft: { stockQty: number; inventoryQty: number; availableQty: number; reservedQty: number },
-    computedStatus: 'in_stock' | 'out_of_stock' | 'discontinued',
+    computedStatus: 'in_stock' | 'out_of_stock',
   ): Promise<boolean> => {
     const API_BASE = API_BASE_URL;
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(prodId);
@@ -1254,6 +1324,9 @@ export default function AdminPage() {
               setNewProductImages={setNewProductImages}
               handleAddProduct={handleAddProduct}
               handleNewProductImagesChange={handleNewProductImagesChange}
+              isUploadingNewImages={isUploadingNewImages}
+              deletingNewImageIdx={deletingNewImageIdx}
+              handleRemoveNewProductImage={handleRemoveNewProductImage}
               handleImageDragStart={handleImageDragStart}
               handleImageDragOver={handleImageDragOver}
               handleImageDrop={handleImageDrop}
@@ -1325,6 +1398,8 @@ export default function AdminPage() {
         setEditingProduct={setEditingProduct}
         handleEditProductImagesChange={handleEditProductImagesChange}
         handleRemoveEditProductImage={handleRemoveEditProductImage}
+        isUploadingEditImages={isUploadingEditImages}
+        deletingEditImageIdx={deletingEditImageIdx}
         handleImageDragStart={handleImageDragStart}
         handleImageDragOver={handleImageDragOver}
         handleImageDrop={handleImageDrop}

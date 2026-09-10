@@ -27,7 +27,8 @@ const BaseProductObject = z
     inventoryQty: z.number().int().min(0).optional(),
     availableQty: z.number().int().min(0).optional(),
     reservedQty: z.number().int().min(0).optional(),
-    stockStatus: z.enum(['in_stock', 'out_of_stock', 'discontinued']).default('in_stock'),
+    stockStatus: z.enum(['in_stock', 'out_of_stock']).default('in_stock'),
+    status: z.enum(['listed', 'unlisted', 'discontinued']).default('listed'),
     isBestSeller: z.boolean().default(false),
     isFeatured: z.boolean().default(false),
     isNewest: z.boolean().default(false),
@@ -40,6 +41,14 @@ const BaseProductObject = z
     images: z.array(z.string()).optional(),
   })
   .strict();
+
+export const ProductListQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(500).default(20),
+  status: z.enum(['all', 'listed', 'unlisted', 'discontinued']).optional(),
+  categoryId: z.string().uuid().optional(),
+});
+export type ProductListQuery = z.infer<typeof ProductListQuerySchema>;
 
 const applyProductRefinements = <T extends z.ZodRawShape>(schema: z.ZodObject<T>) =>
   schema

@@ -2,7 +2,12 @@ import { ProductListDTO, ProductDetailDTO, ProductMutationDTO, ProductImageDTO }
 import { createProcedure } from './core';
 
 export const getPublicProductsProcedure = createProcedure<
-  { page?: number; limit?: number },
+  {
+    page?: number;
+    limit?: number;
+    status?: 'all' | 'listed' | 'unlisted' | 'discontinued';
+    categoryId?: string;
+  },
   { items: ProductListDTO[] }
 >({
   name: 'getPublicProducts',

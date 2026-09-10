@@ -19,7 +19,7 @@ interface InventoryTabProps {
   onUpdateProductInventory: (
     prodId: string,
     draft: InventoryDraft,
-    computedStatus: 'in_stock' | 'out_of_stock' | 'discontinued',
+    computedStatus: 'in_stock' | 'out_of_stock',
   ) => Promise<boolean>;
   showNotice: (message: string, type?: 'error' | 'warning' | 'success') => void;
 }
@@ -83,12 +83,8 @@ export default function InventoryTab({
     const targetProd = products.find((p) => p.id === prodId);
     if (!targetProd) return;
 
-    const computedStatus: 'in_stock' | 'out_of_stock' | 'discontinued' =
-      draft.stockQty <= 0 || draft.availableQty <= 0
-        ? 'out_of_stock'
-        : targetProd.stockStatus === 'discontinued'
-          ? 'discontinued'
-          : 'in_stock';
+    const computedStatus: 'in_stock' | 'out_of_stock' =
+      draft.stockQty <= 0 || draft.availableQty <= 0 ? 'out_of_stock' : 'in_stock';
 
     const success = await onUpdateProductInventory(prodId, draft, computedStatus);
     if (success) {

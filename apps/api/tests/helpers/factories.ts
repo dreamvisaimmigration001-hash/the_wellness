@@ -82,6 +82,7 @@ export const factories = {
         mrp: overrides?.mrp || '150.00',
         stockQty: overrides?.stockQty ?? 10,
         stockStatus: overrides?.stockStatus || 'in_stock',
+        status: overrides?.status || 'listed',
         ...overrides,
       })
       .returning();

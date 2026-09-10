@@ -13,7 +13,8 @@ import {
 
 import { categories } from './category';
 
-export const stockStatusEnum = pgEnum('stock_status', ['in_stock', 'out_of_stock', 'discontinued']);
+export const productStatusEnum = pgEnum('product_status', ['listed', 'unlisted', 'discontinued']);
+export const stockStatusEnum = pgEnum('stock_status', ['in_stock', 'out_of_stock']);
 
 export const products = pgTable('product', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -25,6 +26,7 @@ export const products = pgTable('product', {
   mrp: numeric('mrp', { precision: 10, scale: 2 }).default('0.00').notNull(),
   stockQty: integer('stock_qty').default(0).notNull(),
   stockStatus: stockStatusEnum('stock_status').default('in_stock').notNull(),
+  status: productStatusEnum('status').default('listed').notNull(),
   isBestSeller: boolean('is_best_seller').default(false).notNull(),
   isFeatured: boolean('is_featured').default(false).notNull(),
   isNewest: boolean('is_newest').default(false).notNull(),

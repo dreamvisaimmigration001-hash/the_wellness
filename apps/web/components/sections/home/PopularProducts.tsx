@@ -27,7 +27,8 @@ interface ApiProduct {
   availableQty?: number;
   stockQty?: number;
   inventoryQty?: number;
-  stockStatus?: 'in_stock' | 'out_of_stock' | 'discontinued';
+  stockStatus?: 'in_stock' | 'out_of_stock';
+  status?: 'listed' | 'unlisted' | 'discontinued';
 }
 
 interface ApiResponse {
@@ -278,10 +279,7 @@ export default function PopularProducts() {
             >
               {visibleProducts.map((product) => {
                 const stock = product.availableQty ?? product.stockQty ?? 0;
-                const isOutOfStock =
-                  stock <= 0 ||
-                  product.stockStatus === 'out_of_stock' ||
-                  product.stockStatus === 'discontinued';
+                const isOutOfStock = stock <= 0 || product.stockStatus === 'out_of_stock';
 
                 return (
                   <div

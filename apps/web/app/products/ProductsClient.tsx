@@ -62,7 +62,8 @@ export default function ProductsClient() {
               inventoryQty?: number;
               availableQty?: number;
               reservedQty?: number;
-              stockStatus?: 'in_stock' | 'out_of_stock' | 'discontinued';
+              stockStatus?: 'in_stock' | 'out_of_stock';
+              status?: 'listed' | 'unlisted' | 'discontinued';
               primaryImage?: string | null;
               categoryName?: string;
               category?: string;
@@ -84,7 +85,8 @@ export default function ProductsClient() {
               inventoryQty?: number;
               availableQty?: number;
               reservedQty?: number;
-              stockStatus?: 'in_stock' | 'out_of_stock' | 'discontinued';
+              stockStatus?: 'in_stock' | 'out_of_stock';
+              status?: 'listed' | 'unlisted' | 'discontinued';
               primaryImage?: string | null;
               categoryName?: string;
               category?: string;
@@ -107,7 +109,8 @@ export default function ProductsClient() {
             inventoryQty?: number;
             availableQty?: number;
             reservedQty?: number;
-            stockStatus?: 'in_stock' | 'out_of_stock' | 'discontinued';
+            stockStatus?: 'in_stock' | 'out_of_stock';
+            status?: 'listed' | 'unlisted' | 'discontinued';
             primaryImage?: string | null;
             categoryName?: string;
             category?: string;
@@ -122,51 +125,57 @@ export default function ProductsClient() {
 
         const rawList = json.data?.products || json.data?.items || json.products || [];
         if (Array.isArray(rawList)) {
-          mappedProducts = rawList.map((item) => {
-            const spNum =
-              typeof item.sellingPrice === 'number'
-                ? item.sellingPrice
-                : typeof item.sellingPrice === 'string'
-                  ? parseFloat(item.sellingPrice)
-                  : item.startingPrice || 0;
-            const mrpNum =
-              typeof item.mrp === 'number'
-                ? item.mrp
-                : typeof item.mrp === 'string'
-                  ? parseFloat(item.mrp)
-                  : item.compareAtPrice || spNum;
+          mappedProducts = rawList
+            .map((item): Product => {
+              const spNum =
+                typeof item.sellingPrice === 'number'
+                  ? item.sellingPrice
+                  : typeof item.sellingPrice === 'string'
+                    ? parseFloat(item.sellingPrice)
+                    : item.startingPrice || 0;
+              const mrpNum =
+                typeof item.mrp === 'number'
+                  ? item.mrp
+                  : typeof item.mrp === 'string'
+                    ? parseFloat(item.mrp)
+                    : item.compareAtPrice || spNum;
 
-            const availQty = item.availableQty ?? item.inventoryQty ?? item.stockQty ?? 0;
-            const resvQty = item.reservedQty ?? 0;
-            const catName = item.categoryName || item.category || 'OTC & Wellness';
+              const availQty = item.availableQty ?? item.inventoryQty ?? item.stockQty ?? 0;
+              const resvQty = item.reservedQty ?? 0;
+              const catName = item.categoryName || item.category || 'OTC & Wellness';
 
-            return {
-              id: item.id,
-              name: item.name,
-              category: catName,
-              categoryName: catName,
-              type:
-                item.type === 'Prescription (Rx)' ? 'Prescription (Rx)' : 'Over-The-Counter (OTC)',
-              description: item.description || item.shortDescription || 'No description provided.',
-              benefits: [],
-              ingredients: [],
-              image: item.primaryImage || '/images/cardiostatin.png',
-              images: item.primaryImage ? [item.primaryImage] : ['/images/cardiostatin.png'],
-              price: spNum,
-              originalPrice: mrpNum,
-              mrp: mrpNum,
-              sellingPrice: spNum,
-              stockQty: item.stockQty ?? 0,
-              inventoryQty: availQty,
-              availableQty: availQty,
-              reservedQty: resvQty,
-              stockStatus: item.stockStatus ?? 'in_stock',
-              isFeatured: item.isFeatured ?? false,
-              isBestSeller: item.isBestSeller ?? false,
-              isNewest: item.isNewest ?? false,
-              tags: [],
-            };
-          });
+              return {
+                id: item.id,
+                name: item.name,
+                category: catName,
+                categoryName: catName,
+                type:
+                  item.type === 'Prescription (Rx)'
+                    ? 'Prescription (Rx)'
+                    : 'Over-The-Counter (OTC)',
+                description:
+                  item.description || item.shortDescription || 'No description provided.',
+                benefits: [],
+                ingredients: [],
+                image: item.primaryImage || '/images/cardiostatin.png',
+                images: item.primaryImage ? [item.primaryImage] : ['/images/cardiostatin.png'],
+                price: spNum,
+                originalPrice: mrpNum,
+                mrp: mrpNum,
+                sellingPrice: spNum,
+                stockQty: item.stockQty ?? 0,
+                inventoryQty: availQty,
+                availableQty: availQty,
+                reservedQty: resvQty,
+                stockStatus: item.stockStatus ?? 'in_stock',
+                status: item.status ?? 'listed',
+                isFeatured: item.isFeatured ?? false,
+                isBestSeller: item.isBestSeller ?? false,
+                isNewest: item.isNewest ?? false,
+                tags: [],
+              };
+            })
+            .filter((p) => p.status === 'listed');
         }
       }
 

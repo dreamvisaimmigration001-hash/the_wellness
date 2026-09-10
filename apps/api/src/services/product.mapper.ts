@@ -24,10 +24,7 @@ export function toProductMutationDTO(
   product: typeof products.$inferSelect,
   imgs: Array<typeof productImages.$inferSelect> = [],
 ): ProductMutationDTO {
-  const computedStockStatus =
-    product.stockQty <= 0 && product.stockStatus !== 'discontinued'
-      ? 'out_of_stock'
-      : product.stockStatus;
+  const computedStockStatus = product.stockQty <= 0 ? 'out_of_stock' : product.stockStatus;
 
   return {
     id: product.id,
@@ -44,6 +41,7 @@ export function toProductMutationDTO(
     mrp: product.mrp,
     stockQty: product.stockQty,
     stockStatus: computedStockStatus,
+    status: product.status,
     isBestSeller: product.isBestSeller,
     isFeatured: product.isFeatured,
     isNewest: product.isNewest,
@@ -76,10 +74,7 @@ export function toProductListDTO(
   imgs: Array<typeof productImages.$inferSelect> = [],
   categoryName?: string | null,
 ): ProductListDTO {
-  const computedStockStatus =
-    product.stockQty <= 0 && product.stockStatus !== 'discontinued'
-      ? 'out_of_stock'
-      : product.stockStatus;
+  const computedStockStatus = product.stockQty <= 0 ? 'out_of_stock' : product.stockStatus;
 
   const mappedImages = imgs.map(toProductImageDTO);
   const primaryImg =
@@ -96,6 +91,7 @@ export function toProductListDTO(
     mrp: product.mrp,
     stockQty: product.stockQty,
     stockStatus: computedStockStatus,
+    status: product.status,
     isBestSeller: product.isBestSeller,
     isFeatured: product.isFeatured,
     isNewest: product.isNewest,

@@ -23,7 +23,8 @@ type ApiProduct = {
   mrp?: string | number;
   availableQty?: number;
   stockQty?: number;
-  stockStatus?: 'in_stock' | 'out_of_stock' | 'discontinued';
+  stockStatus?: 'in_stock' | 'out_of_stock';
+  status?: 'listed' | 'unlisted' | 'discontinued';
 };
 
 type ApiResponse = {
@@ -102,9 +103,7 @@ export default function DailyDeals() {
                 benefits: [],
                 ingredients: [],
                 image:
-                  item.primaryImage ||
-                  item.image ||
-                  '/images/products/product_placeholder.png',
+                  item.primaryImage || item.image || '/images/products/product_placeholder.png',
                 price,
                 mrp,
                 availableQty: item.availableQty ?? item.stockQty,
@@ -113,10 +112,7 @@ export default function DailyDeals() {
             });
             // Filter to only products that are in stock
             const inStock = mapped.filter(
-              (p) =>
-                (p.availableQty ?? 0) > 0 &&
-                p.stockStatus !== 'out_of_stock' &&
-                p.stockStatus !== 'discontinued',
+              (p) => (p.availableQty ?? 0) > 0 && p.stockStatus !== 'out_of_stock',
             );
             setProductsList(inStock.slice(0, 3));
           }
@@ -238,10 +234,7 @@ export default function DailyDeals() {
         <div className="deals-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {productsList.map((product, index) => {
             const stock = product.availableQty ?? product.inventoryQty ?? product.stockQty ?? 0;
-            const isOutOfStock =
-              stock <= 0 ||
-              product.stockStatus === 'out_of_stock' ||
-              product.stockStatus === 'discontinued';
+            const isOutOfStock = stock <= 0 || product.stockStatus === 'out_of_stock';
 
             const sp = product.price;
             const configuredPct = dealsConfig?.discountPercentage;

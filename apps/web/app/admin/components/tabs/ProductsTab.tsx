@@ -10,9 +10,11 @@ import {
   Sparkles,
   ExternalLink,
   Trash2,
+  Loader2,
+  Search,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import React from 'react';
+import React, { useState } from 'react';
 
 import type { NewProductFormState, QuickUpdateProductPayload } from '../../types';
 
@@ -32,6 +34,9 @@ interface ProductsTabProps {
   setNewProductImages: React.Dispatch<React.SetStateAction<string[]>>;
   handleAddProduct: (e: React.SyntheticEvent<HTMLFormElement>) => Promise<void>;
   handleNewProductImagesChange: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
+  isUploadingNewImages?: boolean;
+  deletingNewImageIdx?: number | null;
+  handleRemoveNewProductImage?: (idx: number) => Promise<void> | void;
   handleImageDragStart: (idx: number) => void;
   handleImageDragOver: (e: React.DragEvent, idx: number) => void;
   handleImageDrop: (e: React.DragEvent, idx: number, isEditMode: boolean) => Promise<void>;
@@ -55,6 +60,9 @@ export default function ProductsTab({
   setNewProductImages,
   handleAddProduct,
   handleNewProductImagesChange,
+  isUploadingNewImages = false,
+  deletingNewImageIdx = null,
+  handleRemoveNewProductImage,
   handleImageDragStart,
   handleImageDragOver,
   handleImageDrop,
@@ -64,6 +72,30 @@ export default function ProductsTab({
   setEditingProduct,
   handleDeleteProduct,
 }: ProductsTabProps) {
+  const [statusFilter, setStatusFilter] = useState<'all' | 'listed' | 'unlisted' | 'discontinued'>(
+    'all',
+  );
+  const [searchQuery, setSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('All');
+
+  const filteredProducts = displayedProducts.filter((product) => {
+    const matchStatus = statusFilter === 'all' || (product.status ?? 'listed') === statusFilter;
+
+    const catName = product.category || product.categoryName || '';
+    const matchCategory =
+      categoryFilter === 'All' || catName.toLowerCase() === categoryFilter.toLowerCase();
+
+    const q = searchQuery.trim().toLowerCase();
+    const matchSearch =
+      !q ||
+      product.name.toLowerCase().includes(q) ||
+      product.id.toLowerCase().includes(q) ||
+      catName.toLowerCase().includes(q) ||
+      (product.description && product.description.toLowerCase().includes(q));
+
+    return matchStatus && matchCategory && matchSearch;
+  });
+
   return (
     <motion.div
       key="products"
@@ -150,32 +182,15 @@ export default function ProductsTab({
                 <div>
                   <DropdownField
                     label="Category *"
-                    options={[
-                      ...categories
-                        .filter((c) => c !== 'All')
-                        .map((cat) => ({ value: cat, label: cat })),
-                      { value: 'New Category', label: '+ Add New Category below' },
-                    ]}
+                    options={categories
+                      .filter((c) => c !== 'All')
+                      .map((cat) => ({ value: cat, label: cat }))}
                     selectedValue={newProduct.category}
                     onChange={(val) => {
                       setNewProduct((prev: NewProductFormState) => ({ ...prev, category: val }));
                     }}
                     required
                   />
-                  {newProduct.category === 'New Category' && (
-                    <input
-                      type="text"
-                      required
-                      placeholder="Enter custom category"
-                      onChange={(e) => {
-                        setNewProduct((prev: NewProductFormState) => ({
-                          ...prev,
-                          category: e.target.value,
-                        }));
-                      }}
-                      className="mt-2 w-full px-4 py-2.5 rounded-lg border border-wellness-gray-200 bg-wellness-gray-50 focus:border-wellness-green outline-none text-xs font-semibold animate-in fade-in duration-200"
-                    />
-                  )}
                 </div>
               </div>
 
@@ -332,20 +347,36 @@ export default function ProductsTab({
                 <h5 className="text-xs font-extrabold text-wellness-navy uppercase tracking-wider">
                   Product Availability Status & Marketing Badges
                 </h5>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                  <div>
+                    <DropdownField
+                      label="Product Status"
+                      options={[
+                        { value: 'listed', label: 'Listed' },
+                        { value: 'unlisted', label: 'Unlisted' },
+                        { value: 'discontinued', label: 'Discontinued' },
+                      ]}
+                      selectedValue={newProduct.status}
+                      onChange={(val) => {
+                        setNewProduct((prev: NewProductFormState) => ({
+                          ...prev,
+                          status: val as 'listed' | 'unlisted' | 'discontinued',
+                        }));
+                      }}
+                    />
+                  </div>
                   <div>
                     <DropdownField
                       label="Stock Status"
                       options={[
                         { value: 'in_stock', label: 'In Stock' },
                         { value: 'out_of_stock', label: 'Out of Stock' },
-                        { value: 'discontinued', label: 'Discontinued' },
                       ]}
                       selectedValue={newProduct.stockStatus}
                       onChange={(val) => {
                         setNewProduct((prev: NewProductFormState) => ({
                           ...prev,
-                          stockStatus: val as 'in_stock' | 'out_of_stock' | 'discontinued',
+                          stockStatus: val as 'in_stock' | 'out_of_stock',
                         }));
                       }}
                     />
@@ -461,15 +492,33 @@ export default function ProductsTab({
                   </p>
                 )}
                 <div className="flex flex-wrap gap-4 items-center">
-                  <label className="cursor-pointer border border-dashed border-wellness-gray-300 hover:border-wellness-green transition-colors rounded-xl p-4 flex flex-col items-center justify-center gap-1 bg-wellness-gray-50 text-center w-24 h-24 shrink-0">
-                    <Plus size={20} className="text-wellness-navy/60" />
-                    <span className="text-[9px] font-bold uppercase tracking-wider text-wellness-charcoal/60">
-                      Upload
-                    </span>
+                  <label
+                    className={`border border-dashed transition-all rounded-xl p-4 flex flex-col items-center justify-center gap-1.5 text-center w-24 h-24 shrink-0 ${
+                      isUploadingNewImages
+                        ? 'border-wellness-green bg-wellness-green/10 cursor-not-allowed opacity-90'
+                        : 'cursor-pointer border-wellness-gray-300 hover:border-wellness-green bg-wellness-gray-50'
+                    }`}
+                  >
+                    {isUploadingNewImages ? (
+                      <>
+                        <Loader2 size={22} className="text-wellness-green animate-spin" />
+                        <span className="text-[9px] font-bold uppercase tracking-wider text-wellness-green">
+                          Uploading
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <Plus size={20} className="text-wellness-navy/60" />
+                        <span className="text-[9px] font-bold uppercase tracking-wider text-wellness-charcoal/60">
+                          Upload
+                        </span>
+                      </>
+                    )}
                     <input
                       type="file"
                       multiple
                       accept="image/*"
+                      disabled={isUploadingNewImages}
                       onChange={(e) => {
                         void handleNewProductImagesChange(e);
                       }}
@@ -477,10 +526,20 @@ export default function ProductsTab({
                     />
                   </label>
 
+                  {/* Uploading Placeholder Card */}
+                  {isUploadingNewImages && (
+                    <div className="relative w-24 h-24 rounded-xl border border-dashed border-wellness-green/60 bg-wellness-green/5 flex flex-col items-center justify-center gap-1.5 shrink-0 animate-pulse">
+                      <Loader2 size={20} className="text-wellness-green animate-spin" />
+                      <span className="text-[9px] font-bold text-wellness-green">
+                        Processing...
+                      </span>
+                    </div>
+                  )}
+
                   {newProductImages.map((img, idx) => (
                     <div
                       key={idx}
-                      draggable
+                      draggable={!isUploadingNewImages && deletingNewImageIdx === null}
                       onDragStart={() => {
                         handleImageDragStart(idx);
                       }}
@@ -490,7 +549,11 @@ export default function ProductsTab({
                       onDrop={(e) => {
                         void handleImageDrop(e, idx, false);
                       }}
-                      className={`relative w-24 h-24 rounded-xl overflow-hidden border transition-all cursor-move shrink-0 ${
+                      className={`relative w-24 h-24 rounded-xl overflow-hidden border transition-all shrink-0 ${
+                        deletingNewImageIdx === idx
+                          ? 'opacity-70 scale-95 border-red-300'
+                          : 'cursor-move'
+                      } ${
                         draggedImgIdx === idx
                           ? 'opacity-40 border-dashed border-wellness-green scale-95'
                           : dragOverImgIdx === idx
@@ -504,14 +567,35 @@ export default function ProductsTab({
                         alt={`Preview ${(idx + 1).toString()}`}
                         className="object-cover w-full h-full pointer-events-none"
                       />
+
+                      {/* Deleting Spinner Overlay */}
+                      {deletingNewImageIdx === idx && (
+                        <div className="absolute inset-0 bg-white/85 backdrop-blur-[1px] flex flex-col items-center justify-center gap-1 z-20">
+                          <Loader2 size={18} className="text-red-500 animate-spin" />
+                          <span className="text-[8px] font-bold uppercase tracking-wider text-red-500">
+                            Deleting...
+                          </span>
+                        </div>
+                      )}
+
                       <button
                         type="button"
+                        disabled={deletingNewImageIdx !== null || isUploadingNewImages}
                         onClick={() => {
-                          setNewProductImages((prev) => prev.filter((_, i) => i !== idx));
+                          if (handleRemoveNewProductImage) {
+                            void handleRemoveNewProductImage(idx);
+                          } else {
+                            setNewProductImages((prev) => prev.filter((_, i) => i !== idx));
+                          }
                         }}
-                        className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shadow-sm focus:outline-none z-10"
+                        className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shadow-sm focus:outline-none z-10 cursor-pointer"
+                        title="Remove image"
                       >
-                        ×
+                        {deletingNewImageIdx === idx ? (
+                          <Loader2 size={12} className="animate-spin" />
+                        ) : (
+                          '×'
+                        )}
                       </button>
                       <div className="absolute bottom-0 inset-x-0 bg-wellness-navy/80 text-[8px] font-extrabold uppercase text-center text-white py-0.5">
                         {idx === 0 ? 'Cover (Primary)' : `Pos ${(idx + 1).toString()}`}
@@ -606,6 +690,122 @@ export default function ProductsTab({
         )}
       </AnimatePresence>
 
+      {/* Product Status & Search Filter Bar */}
+      <div className="bg-white border border-wellness-gray-200 rounded-2xl p-4 shadow-sm space-y-3">
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-bold text-wellness-navy uppercase tracking-wider px-1">
+              Status Filter:
+            </span>
+            {(
+              [
+                { key: 'all', label: 'All Products', count: displayedProducts.length },
+                {
+                  key: 'listed',
+                  label: 'Listed',
+                  count: displayedProducts.filter((p) => (p.status ?? 'listed') === 'listed')
+                    .length,
+                },
+                {
+                  key: 'unlisted',
+                  label: 'Unlisted',
+                  count: displayedProducts.filter((p) => p.status === 'unlisted').length,
+                },
+                {
+                  key: 'discontinued',
+                  label: 'Discontinued',
+                  count: displayedProducts.filter((p) => p.status === 'discontinued').length,
+                },
+              ] as const
+            ).map((filter) => {
+              const isActive = statusFilter === filter.key;
+              return (
+                <button
+                  key={filter.key}
+                  type="button"
+                  onClick={() => {
+                    setStatusFilter(filter.key);
+                  }}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                    isActive
+                      ? 'bg-wellness-navy text-white shadow-sm'
+                      : 'bg-wellness-gray-100 hover:bg-wellness-gray-200 text-wellness-charcoal/80'
+                  }`}
+                >
+                  <span>{filter.label}</span>
+                  <span
+                    className={`text-[10px] px-1.5 py-0.2 rounded-full font-extrabold ${
+                      isActive
+                        ? 'bg-white/20 text-white'
+                        : 'bg-white text-wellness-navy border border-wellness-gray-200'
+                    }`}
+                  >
+                    {filter.count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="text-[11px] font-semibold text-wellness-charcoal/60">
+            Showing {filteredProducts.length} of {displayedProducts.length} products
+          </div>
+        </div>
+
+        {/* Search & Category Filter Row */}
+        <div className="flex items-center gap-3 flex-wrap pt-2 border-t border-wellness-gray-150">
+          <div className="relative flex-1 min-w-[220px] max-w-sm">
+            <Search
+              size={14}
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-wellness-charcoal/40"
+            />
+            <input
+              type="text"
+              placeholder="Search product name, category, or ID..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+              }}
+              className="w-full pl-9 pr-4 py-2 rounded-xl border border-wellness-gray-200 bg-wellness-gray-50 focus:bg-white focus:border-wellness-green outline-none text-xs font-semibold text-wellness-navy placeholder:text-wellness-charcoal/40 transition-colors"
+            />
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-bold text-wellness-charcoal/60">Category:</span>
+            <select
+              value={categoryFilter}
+              onChange={(e) => {
+                setCategoryFilter(e.target.value);
+              }}
+              className="px-3 py-2 rounded-xl border border-wellness-gray-200 bg-wellness-gray-50 focus:bg-white focus:border-wellness-green outline-none text-xs font-semibold text-wellness-navy cursor-pointer"
+            >
+              <option value="All">All Categories</option>
+              {categories
+                .filter((c) => c !== 'All')
+                .map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+            </select>
+          </div>
+
+          {(searchQuery !== '' || categoryFilter !== 'All' || statusFilter !== 'all') && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery('');
+                setCategoryFilter('All');
+                setStatusFilter('all');
+              }}
+              className="text-xs font-bold text-wellness-green hover:underline cursor-pointer ml-auto"
+            >
+              Reset Filters
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* Products Table/Grid list */}
       <div className="bg-white border border-wellness-gray-200 rounded-3xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
@@ -615,23 +815,24 @@ export default function ProductsTab({
                 <th className="p-5">Product Details</th>
                 <th className="p-5">Category</th>
                 <th className="p-5">Price</th>
+                <th className="p-5">Product Status</th>
                 <th className="p-5">Stock Status</th>
                 <th className="p-5">Homepage & Badges</th>
                 <th className="p-5 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-wellness-gray-100 text-xs font-semibold text-wellness-navy">
-              {displayedProducts.length === 0 ? (
+              {filteredProducts.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={7}
                     className="p-8 text-center text-wellness-charcoal/50 text-xs font-semibold"
                   >
-                    No products found. Add a new product to get started.
+                    No products found matching the selected filter.
                   </td>
                 </tr>
               ) : (
-                displayedProducts.map((product) => (
+                filteredProducts.map((product) => (
                   <tr key={product.id} className="hover:bg-wellness-gray-50/50 transition-colors">
                     <td className="p-5">
                       <div className="flex items-center gap-3">
@@ -695,27 +896,45 @@ export default function ProductsTab({
                         );
                       })()}
                     </td>
+                    {/* Product Status Column */}
+                    <td className="p-5">
+                      <select
+                        value={product.status ?? 'listed'}
+                        onChange={(e) => {
+                          void handleQuickUpdateProduct(product.id, {
+                            status: e.target.value as 'listed' | 'unlisted' | 'discontinued',
+                          });
+                        }}
+                        className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold border outline-none cursor-pointer ${
+                          (product.status ?? 'listed') === 'listed'
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                            : product.status === 'unlisted'
+                              ? 'bg-amber-50 text-amber-700 border-amber-200'
+                              : 'bg-rose-50 text-rose-700 border-rose-200'
+                        }`}
+                      >
+                        <option value="listed">Listed</option>
+                        <option value="unlisted">Unlisted</option>
+                        <option value="discontinued">Discontinued</option>
+                      </select>
+                    </td>
                     {/* Stock Status Column */}
                     <td className="p-5">
                       <select
                         value={product.stockStatus ?? 'in_stock'}
                         onChange={(e) => {
                           void handleQuickUpdateProduct(product.id, {
-                            stockStatus: e.target.value as
-                              'in_stock' | 'out_of_stock' | 'discontinued',
+                            stockStatus: e.target.value as 'in_stock' | 'out_of_stock',
                           });
                         }}
                         className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold border outline-none cursor-pointer ${
                           (product.stockStatus ?? 'in_stock') === 'in_stock'
                             ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                            : (product.stockStatus ?? 'in_stock') === 'out_of_stock'
-                              ? 'bg-amber-50 text-amber-700 border-amber-200'
-                              : 'bg-red-50 text-red-700 border-red-200'
+                            : 'bg-amber-50 text-amber-700 border-amber-200'
                         }`}
                       >
                         <option value="in_stock">In Stock</option>
                         <option value="out_of_stock">Out of Stock</option>
-                        <option value="discontinued">Discontinued</option>
                       </select>
                     </td>
                     {/* Homepage & Badges Column */}

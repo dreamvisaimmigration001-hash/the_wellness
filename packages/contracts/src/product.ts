@@ -1,5 +1,8 @@
 import { JsonValue } from './common';
 
+export type ProductStatus = 'listed' | 'unlisted' | 'discontinued';
+export type ProductStockStatus = 'in_stock' | 'out_of_stock';
+
 export type ProductImageDTO = {
   id: string;
   productId: string;
@@ -21,7 +24,8 @@ export type ProductListDTO = {
   inventoryQty?: number | null;
   availableQty?: number | null;
   reservedQty?: number | null;
-  stockStatus: 'in_stock' | 'out_of_stock' | 'discontinued';
+  stockStatus: ProductStockStatus;
+  status: ProductStatus;
   isBestSeller: boolean;
   isFeatured: boolean;
   isNewest: boolean;
@@ -56,7 +60,8 @@ export type ProductMutationDTO = {
   inventoryQty?: number | null;
   availableQty?: number | null;
   reservedQty?: number | null;
-  stockStatus: 'in_stock' | 'out_of_stock' | 'discontinued';
+  stockStatus: ProductStockStatus;
+  status: ProductStatus;
   isBestSeller: boolean;
   isFeatured: boolean;
   isNewest: boolean;
@@ -79,7 +84,8 @@ export type ProductDetailDTO = {
   inventoryQty?: number | null;
   availableQty?: number | null;
   reservedQty?: number | null;
-  stockStatus: 'in_stock' | 'out_of_stock' | 'discontinued';
+  stockStatus: ProductStockStatus;
+  status: ProductStatus;
   isBestSeller: boolean;
   isFeatured: boolean;
   isNewest: boolean;

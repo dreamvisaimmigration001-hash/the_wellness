@@ -3,6 +3,9 @@ import {
   products,
   productImages,
   inventory,
+  inventoryTransactions,
+  cartItems,
+  orderItems,
   categories,
   eq,
   and,
@@ -31,10 +34,25 @@ function formatPrice(val: unknown): string {
 }
 
 export class ProductService {
-  async getPublicProducts(page = 1, limit = 20) {
+  async getPublicProducts(
+    page = 1,
+    limit = 20,
+    statusFilter?: 'all' | 'listed' | 'unlisted' | 'discontinued',
+    categoryId?: string,
+  ) {
     const offset = (page - 1) * limit;
 
-    const rows = await db
+    const conditions = [];
+    const effectiveStatus = statusFilter ?? 'listed';
+    if (effectiveStatus !== 'all') {
+      conditions.push(eq(products.status, effectiveStatus));
+    }
+    if (categoryId) {
+      conditions.push(eq(products.categoryId, categoryId));
+    }
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+    const query = db
       .select({
         product: products,
         categoryName: categories.name,
@@ -43,11 +61,14 @@ export class ProductService {
       })
       .from(products)
       .leftJoin(categories, eq(products.categoryId, categories.id))
-      .leftJoin(inventory, eq(products.id, inventory.productId))
-      .limit(limit)
-      .offset(offset);
+      .leftJoin(inventory, eq(products.id, inventory.productId));
 
-    const [totalCountResult] = await db.select({ count: count() }).from(products);
+    const rows = whereClause
+      ? await query.where(whereClause).limit(limit).offset(offset)
+      : await query.limit(limit).offset(offset);
+
+    const countQuery = db.select({ count: count() }).from(products);
+    const [totalCountResult] = whereClause ? await countQuery.where(whereClause) : await countQuery;
 
     const totalItems = totalCountResult?.count ?? 0;
 
@@ -89,7 +110,7 @@ export class ProductService {
     };
   }
 
-  async getProductById(id: string) {
+  async getProductById(id: string, allowAnyStatus = false) {
     const [row] = await db
       .select({
         product: products,
@@ -104,6 +125,9 @@ export class ProductService {
       .limit(1);
 
     if (!row) throw new NotFoundError('Product not found');
+    if (!allowAnyStatus && row.product.status !== 'listed') {
+      throw new NotFoundError('Product not found');
+    }
 
     const imgs = await db
       .select()
@@ -170,6 +194,7 @@ export class ProductService {
         .insert(products)
         .values({
           ...productData,
+          status: productData.status ?? 'listed',
           stockQty,
           stockStatus: initialStockStatus,
           sellingPrice,
@@ -265,12 +290,10 @@ export class ProductService {
     }
 
     let nextStockStatus = productData.stockStatus ?? existingProduct.stockStatus;
-    if (nextStockStatus !== 'discontinued') {
-      if (newStockQty <= 0 || targetInvQty <= 0) {
-        nextStockStatus = 'out_of_stock';
-      } else if (nextStockStatus === 'out_of_stock' && newStockQty > 0 && targetInvQty > 0) {
-        nextStockStatus = 'in_stock';
-      }
+    if (newStockQty <= 0 || targetInvQty <= 0) {
+      nextStockStatus = 'out_of_stock';
+    } else if (nextStockStatus === 'out_of_stock' && newStockQty > 0 && targetInvQty > 0) {
+      nextStockStatus = 'in_stock';
     }
 
     const setValues: Record<string, unknown> = {
@@ -345,10 +368,35 @@ export class ProductService {
   }
 
   async deleteProduct(id: string) {
-    const [product] = await db.delete(products).where(eq(products.id, id)).returning();
+    return await db.transaction(async (tx) => {
+      const [existing] = await tx.select().from(products).where(eq(products.id, id)).limit(1);
+      if (!existing) {
+        throw new NotFoundError('Product not found');
+      }
 
-    if (!product) throw new NotFoundError('Product not found');
-    return toProductMutationDTO(product, []);
+      const [existingOrder] = await tx
+        .select({ id: orderItems.id })
+        .from(orderItems)
+        .where(eq(orderItems.productId, id))
+        .limit(1);
+
+      if (existingOrder) {
+        throw new BadRequestError(
+          'Cannot delete a product that has existing customer orders. Please mark its status as discontinued instead.',
+        );
+      }
+
+      await tx.delete(cartItems).where(eq(cartItems.productId, id));
+      await tx.delete(inventoryTransactions).where(eq(inventoryTransactions.productId, id));
+      await tx.delete(inventory).where(eq(inventory.productId, id));
+      await tx.delete(productImages).where(eq(productImages.productId, id));
+
+      const [product] = await tx.delete(products).where(eq(products.id, id)).returning();
+      if (!product) {
+        throw new NotFoundError('Product not found');
+      }
+      return toProductMutationDTO(product, []);
+    });
   }
 
   async getProductImages(productId: string) {

@@ -1,6 +1,6 @@
 'use client';
 
-import { X, Plus } from 'lucide-react';
+import { X, Plus, Loader2 } from 'lucide-react';
 import React from 'react';
 
 import DropdownField from '@/components/ui/DropdownField';
@@ -14,6 +14,8 @@ interface EditProductModalProps {
   setEditingProduct: React.Dispatch<React.SetStateAction<Product | null>>;
   handleEditProductImagesChange: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
   handleRemoveEditProductImage: (idx: number) => Promise<void>;
+  isUploadingEditImages?: boolean;
+  deletingEditImageIdx?: number | null;
   handleImageDragStart: (idx: number) => void;
   handleImageDragOver: (e: React.DragEvent, idx: number) => void;
   handleImageDrop: (e: React.DragEvent, idx: number, isEditMode: boolean) => Promise<void>;
@@ -29,6 +31,8 @@ export default function EditProductModal({
   setEditingProduct,
   handleEditProductImagesChange,
   handleRemoveEditProductImage,
+  isUploadingEditImages = false,
+  deletingEditImageIdx = null,
   handleImageDragStart,
   handleImageDragOver,
   handleImageDrop,
@@ -200,14 +204,34 @@ export default function EditProductModal({
             <h5 className="text-xs font-extrabold text-wellness-navy uppercase tracking-wider">
               Product Availability Status & Marketing Badges
             </h5>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+              <div>
+                <DropdownField
+                  label="Product Status"
+                  options={[
+                    { value: 'listed', label: 'Listed' },
+                    { value: 'unlisted', label: 'Unlisted' },
+                    { value: 'discontinued', label: 'Discontinued' },
+                  ]}
+                  selectedValue={editingProduct.status ?? 'listed'}
+                  onChange={(val) => {
+                    setEditingProduct((prev: Product | null) =>
+                      prev
+                        ? {
+                            ...prev,
+                            status: val as 'listed' | 'unlisted' | 'discontinued',
+                          }
+                        : null,
+                    );
+                  }}
+                />
+              </div>
               <div>
                 <DropdownField
                   label="Stock Status"
                   options={[
                     { value: 'in_stock', label: 'In Stock' },
                     { value: 'out_of_stock', label: 'Out of Stock' },
-                    { value: 'discontinued', label: 'Discontinued' },
                   ]}
                   selectedValue={editingProduct.stockStatus ?? 'in_stock'}
                   onChange={(val) => {
@@ -215,7 +239,7 @@ export default function EditProductModal({
                       prev
                         ? {
                             ...prev,
-                            stockStatus: val as 'in_stock' | 'out_of_stock' | 'discontinued',
+                            stockStatus: val as 'in_stock' | 'out_of_stock',
                           }
                         : null,
                     );
@@ -324,15 +348,26 @@ export default function EditProductModal({
               Upload Gallery Images (Max 6)
             </label>
             <div className="flex flex-wrap gap-4 items-center">
-              <label className="cursor-pointer border border-dashed border-wellness-gray-300 hover:border-wellness-green transition-colors rounded-xl p-4 flex flex-col items-center justify-center gap-1 bg-wellness-gray-50 text-center w-24 h-24 shrink-0">
-                <Plus size={20} className="text-wellness-navy/60" />
+              <label
+                className={`border border-dashed transition-colors rounded-xl p-4 flex flex-col items-center justify-center gap-1 bg-wellness-gray-50 text-center w-24 h-24 shrink-0 ${
+                  isUploadingEditImages
+                    ? 'border-wellness-green/60 opacity-80 cursor-not-allowed'
+                    : 'border-wellness-gray-300 hover:border-wellness-green cursor-pointer'
+                }`}
+              >
+                {isUploadingEditImages ? (
+                  <Loader2 size={20} className="text-wellness-green animate-spin" />
+                ) : (
+                  <Plus size={20} className="text-wellness-navy/60" />
+                )}
                 <span className="text-[9px] font-bold uppercase tracking-wider text-wellness-charcoal/60">
-                  Upload
+                  {isUploadingEditImages ? 'Uploading' : 'Upload'}
                 </span>
                 <input
                   type="file"
                   multiple
                   accept="image/*"
+                  disabled={isUploadingEditImages}
                   onChange={(e) => {
                     void handleEditProductImagesChange(e);
                   }}
@@ -340,13 +375,22 @@ export default function EditProductModal({
                 />
               </label>
 
+              {isUploadingEditImages && (
+                <div className="relative w-24 h-24 rounded-xl border border-wellness-green/40 bg-wellness-green/5 flex flex-col items-center justify-center gap-1.5 animate-pulse shrink-0">
+                  <Loader2 size={20} className="animate-spin text-wellness-green" />
+                  <span className="text-[9px] font-bold text-wellness-green uppercase tracking-wider">
+                    Processing...
+                  </span>
+                </div>
+              )}
+
               {(editingProduct.images && editingProduct.images.length > 0
                 ? editingProduct.images
                 : [editingProduct.image]
               ).map((img: string, idx: number) => (
                 <div
                   key={idx}
-                  draggable
+                  draggable={!isUploadingEditImages && deletingEditImageIdx === null}
                   onDragStart={() => {
                     handleImageDragStart(idx);
                   }}
@@ -356,13 +400,13 @@ export default function EditProductModal({
                   onDrop={(e) => {
                     void handleImageDrop(e, idx, true);
                   }}
-                  className={`relative w-24 h-24 rounded-xl overflow-hidden border transition-all cursor-move shrink-0 ${
+                  className={`relative w-24 h-24 rounded-xl overflow-hidden border transition-all shrink-0 ${
                     draggedImgIdx === idx
                       ? 'opacity-40 border-dashed border-wellness-green scale-95'
                       : dragOverImgIdx === idx
                         ? 'border-2 border-wellness-green shadow-lg scale-105'
                         : 'border-wellness-gray-200 bg-wellness-gray-50 hover:border-wellness-green/50'
-                  }`}
+                  } ${deletingEditImageIdx === idx ? 'opacity-50' : 'cursor-move'}`}
                   title="Drag to reorder"
                 >
                   <img
@@ -370,14 +414,28 @@ export default function EditProductModal({
                     alt={`Preview ${(idx + 1).toString()}`}
                     className="object-cover w-full h-full pointer-events-none"
                   />
+
+                  {deletingEditImageIdx === idx && (
+                    <div className="absolute inset-0 bg-white/80 backdrop-blur-[1px] flex flex-col items-center justify-center gap-1 z-20">
+                      <Loader2 size={18} className="animate-spin text-red-500" />
+                      <span className="text-[8px] font-bold text-red-600 uppercase">Deleting</span>
+                    </div>
+                  )}
+
                   <button
                     type="button"
+                    disabled={deletingEditImageIdx !== null}
                     onClick={() => {
                       void handleRemoveEditProductImage(idx);
                     }}
-                    className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shadow-sm focus:outline-none z-10"
+                    className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shadow-sm focus:outline-none z-10 cursor-pointer disabled:cursor-not-allowed"
+                    title="Remove image"
                   >
-                    ×
+                    {deletingEditImageIdx === idx ? (
+                      <Loader2 size={10} className="animate-spin" />
+                    ) : (
+                      '×'
+                    )}
                   </button>
                   <div className="absolute bottom-0 inset-x-0 bg-wellness-navy/80 text-[8px] font-extrabold uppercase text-center text-white py-0.5">
                     {idx === 0 ? 'Cover (Primary)' : `Pos ${(idx + 1).toString()}`}

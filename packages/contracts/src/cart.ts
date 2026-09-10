@@ -11,7 +11,8 @@ export type CartItemProductDTO = {
   description?: string | null | undefined;
   stockQty?: number | null | undefined;
   availableQty?: number | null | undefined;
-  stockStatus?: 'in_stock' | 'out_of_stock' | 'discontinued' | null | undefined;
+  stockStatus?: 'in_stock' | 'out_of_stock' | null | undefined;
+  status?: 'listed' | 'unlisted' | 'discontinued' | null | undefined;
 };
 
 export type CartItemDTO = {

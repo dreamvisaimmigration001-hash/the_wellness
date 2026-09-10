@@ -69,53 +69,61 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
               tags?: string[];
               requiresPrescription?: boolean;
               dosage?: string;
+              status?: 'listed' | 'unlisted' | 'discontinued';
             };
           };
           if (singleJson.success && singleJson.data) {
             const item = singleJson.data;
-            const spNum =
-              typeof item.sellingPrice === 'number'
-                ? item.sellingPrice
-                : typeof item.sellingPrice === 'string'
-                  ? parseFloat(item.sellingPrice)
-                  : (item.startingPrice ?? 0);
-            const mrpNum =
-              typeof item.mrp === 'number'
-                ? item.mrp
-                : typeof item.mrp === 'string'
-                  ? parseFloat(item.mrp)
-                  : (item.compareAtPrice ?? spNum);
+            if (item.status && item.status !== 'listed') {
+              foundProduct = null;
+            } else {
+              const spNum =
+                typeof item.sellingPrice === 'number'
+                  ? item.sellingPrice
+                  : typeof item.sellingPrice === 'string'
+                    ? parseFloat(item.sellingPrice)
+                    : (item.startingPrice ?? 0);
+              const mrpNum =
+                typeof item.mrp === 'number'
+                  ? item.mrp
+                  : typeof item.mrp === 'string'
+                    ? parseFloat(item.mrp)
+                    : (item.compareAtPrice ?? spNum);
 
-            const availQty = item.availableQty ?? item.inventoryQty ?? item.stockQty ?? 0;
+              const availQty = item.availableQty ?? item.inventoryQty ?? item.stockQty ?? 0;
 
-            foundProduct = {
-              id: item.id,
-              name: item.name,
-              category: item.categoryName || item.category || 'Uncategorized',
-              type:
-                item.type === 'Prescription (Rx)' ? 'Prescription (Rx)' : 'Over-The-Counter (OTC)',
-              description:
-                item.description ||
-                item.shortDescription ||
-                'No detailed clinical description provided.',
-              benefits: item.features || item.benefits || ['Clinical Efficacy'],
-              ingredients: item.ingredients || ['Active Formulation'],
-              image: getCloudinaryImageUrl(item.primaryImage || item.image),
-              images:
-                Array.isArray(item.images) && item.images.length > 0
-                  ? item.images.map((img: string | { url?: string }) =>
-                      typeof img === 'string' ? img : img.url || '',
-                    )
-                  : [getCloudinaryImageUrl(item.primaryImage || item.image)],
-              price: spNum,
-              mrp: mrpNum,
-              originalPrice: mrpNum,
-              sellingPrice: spNum,
-              stockQty: item.stockQty ?? availQty,
-              inventoryQty: availQty,
-              availableQty: availQty,
-              tags: item.tags || [],
-            };
+              foundProduct = {
+                id: item.id,
+                name: item.name,
+                category: item.categoryName || item.category || 'Uncategorized',
+                status: item.status,
+                type:
+                  item.type === 'Prescription (Rx)'
+                    ? 'Prescription (Rx)'
+                    : 'Over-The-Counter (OTC)',
+                description:
+                  item.description ||
+                  item.shortDescription ||
+                  'No detailed clinical description provided.',
+                benefits: item.features || item.benefits || ['Clinical Efficacy'],
+                ingredients: item.ingredients || ['Active Formulation'],
+                image: getCloudinaryImageUrl(item.primaryImage || item.image),
+                images:
+                  Array.isArray(item.images) && item.images.length > 0
+                    ? item.images.map((img: string | { url?: string }) =>
+                        typeof img === 'string' ? img : img.url || '',
+                      )
+                    : [getCloudinaryImageUrl(item.primaryImage || item.image)],
+                price: spNum,
+                mrp: mrpNum,
+                originalPrice: mrpNum,
+                sellingPrice: spNum,
+                stockQty: item.stockQty ?? availQty,
+                inventoryQty: availQty,
+                availableQty: availQty,
+                tags: item.tags || [],
+              };
+            }
           }
         }
 

@@ -83,6 +83,32 @@ describe('Validation Schemas', () => {
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.stockStatus).toBe('in_stock');
+        expect(result.data.status).toBe('listed');
+      }
+    });
+
+    it('rejects discontinued in stockStatus and accepts valid status enum', () => {
+      const invalidStockStatus = CreateProductSchema.safeParse({
+        name: 'Test Product',
+        description: 'Comprehensive test product description.',
+        sellingPrice: 100,
+        mrp: 150,
+        stockStatus: 'discontinued',
+        images: ['http://example.com/1.jpg', 'http://example.com/2.jpg'],
+      });
+      expect(invalidStockStatus.success).toBe(false);
+
+      const validStatus = CreateProductSchema.safeParse({
+        name: 'Test Product',
+        description: 'Comprehensive test product description.',
+        sellingPrice: 100,
+        mrp: 150,
+        status: 'discontinued',
+        images: ['http://example.com/1.jpg', 'http://example.com/2.jpg'],
+      });
+      expect(validStatus.success).toBe(true);
+      if (validStatus.success) {
+        expect(validStatus.data.status).toBe('discontinued');
       }
     });
 

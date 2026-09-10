@@ -1,3 +1,5 @@
+import path from 'node:path';
+
 import { toNodeHandler } from 'better-auth/node';
 import cors from 'cors';
 import express from 'express';
@@ -29,7 +31,11 @@ import settingsRoutes from './routes/settings.routes';
 export const app = express();
 
 // Security Middlewares
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  }),
+);
 app.use(
   cors({
     origin: env.CORS_ORIGIN,
@@ -68,5 +74,6 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/promotions', promotionRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/cloudinary', cloudinaryRoutes);
+app.use('/uploads', express.static(path.resolve(process.cwd(), 'uploads')));
 app.use(notFoundHandler);
 app.use(errorHandler);

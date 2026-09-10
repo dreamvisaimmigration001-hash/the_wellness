@@ -162,7 +162,8 @@ export interface NewProductFormState {
   availableQty: string;
   reservedQty: string;
   inventoryQty: string;
-  stockStatus: 'in_stock' | 'out_of_stock' | 'discontinued';
+  stockStatus: 'in_stock' | 'out_of_stock';
+  status: 'listed' | 'unlisted' | 'discontinued';
   isFeatured: boolean;
   isBestSeller: boolean;
   isNewest: boolean;
@@ -174,7 +175,8 @@ export interface NewProductFormState {
 }
 
 export interface QuickUpdateProductPayload {
-  stockStatus?: 'in_stock' | 'out_of_stock' | 'discontinued';
+  stockStatus?: 'in_stock' | 'out_of_stock';
+  status?: 'listed' | 'unlisted' | 'discontinued';
   isFeatured?: boolean;
   isBestSeller?: boolean;
   isNewest?: boolean;

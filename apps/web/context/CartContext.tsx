@@ -162,7 +162,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                       price: finalPrice,
                       stockQty: itemStockQty,
                       availableQty: itemAvailableQty,
-                      stockStatus: itemStockStatus as 'in_stock' | 'out_of_stock' | 'discontinued',
+                      stockStatus: itemStockStatus as 'in_stock' | 'out_of_stock',
                     }
                   : {
                       id: item.productId,
@@ -171,14 +171,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                       category: item.product?.categoryName || 'General Therapeutics',
                       type: productType,
                       image:
-                        item.product?.primaryImage ||
-                        '/images/products/product_placeholder.png',
+                        item.product?.primaryImage || '/images/products/product_placeholder.png',
                       description: item.product?.description || '',
                       ingredients: [],
                       benefits: [],
                       stockQty: itemStockQty,
                       availableQty: itemAvailableQty,
-                      stockStatus: itemStockStatus as 'in_stock' | 'out_of_stock' | 'discontinued',
+                      stockStatus: itemStockStatus as 'in_stock' | 'out_of_stock',
                     },
                 quantity: item.quantity,
               };

@@ -1,8 +1,12 @@
+import dns from 'node:dns';
+
 import { env } from '@wellness/config';
 import { pool } from '@wellness/db';
 
 import { app } from './app';
 import { logger } from './lib/logger';
+
+dns.setDefaultResultOrder('ipv4first');
 
 const startServer = async () => {
   try {
