@@ -15,6 +15,7 @@ import type {
   Address,
   AccountAddressFormData,
   OrderData,
+  OrderStatus,
   ApiOrderDTO,
   ApiOrderItem,
 } from './types';
@@ -97,38 +98,61 @@ export default function AccountPage() {
         if (res.ok) {
           const json = (await res.json()) as { success?: boolean; data?: ApiOrderDTO[] };
           if (json.success && Array.isArray(json.data) && json.data.length > 0) {
-            const mappedOrders: OrderData[] = json.data.map((ord) => ({
-              orderId: ord.id,
-              paymentId:
-                ord.payment?.transactionId ||
-                ord.payment?.razorpayPaymentId ||
-                ord.payment?.provider ||
-                'PAID',
-              items: (ord.items || []).map((item: ApiOrderItem) => ({
-                product: {
-                  id: item.productId,
-                  name: item.productName || 'Therapeutic Formulation',
-                  price: item.unitPrice,
-                  image: '/images/products/product_placeholder.png',
-                  type: 'Prescription Medicine',
+            const mappedOrders: OrderData[] = json.data.map((ord) => {
+              const rawStreet = ord.shippingAddress?.street || '';
+              let parsedFullName = ord.shippingAddress?.fullName || user?.name || 'Customer';
+              let parsedPhone = ord.shippingAddress?.phone || '';
+              let parsedAddress = rawStreet;
+
+              if (rawStreet.includes(' | ')) {
+                const parts = rawStreet.split(' | ');
+                if (parts.length >= 3) {
+                  if (
+                    !ord.shippingAddress?.fullName ||
+                    ord.shippingAddress.fullName === 'Customer'
+                  ) {
+                    parsedFullName = parts[0];
+                  }
+                  if (!parsedPhone) {
+                    parsedPhone = parts[1];
+                  }
+                  parsedAddress = parts.slice(2).join(' | ');
+                }
+              }
+
+              return {
+                orderId: ord.id,
+                paymentId:
+                  ord.payment?.transactionId ||
+                  ord.payment?.razorpayPaymentId ||
+                  ord.payment?.provider ||
+                  'PAID',
+                items: (ord.items || []).map((item: ApiOrderItem) => ({
+                  product: {
+                    id: item.productId,
+                    name: item.productName || 'Therapeutic Formulation',
+                    price: item.unitPrice,
+                    image: '/images/products/product_placeholder.png',
+                    type: 'Prescription Medicine',
+                  },
+                  quantity: item.quantity,
+                })),
+                subtotal: ord.subtotal ?? ord.totalAmount ?? 0,
+                shipping: ord.shippingAmount ?? 0,
+                tax: ord.taxAmount ?? 0,
+                total: ord.totalAmount ?? ord.price ?? 0,
+                shippingForm: {
+                  fullName: parsedFullName,
+                  email: ord.shippingAddress?.email || user?.email || '',
+                  phone: parsedPhone,
+                  address: parsedAddress,
+                  city: ord.shippingAddress?.city || '',
+                  zipCode: ord.shippingAddress?.pincode || '',
                 },
-                quantity: item.quantity,
-              })),
-              subtotal: ord.subtotal ?? ord.totalAmount ?? 0,
-              shipping: ord.shippingAmount ?? 0,
-              tax: ord.taxAmount ?? 0,
-              total: ord.totalAmount ?? ord.price ?? 0,
-              shippingForm: {
-                fullName: ord.shippingAddress?.fullName || user?.name || 'Customer',
-                email: ord.shippingAddress?.email || user?.email || '',
-                phone: ord.shippingAddress?.phone || '',
-                address: ord.shippingAddress?.street || '',
-                city: ord.shippingAddress?.city || '',
-                zipCode: ord.shippingAddress?.pincode || '',
-              },
-              date: ord.createdAt,
-              status: ord.status as 'pending' | 'confirmed' | 'delivered' | 'cancelled',
-            }));
+                date: ord.createdAt,
+                status: ord.status as OrderStatus,
+              };
+            });
 
             setOrders(mappedOrders);
             return;

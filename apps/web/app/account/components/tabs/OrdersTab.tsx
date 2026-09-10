@@ -14,9 +14,62 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React, { useState } from 'react';
 
-import type { OrderData } from '../../types';
+import type { OrderData, OrderStatus } from '../../types';
 
 import { generateInvoicePDF } from '@/lib/invoiceGenerator';
+
+const STATUS_CONFIG: Record<
+  OrderStatus,
+  {
+    label: string;
+    subtext: string;
+    badgeClass: string;
+    dotClass: string;
+  }
+> = {
+  pending: {
+    label: 'Pending',
+    subtext: 'Pending Approval',
+    badgeClass: 'text-amber-700 bg-amber-50 border-amber-200',
+    dotClass: 'bg-amber-500',
+  },
+  confirmed: {
+    label: 'Confirmed',
+    subtext: 'Approved & Shipping',
+    badgeClass: 'text-wellness-green bg-wellness-green/10 border-wellness-green/20',
+    dotClass: 'bg-wellness-green',
+  },
+  processing: {
+    label: 'Processing',
+    subtext: 'Packing & Preparing',
+    badgeClass: 'text-blue-700 bg-blue-50 border-blue-200',
+    dotClass: 'bg-blue-500',
+  },
+  shipped: {
+    label: 'Dispatched',
+    subtext: 'In Transit with Courier',
+    badgeClass: 'text-indigo-700 bg-indigo-50 border-indigo-200',
+    dotClass: 'bg-indigo-500',
+  },
+  out_for_delivery: {
+    label: 'Out for Delivery',
+    subtext: 'En Route to Address',
+    badgeClass: 'text-purple-700 bg-purple-50 border-purple-200',
+    dotClass: 'bg-purple-500',
+  },
+  delivered: {
+    label: 'Delivered',
+    subtext: 'Delivered Successfully',
+    badgeClass: 'text-emerald-700 bg-emerald-50 border-emerald-200',
+    dotClass: 'bg-emerald-500',
+  },
+  cancelled: {
+    label: 'Cancelled',
+    subtext: 'Cancelled',
+    badgeClass: 'text-red-600 bg-red-50 border-red-200',
+    dotClass: 'bg-red-500',
+  },
+};
 
 interface OrdersTabProps {
   orders: OrderData[];
@@ -69,6 +122,9 @@ export default function OrdersTab({ orders }: OrdersTabProps) {
               day: 'numeric',
               year: 'numeric',
             });
+            const statusKey =
+              ord.status && ord.status in STATUS_CONFIG ? ord.status : 'pending';
+            const statusMeta = STATUS_CONFIG[statusKey];
 
             return (
               <div
@@ -104,24 +160,15 @@ export default function OrdersTab({ orders }: OrdersTabProps) {
                       </p>
                     </div>
 
-                    <div className="hidden sm:flex flex-col items-end">
+                    <div className="flex flex-col items-end">
                       <span
-                        className={`text-[10px] uppercase tracking-wider font-extrabold px-2 py-0.5 rounded border ${
-                          ord.status === 'confirmed'
-                            ? 'text-wellness-green bg-wellness-green/10 border-wellness-green/20'
-                            : ord.status === 'cancelled'
-                              ? 'text-red-500 bg-red-50 border-red-100'
-                              : 'text-amber-600 bg-amber-50 border-amber-100'
-                        }`}
+                        className={`text-[10px] uppercase tracking-wider font-extrabold px-2.5 py-0.5 rounded-full border inline-flex items-center gap-1.5 ${statusMeta.badgeClass}`}
                       >
-                        {ord.status || 'pending'}
+                        <span className={`w-1.5 h-1.5 rounded-full ${statusMeta.dotClass}`} />
+                        {statusMeta.label}
                       </span>
                       <p className="text-[9px] text-wellness-charcoal/40 font-mono mt-0.5">
-                        {ord.status === 'confirmed'
-                          ? 'Approved & Shipping'
-                          : ord.status === 'cancelled'
-                            ? 'Cancelled'
-                            : 'Pending Approval'}
+                        {statusMeta.subtext}
                       </p>
                     </div>
 

@@ -103,8 +103,19 @@ export default function Footer() {
                   Contact Us
                 </Link>
               </li>
-              <li>hello@thewellness.com</li>
-              <li>1-800-WELLNESS</li>
+              <li>
+                <a
+                  href="mailto:hello@thewellness.com"
+                  className="hover:text-white transition-colors"
+                >
+                  hello@thewellness.com
+                </a>
+              </li>
+              <li>
+                <a href="tel:+18009355637" className="hover:text-white transition-colors">
+                  +1 (800) 935-5637
+                </a>
+              </li>
               <li className="pt-4">
                 <p>123 Science Way</p>
                 <p>San Francisco, CA 94107</p>

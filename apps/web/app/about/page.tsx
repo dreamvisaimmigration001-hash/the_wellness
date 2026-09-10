@@ -261,24 +261,24 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
               {
-                name: 'Dr. Sarah Chen',
+                name: 'Dr. Sarah Lin',
                 role: 'Chief Executive Officer',
-                image: '/images/team/dr_elena_rostova.jpg',
+                image: '/images/team/dr_sarah_lin.jpg',
               },
               {
-                name: 'Michael Reynolds',
-                role: 'Chief Financial Officer',
+                name: 'Dr. Jonathan Wu',
+                role: 'Chief Technology Officer',
                 image: '/images/team/dr_jonathan_wu.jpg',
               },
               {
-                name: 'Dr. Arthur Vance',
+                name: 'Dr. Marcus Vance',
                 role: 'Chief Medical Officer',
-                image: '/images/team/sarah_jenkins.jpg',
+                image: '/images/team/dr_marcus_vance.jpg',
               },
               {
-                name: 'Elena Rostova',
+                name: 'Dr. Elena Rostova',
                 role: 'Global Head of Manufacturing',
-                image: '/images/team/dr_priya_patel.jpg',
+                image: '/images/team/dr_elena_rostova.jpg',
               },
             ].map((leader, i) => (
               <div key={i} className="leader-card group">

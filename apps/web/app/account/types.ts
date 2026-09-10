@@ -70,6 +70,15 @@ export interface OrderItem {
   quantity: number;
 }
 
+export type OrderStatus =
+  | 'pending'
+  | 'confirmed'
+  | 'processing'
+  | 'shipped'
+  | 'out_for_delivery'
+  | 'delivered'
+  | 'cancelled';
+
 export interface OrderData {
   orderId: string;
   paymentId: string;
@@ -87,7 +96,7 @@ export interface OrderData {
     zipCode: string;
   };
   date: string;
-  status?: 'pending' | 'confirmed' | 'delivered' | 'cancelled';
+  status?: OrderStatus;
   hasRxItems?: boolean;
   rxFileName?: string | null;
 }

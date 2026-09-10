@@ -185,9 +185,9 @@ export default function ContactPage() {
                 Phone
               </h3>
               <p className="text-wellness-charcoal/70 leading-relaxed">
-                Toll-Free: 1-800-WELLNESS
+                Toll-Free: +1 (800) 935-5637
                 <br />
-                International: +1 (555) 123-4567
+                Direct/Intl: +1 (415) 890-3240
               </p>
             </div>
 

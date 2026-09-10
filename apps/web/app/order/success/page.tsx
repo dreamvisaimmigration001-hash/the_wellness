@@ -16,6 +16,59 @@ import OrderSuccessTimeline from './components/OrderSuccessTimeline';
 import { API_BASE_URL } from '@/lib/config';
 import { generateInvoicePDF } from '@/lib/invoiceGenerator';
 
+function mapApiOrderToOrderData(ord: ApiOrder): OrderData {
+  const rawStreet = ord.shippingAddress?.street || '';
+  let parsedFullName = ord.shippingAddress?.fullName || 'Customer';
+  let parsedPhone = ord.shippingAddress?.phone || '';
+  let parsedAddress = rawStreet;
+
+  if (rawStreet.includes(' | ')) {
+    const parts = rawStreet.split(' | ');
+    if (parts.length >= 3) {
+      if (!ord.shippingAddress?.fullName || ord.shippingAddress?.fullName === 'Customer') {
+        parsedFullName = parts[0];
+      }
+      if (!parsedPhone) {
+        parsedPhone = parts[1];
+      }
+      parsedAddress = parts.slice(2).join(' | ');
+    }
+  }
+
+  return {
+    orderId: ord.id,
+    paymentId:
+      ord.payment?.transactionId ||
+      ord.payment?.razorpayPaymentId ||
+      ord.payment?.provider ||
+      'PAID',
+    items: (ord.items || []).map((i: ApiOrderItem) => ({
+      product: {
+        id: i.productId || 'prod',
+        name: i.productName || 'Therapeutic Formulation',
+        price: i.unitPrice ?? 0,
+        image: '/images/products/product_placeholder.png',
+        type: 'Prescription Medicine',
+      },
+      quantity: i.quantity ?? 1,
+    })),
+    subtotal: ord.subtotal ?? ord.totalAmount ?? 0,
+    shipping: ord.shippingAmount ?? 0,
+    tax: ord.taxAmount ?? 0,
+    total: ord.totalAmount ?? 0,
+    shippingForm: {
+      fullName: parsedFullName,
+      email: ord.shippingAddress?.email || '',
+      phone: parsedPhone,
+      address: parsedAddress,
+      city: ord.shippingAddress?.city || '',
+      zipCode: ord.shippingAddress?.pincode || '',
+    },
+    date: ord.createdAt || new Date().toISOString(),
+    status: (ord.status as OrderData['status']) ?? 'pending',
+  };
+}
+
 function OrderSuccessContent() {
   const searchParams = useSearchParams();
   const targetId = searchParams.get('id');
@@ -34,39 +87,7 @@ function OrderSuccessContent() {
           if (res.ok) {
             const json = (await res.json()) as { success?: boolean; data?: ApiOrder };
             if (json.success && json.data) {
-              const ord = json.data;
-              setOrder({
-                orderId: ord.id,
-                paymentId:
-                  ord.payment?.transactionId ||
-                  ord.payment?.razorpayPaymentId ||
-                  ord.payment?.provider ||
-                  'PAID',
-                items: (ord.items || []).map((i: ApiOrderItem) => ({
-                  product: {
-                    id: i.productId || 'prod',
-                    name: i.productName || 'Therapeutic Formulation',
-                    price: i.unitPrice ?? 0,
-                    image: '/images/products/product_placeholder.png',
-                    type: 'Prescription Medicine',
-                  },
-                  quantity: i.quantity ?? 1,
-                })),
-                subtotal: ord.subtotal ?? ord.totalAmount ?? 0,
-                shipping: ord.shippingAmount ?? 0,
-                tax: ord.taxAmount ?? 0,
-                total: ord.totalAmount ?? 0,
-                shippingForm: {
-                  fullName: ord.shippingAddress?.fullName || 'Customer',
-                  email: ord.shippingAddress?.email || '',
-                  phone: ord.shippingAddress?.phone || '',
-                  address: ord.shippingAddress?.street || '',
-                  city: ord.shippingAddress?.city || '',
-                  zipCode: ord.shippingAddress?.pincode || '',
-                },
-                date: ord.createdAt || new Date().toISOString(),
-                status: (ord.status as OrderData['status']) ?? 'pending',
-              });
+              setOrder(mapApiOrderToOrderData(json.data));
               setLoading(false);
               return;
             }
@@ -79,39 +100,7 @@ function OrderSuccessContent() {
         if (resList.ok) {
           const jsonList = (await resList.json()) as { success?: boolean; data?: ApiOrder[] };
           if (jsonList.success && Array.isArray(jsonList.data) && jsonList.data.length > 0) {
-            const ord = jsonList.data[0];
-            setOrder({
-              orderId: ord.id,
-              paymentId:
-                ord.payment?.transactionId ||
-                ord.payment?.razorpayPaymentId ||
-                ord.payment?.provider ||
-                'PAID',
-              items: (ord.items || []).map((i: ApiOrderItem) => ({
-                product: {
-                  id: i.productId || 'prod',
-                  name: i.productName || 'Therapeutic Formulation',
-                  price: i.unitPrice ?? 0,
-                  image: '/images/products/product_placeholder.png',
-                  type: 'Prescription Medicine',
-                },
-                quantity: i.quantity ?? 1,
-              })),
-              subtotal: ord.subtotal ?? ord.totalAmount ?? 0,
-              shipping: ord.shippingAmount ?? 0,
-              tax: ord.taxAmount ?? 0,
-              total: ord.totalAmount ?? 0,
-              shippingForm: {
-                fullName: ord.shippingAddress?.fullName || 'Customer',
-                email: ord.shippingAddress?.email || '',
-                phone: ord.shippingAddress?.phone || '',
-                address: ord.shippingAddress?.street || '',
-                city: ord.shippingAddress?.city || '',
-                zipCode: ord.shippingAddress?.pincode || '',
-              },
-              date: ord.createdAt || new Date().toISOString(),
-              status: (ord.status as OrderData['status']) ?? 'pending',
-            });
+            setOrder(mapApiOrderToOrderData(jsonList.data[0]));
             setLoading(false);
             return;
           }
