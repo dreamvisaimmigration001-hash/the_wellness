@@ -55,7 +55,7 @@ export default function PromotionsTab({
   // Promotional Banner State
   const [activePromoId, setActivePromoId] = useState<string | null>(null);
   const [promoTitle, setPromoTitle] = useState('New Homepage Banner');
-  const [promoImage, setPromoImage] = useState('/images/default-promo-banner.png');
+  const [promoImage, setPromoImage] = useState('/images/clinical_ad_banner.jpg');
   const [promoLink, setPromoLink] = useState('/products');
   const [promoDiscountText, setPromoDiscountText] = useState('');
   const [promoDescription, setPromoDescription] = useState('');
@@ -156,7 +156,7 @@ export default function PromotionsTab({
   const resetForm = () => {
     setActivePromoId(null);
     setPromoTitle('New Homepage Banner');
-    setPromoImage('/images/default-promo-banner.png');
+    setPromoImage('/images/clinical_ad_banner.jpg');
     setPromoLink('/products');
     setPromoDiscountText('');
     setPromoDescription('');

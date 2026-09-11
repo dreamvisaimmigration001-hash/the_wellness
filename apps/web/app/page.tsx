@@ -2,15 +2,16 @@
 
 import React, { useState, useEffect } from 'react';
 
-import AdBanners from '@/components/sections/home/AdBanners';
 import CustomerTestimonials, {
   type ReviewItem,
 } from '@/components/sections/home/CustomerTestimonials';
-import DoctorConsultBanner from '@/components/sections/home/DoctorConsultBanner';
 import FeaturedCategories, {
   type ApiCategory,
   type ApiProduct,
 } from '@/components/sections/home/FeaturedCategories';
+import FullWidthAdBanner, {
+  type PromotionBannerItem,
+} from '@/components/sections/home/FullWidthAdBanner';
 import Hero from '@/components/sections/home/Hero';
 import MoreProducts from '@/components/sections/home/MoreProducts';
 import PopularProducts from '@/components/sections/home/PopularProducts';
@@ -38,6 +39,7 @@ export default function Home() {
   const [rawProducts, setRawProducts] = useState<ApiProduct[]>([]);
   const [mappedProducts, setMappedProducts] = useState<Product[]>([]);
   const [reviews, setReviews] = useState<ReviewItem[]>([]);
+  const [promotions, setPromotions] = useState<PromotionBannerItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -48,7 +50,7 @@ export default function Home() {
         const API_BASE = API_BASE_URL;
 
         // Fetch all home page routes simultaneously in a single Promise.all
-        const [categoriesRes, productsRes, reviewsRes] = await Promise.all([
+        const [categoriesRes, productsRes, reviewsRes, promotionsRes] = await Promise.all([
           fetch(`${API_BASE}/api/categories`, { signal: AbortSignal.timeout(6000) }).catch(
             () => null,
           ),
@@ -56,6 +58,9 @@ export default function Home() {
             () => null,
           ),
           fetch(`${API_BASE}/api/reviews`, { signal: AbortSignal.timeout(6000) }).catch(() => null),
+          fetch(`${API_BASE}/api/promotions?active=true`, {
+            signal: AbortSignal.timeout(6000),
+          }).catch(() => null),
         ]);
 
         if (!isMounted) return;
@@ -120,6 +125,17 @@ export default function Home() {
             setReviews(revJson.data);
           }
         }
+
+        // 4. Process Promotions (uploaded by Admin or Employee)
+        if (promotionsRes?.ok) {
+          const promoJson = (await promotionsRes.json()) as {
+            success?: boolean;
+            data?: PromotionBannerItem[];
+          };
+          if (Array.isArray(promoJson.data) && promoJson.data.length > 0) {
+            setPromotions(promoJson.data);
+          }
+        }
       } catch (err) {
         console.error('Failed to load home page data with Promise.all:', err);
       } finally {
@@ -146,8 +162,7 @@ export default function Home() {
         products={mappedProducts}
         loading={loading}
       />
-      <AdBanners />
-      <DoctorConsultBanner />
+      <FullWidthAdBanner banners={promotions} loading={loading} />
       <MoreProducts products={mappedProducts} loading={loading} />
       <CustomerTestimonials reviews={reviews} />
     </>

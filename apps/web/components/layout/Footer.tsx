@@ -55,8 +55,8 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Column 2: Therapeutics & Products (2 cols) */}
-          <div className="lg:col-span-2 space-y-4">
+          {/* Column 2: Therapeutics & Products (3 cols) */}
+          <div className="lg:col-span-3 space-y-4">
             <h4 className="text-xs font-black uppercase tracking-widest text-white flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-wellness-green" />
               Products
@@ -163,58 +163,8 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Column 4: Patient Support & Services (2 cols) */}
-          <div className="lg:col-span-2 space-y-4">
-            <h4 className="text-xs font-black uppercase tracking-widest text-white flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-wellness-green" />
-              Services
-            </h4>
-            <ul className="space-y-2.5 text-xs sm:text-[13px] text-slate-300/80">
-              <li>
-                <Link
-                  href="/products"
-                  className="hover:text-white hover:translate-x-1 transition-all duration-200 inline-block"
-                >
-                  Find Specialist
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/account"
-                  className="hover:text-white hover:translate-x-1 transition-all duration-200 inline-block"
-                >
-                  Diagnostic Tests
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/account"
-                  className="hover:text-white hover:translate-x-1 transition-all duration-200 inline-block"
-                >
-                  Order Tracking
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/contact"
-                  className="hover:text-white hover:translate-x-1 transition-all duration-200 inline-block"
-                >
-                  Clinical Support Desk
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/contact"
-                  className="hover:text-white hover:translate-x-1 transition-all duration-200 inline-block"
-                >
-                  Consultation Near You
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Column 5: Contact & Inquiries (2 cols) */}
-          <div className="lg:col-span-2 space-y-4">
+          {/* Column 4: Contact & Inquiries (3 cols) */}
+          <div className="lg:col-span-3 space-y-4">
             <h4 className="text-xs font-black uppercase tracking-widest text-white flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-wellness-green" />
               Contact

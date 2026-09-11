@@ -10,8 +10,8 @@ const SERVICES = [
     icon: Stethoscope,
   },
   {
-    title: 'Consultation Near You',
-    description: 'Book trusted clinic appointments & specialist guidance easily.',
+    title: 'Partner Clinics',
+    description: 'Access trusted healthcare clinics & wellness centers easily.',
     icon: UserCheck,
   },
   {

@@ -5,6 +5,7 @@ import { Suspense } from 'react';
 
 import CartDrawer from './CartDrawer';
 import Footer from './Footer';
+import MarqueeBanner from './MarqueeBanner';
 import Navbar from './Navbar';
 import PageLoader from './PageLoader';
 
@@ -39,6 +40,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
         {children}
       </main>
       <CartDrawer />
+      <MarqueeBanner />
       <Footer />
     </>
   );
