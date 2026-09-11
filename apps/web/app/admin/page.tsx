@@ -14,8 +14,10 @@ import OrdersTab from './components/tabs/OrdersTab';
 import ProductsTab from './components/tabs/ProductsTab';
 import PromotionsTab from './components/tabs/PromotionsTab';
 import QueriesTab from './components/tabs/QueriesTab';
+import ReviewsTab from './components/tabs/ReviewsTab';
 import type {
   AdminTab,
+  AdminReview,
   ContactQuery,
   CategoryItem,
   PromotionItem,
@@ -127,6 +129,8 @@ export default function AdminPage() {
   const [isRefreshingQueries, setIsRefreshingQueries] = useState(false);
 
   const [promotionsList, setPromotionsList] = useState<PromotionItem[]>([]);
+  const [reviewsList, setReviewsList] = useState<AdminReview[]>([]);
+  const [isLoadingReviews, setIsLoadingReviews] = useState(false);
 
   const [apiAnalytics, setApiAnalytics] = useState<ApiAnalyticsSummary | null>(null);
   const [selectedProductAnalysis, setSelectedProductAnalysis] =
@@ -505,6 +509,101 @@ export default function AdminPage() {
     }
   }, []);
 
+  const loadReviews = useCallback(async () => {
+    setIsLoadingReviews(true);
+    try {
+      const API_BASE = API_BASE_URL;
+      const res = await fetch(`${API_BASE}/api/reviews?all=true`, {
+        credentials: 'include',
+        signal: AbortSignal.timeout(5000),
+      });
+      if (res.ok) {
+        const result = (await res.json()) as { success?: boolean; data?: AdminReview[] };
+        if (result.success && Array.isArray(result.data)) {
+          setReviewsList(result.data);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load reviews from API:', e);
+    } finally {
+      setIsLoadingReviews(false);
+    }
+  }, []);
+
+  const handleAddReview = async (reviewData: {
+    name: string;
+    rating: number;
+    comment: string;
+    designation?: string;
+    avatarText?: string;
+    isApproved?: boolean;
+  }): Promise<boolean> => {
+    try {
+      const API_BASE = API_BASE_URL;
+      const res = await fetch(`${API_BASE}/api/reviews`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(reviewData),
+      });
+      if (res.ok) {
+        showNotice('Review added successfully!', 'success');
+        await loadReviews();
+        return true;
+      }
+      const errJson = (await res.json()) as { message?: string };
+      showNotice(errJson.message || 'Failed to add review', 'error');
+      return false;
+    } catch (e) {
+      console.error('Error adding review:', e);
+      showNotice('Network error while adding review', 'error');
+      return false;
+    }
+  };
+
+  const handleToggleReviewApproval = async (id: string, currentStatus: boolean): Promise<void> => {
+    try {
+      const API_BASE = API_BASE_URL;
+      const res = await fetch(`${API_BASE}/api/reviews/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ isApproved: !currentStatus }),
+      });
+      if (res.ok) {
+        showNotice(
+          !currentStatus ? 'Review approved and published!' : 'Review hidden from live store.',
+          'success',
+        );
+        await loadReviews();
+      } else {
+        showNotice('Failed to update review status', 'error');
+      }
+    } catch (e) {
+      console.error('Error updating review:', e);
+      showNotice('Network error while updating review', 'error');
+    }
+  };
+
+  const handleDeleteReview = async (id: string): Promise<void> => {
+    try {
+      const API_BASE = API_BASE_URL;
+      const res = await fetch(`${API_BASE}/api/reviews/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      if (res.ok) {
+        showNotice('Review deleted successfully!', 'success');
+        await loadReviews();
+      } else {
+        showNotice('Failed to delete review', 'error');
+      }
+    } catch (e) {
+      console.error('Error deleting review:', e);
+      showNotice('Network error while deleting review', 'error');
+    }
+  };
+
   useEffect(() => {
     void loadProducts();
     void loadCategories();
@@ -512,8 +611,17 @@ export default function AdminPage() {
     void loadAnalytics();
     void loadQueries();
     void loadPromotions();
+    void loadReviews();
     setIsMounted(true);
-  }, [loadProducts, loadCategories, loadOrders, loadAnalytics, loadQueries, loadPromotions]);
+  }, [
+    loadProducts,
+    loadCategories,
+    loadOrders,
+    loadAnalytics,
+    loadQueries,
+    loadPromotions,
+    loadReviews,
+  ]);
 
   // --- Handlers ---
   const handleAdminSignIn = async () => {
@@ -1459,6 +1567,17 @@ export default function AdminPage() {
               showNotice={showNotice}
               uploadToCloudinary={uploadToCloudinary}
               confirmAction={confirmAction}
+            />
+          )}
+
+          {activeTab === 'reviews' && (
+            <ReviewsTab
+              reviews={reviewsList}
+              isLoading={isLoadingReviews}
+              onRefreshReviews={loadReviews}
+              onAddReview={handleAddReview}
+              onToggleApproval={handleToggleReviewApproval}
+              onDeleteReview={handleDeleteReview}
             />
           )}
         </main>

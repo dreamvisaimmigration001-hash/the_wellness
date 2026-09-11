@@ -1,12 +1,20 @@
-'use client';
-
 import { Star, Quote, ChevronLeft, ChevronRight } from 'lucide-react';
 import React, { useState } from 'react';
 
-const TESTIMONIALS = [
+export interface ReviewItem {
+  id?: string;
+  name: string;
+  avatarText?: string | null;
+  designation?: string | null;
+  rating: number;
+  comment: string;
+}
+
+const DEFAULT_TESTIMONIALS: ReviewItem[] = [
   {
     name: 'Anita Sharma',
     avatarText: 'AS',
+    designation: 'Verified Patient',
     rating: 5,
     comment:
       'Very fast delivery and genuine products. The medicines were safely packed with batch codes verified. Highly recommended!',
@@ -14,6 +22,7 @@ const TESTIMONIALS = [
   {
     name: 'Rohit Verma',
     avatarText: 'RV',
+    designation: 'Verified Buyer',
     rating: 5,
     comment:
       'Excellent service and prompt support for dosage advice. Website is super smooth and easy to order from.',
@@ -21,21 +30,27 @@ const TESTIMONIALS = [
   {
     name: 'Priya Nair',
     avatarText: 'PN',
+    designation: 'Verified Patient',
     rating: 5,
     comment:
       'Great offers and transparent pricing. Received cold-chain medicines on time in pristine insulated packaging.',
   },
 ];
 
-export default function CustomerTestimonials() {
+interface CustomerTestimonialsProps {
+  reviews?: ReviewItem[];
+}
+
+export default function CustomerTestimonials({ reviews = [] }: CustomerTestimonialsProps) {
+  const activeTestimonials = reviews.length > 0 ? reviews : DEFAULT_TESTIMONIALS;
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const handlePrev = () => {
-    setCurrentIndex((prev) => (prev === 0 ? TESTIMONIALS.length - 1 : prev - 1));
+    setCurrentIndex((prev) => (prev === 0 ? activeTestimonials.length - 1 : prev - 1));
   };
 
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev === TESTIMONIALS.length - 1 ? 0 : prev + 1));
+    setCurrentIndex((prev) => (prev === activeTestimonials.length - 1 ? 0 : prev + 1));
   };
 
   return (
@@ -73,14 +88,17 @@ export default function CustomerTestimonials() {
 
           {/* 3 Review Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {TESTIMONIALS.map((t, idx) => (
+            {(activeTestimonials.length <= 3
+              ? activeTestimonials
+              : [
+                  activeTestimonials[currentIndex % activeTestimonials.length],
+                  activeTestimonials[(currentIndex + 1) % activeTestimonials.length],
+                  activeTestimonials[(currentIndex + 2) % activeTestimonials.length],
+                ]
+            ).map((t, idx) => (
               <div
-                key={t.name}
-                className={`bg-white border rounded-2xl p-6 sm:p-7 flex flex-col justify-between shadow-xs transition-all duration-300 ${
-                  idx === currentIndex
-                    ? 'border-blue-300 shadow-md ring-1 ring-blue-100'
-                    : 'border-slate-200/90'
-                }`}
+                key={t.id || `${t.name}-${String(idx)}`}
+                className="bg-white border border-slate-200/90 rounded-2xl p-6 sm:p-7 flex flex-col justify-between shadow-xs hover:border-blue-200 hover:shadow-md transition-all duration-300"
               >
                 <div className="space-y-4">
                   {/* Quote Icon */}
@@ -104,28 +122,32 @@ export default function CustomerTestimonials() {
                 {/* Customer Details */}
                 <div className="pt-5 mt-5 border-t border-slate-100 flex items-center gap-3">
                   <div className="w-9 h-9 rounded-full bg-[#0F2744] text-white flex items-center justify-center text-xs font-bold shrink-0">
-                    {t.avatarText}
+                    {t.avatarText || t.name.slice(0, 2).toUpperCase()}
                   </div>
                   <div>
                     <h4 className="text-xs font-bold text-[#0F2744]">{t.name}</h4>
-                    <span className="text-[10px] text-slate-400 font-medium">Verified Patient</span>
+                    <span className="text-[10px] text-slate-400 font-medium">
+                      {t.designation || 'Verified Patient'}
+                    </span>
                   </div>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* 3 Carousel Indicator Dots */}
+          {/* Carousel Indicator Dots */}
           <div className="flex items-center justify-center gap-2 mt-8">
-            {TESTIMONIALS.map((_, dotIdx) => (
+            {activeTestimonials.map((_, dotIdx) => (
               <button
                 key={dotIdx}
                 type="button"
                 onClick={() => {
                   setCurrentIndex(dotIdx);
                 }}
-                className={`w-2 h-2 rounded-full transition-all cursor-pointer ${
-                  dotIdx === currentIndex ? 'w-6 bg-blue-600' : 'bg-slate-300 hover:bg-slate-400'
+                className={`h-2 rounded-full transition-all cursor-pointer ${
+                  dotIdx === currentIndex
+                    ? 'w-6 bg-blue-600'
+                    : 'w-2 bg-slate-300 hover:bg-slate-400'
                 }`}
                 aria-label={`Slide ${String(dotIdx + 1)}`}
               />

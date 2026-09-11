@@ -1,6 +1,6 @@
 'use client';
 
-import { AlertCircle, FileText, Minus, Plus, ShoppingCart } from 'lucide-react';
+import { Minus, Plus, ShoppingCart } from 'lucide-react';
 import React from 'react';
 
 import type { Product } from '@/lib/products';
@@ -22,11 +22,11 @@ export default function ProductAddToCartBar({
 }: ProductAddToCartBarProps) {
   const stock = product.availableQty ?? product.inventoryQty ?? product.stockQty ?? 0;
   const isOutOfStock = stock <= 0 || product.stockStatus === 'out_of_stock';
-  const isLowStock = !isOutOfStock && stock <= 5;
+  const isLowStock = !isOutOfStock && stock <= 10;
 
   return (
     <>
-      {/* Stock Availability Banner */}
+      {/* Stock Availability Banner - Only shown for Out of Stock or Low Stock (<= 10) */}
       {isOutOfStock ? (
         <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg mb-6 flex items-center justify-between">
           <div>
@@ -37,9 +37,6 @@ export default function ProductAddToCartBar({
               This product is currently unavailable for order.
             </p>
           </div>
-          <span className="text-[10px] font-black uppercase tracking-wider bg-red-600 text-white px-2.5 py-1 rounded-full">
-            0 Units
-          </span>
         </div>
       ) : isLowStock ? (
         <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg mb-6 flex items-center justify-between">
@@ -48,28 +45,14 @@ export default function ProductAddToCartBar({
               Hurry, Low Stock!
             </h4>
             <p className="text-xs text-amber-700 font-medium mt-0.5">
-              Only {stock} unit(s) left in stock. Order soon.
+              Only {stock} unit{stock === 1 ? '' : 's'} left in stock. Order soon.
             </p>
           </div>
           <span className="text-[10px] font-black uppercase tracking-wider bg-amber-600 text-white px-2.5 py-1 rounded-full">
             {stock} Left
           </span>
         </div>
-      ) : (
-        <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-r-lg mb-6 flex items-center justify-between">
-          <div>
-            <h4 className="text-xs font-bold text-emerald-800 uppercase tracking-wider">
-              In Stock
-            </h4>
-            <p className="text-xs text-emerald-700 font-medium mt-0.5">
-              {stock} units available for dispatch.
-            </p>
-          </div>
-          <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-600 text-white px-2.5 py-1 rounded-full">
-            Available
-          </span>
-        </div>
-      )}
+      ) : null}
 
       {/* Cart Actions */}
       <div className="border-y border-wellness-gray-200 py-6 mb-10 flex flex-col sm:flex-row sm:items-end gap-6">
@@ -137,18 +120,8 @@ export default function ProductAddToCartBar({
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4 pt-4 pb-20 sm:pb-0">
-        <button className="bg-wellness-gray-100 text-wellness-navy border border-wellness-gray-200 px-8 py-4 rounded-md font-semibold hover:bg-wellness-gray-200 transition-colors flex items-center justify-center gap-2 shadow-sm cursor-pointer text-sm">
-          <FileText size={20} />
-          Prescribing Information
-        </button>
-        {product.type === 'Prescription (Rx)' && (
-          <button className="bg-white text-wellness-navy border border-wellness-gray-200 px-8 py-4 rounded-md font-semibold hover:bg-wellness-gray-50 transition-colors flex items-center justify-center gap-2 cursor-pointer text-sm">
-            <AlertCircle size={20} />
-            Important Safety Info
-          </button>
-        )}
-      </div>
+      {/* Mobile Sticky Bar Spacing */}
+      <div className="pb-20 sm:pb-0" />
 
       {/* Mobile Sticky Bottom Action Bar */}
       <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-wellness-gray-200 p-3 shadow-2xl flex items-center justify-between gap-3">

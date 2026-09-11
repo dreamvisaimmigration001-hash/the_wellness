@@ -1,7 +1,7 @@
 'use client';
 
-import { CheckCircle2 } from 'lucide-react';
-import React from 'react';
+import { CheckCircle2, ChevronDown } from 'lucide-react';
+import React, { useState } from 'react';
 
 import type { Product } from '@/lib/products';
 
@@ -10,9 +10,11 @@ interface ProductClinicalInfoProps {
 }
 
 export default function ProductClinicalInfo({ product }: ProductClinicalInfoProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const sp = product.price;
   const mrp = product.mrp || product.originalPrice || Math.round(sp * 1.25);
   const discount = mrp > sp ? Math.round(((mrp - sp) / mrp) * 100) : 0;
+  const isLongDescription = product.description.length > 160;
 
   return (
     <>
@@ -40,10 +42,31 @@ export default function ProductClinicalInfo({ product }: ProductClinicalInfoProp
         )}
       </div>
 
-      <div className="bg-wellness-gray-50 border-l-4 border-wellness-navy p-6 rounded-r-lg mb-10">
-        <p className="text-lg text-wellness-charcoal/80 leading-relaxed font-semibold">
+      <div className="bg-wellness-gray-50 border-l-4 border-wellness-navy p-5 sm:p-6 rounded-r-lg mb-8">
+        <p
+          className={`text-base sm:text-lg text-wellness-charcoal/80 leading-relaxed font-semibold transition-all ${
+            !isExpanded ? 'line-clamp-3' : ''
+          }`}
+        >
           {product.description}
         </p>
+        {isLongDescription && (
+          <button
+            type="button"
+            onClick={() => {
+              setIsExpanded((prev) => !prev);
+            }}
+            className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-wellness-green hover:text-wellness-navy transition-colors cursor-pointer group"
+          >
+            <span>{isExpanded ? 'Show less' : 'Read more'}</span>
+            <ChevronDown
+              size={14}
+              className={`transition-transform duration-200 ${
+                isExpanded ? 'rotate-180' : 'group-hover:translate-y-0.5'
+              }`}
+            />
+          </button>
+        )}
       </div>
 
       {product.benefits.length > 0 && (

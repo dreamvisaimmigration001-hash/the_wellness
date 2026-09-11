@@ -9,3 +9,4 @@ export * from './search';
 export * from './customer';
 export * from './promotion';
 export * from './settings';
+export * from './review';

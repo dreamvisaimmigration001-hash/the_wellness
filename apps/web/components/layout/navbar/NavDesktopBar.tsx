@@ -1,7 +1,7 @@
 'use client';
 
 import clsx from 'clsx';
-import { ChevronDown, Flame } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import Link from 'next/link';
 import React from 'react';
@@ -106,15 +106,6 @@ export default function NavDesktopBar({
             );
           })}
         </nav>
-
-        {/* Right Promo Link */}
-        <Link
-          href="/products"
-          className="flex items-center gap-1.5 text-red-500 text-xs font-extrabold uppercase tracking-wider hover:text-wellness-navy transition-colors animate-pulse"
-        >
-          <Flame size={14} />
-          <span>Daily Deals</span>
-        </Link>
       </div>
     </div>
   );

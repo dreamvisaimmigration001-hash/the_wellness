@@ -9,6 +9,7 @@ import {
   MessageSquare,
   ShoppingBag,
   Percent,
+  Star,
   LogOut,
 } from 'lucide-react';
 import React from 'react';
@@ -54,6 +55,7 @@ export default function AdminSidebar({
       icon: <ShoppingBag size={15} />,
     },
     { id: 'promotions' as const, label: 'Promotions & Banners', icon: <Percent size={15} /> },
+    { id: 'reviews' as const, label: 'Reviews & Testimonials', icon: <Star size={15} /> },
   ];
 
   return (

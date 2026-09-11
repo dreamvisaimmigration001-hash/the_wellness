@@ -20,6 +20,7 @@ const tabTitles: Record<AdminTab, string> = {
   queries: 'Customer Inquiries',
   orders: 'Orders Management',
   promotions: 'Promotions & Banners',
+  reviews: 'Reviews & Testimonials',
 };
 
 export default function AdminHeader({ activeTab, mobileOpen, onToggleMobile }: AdminHeaderProps) {

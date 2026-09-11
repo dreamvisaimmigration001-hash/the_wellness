@@ -3,9 +3,14 @@
 import React, { useState, useEffect } from 'react';
 
 import AdBanners from '@/components/sections/home/AdBanners';
-import CustomerTestimonials from '@/components/sections/home/CustomerTestimonials';
+import CustomerTestimonials, {
+  type ReviewItem,
+} from '@/components/sections/home/CustomerTestimonials';
 import DoctorConsultBanner from '@/components/sections/home/DoctorConsultBanner';
-import type { ApiCategory, ApiProduct } from '@/components/sections/home/FeaturedCategories';
+import FeaturedCategories, {
+  type ApiCategory,
+  type ApiProduct,
+} from '@/components/sections/home/FeaturedCategories';
 import Hero from '@/components/sections/home/Hero';
 import MoreProducts from '@/components/sections/home/MoreProducts';
 import PopularProducts from '@/components/sections/home/PopularProducts';
@@ -29,9 +34,10 @@ interface ApiResponseProducts {
 }
 
 export default function Home() {
-  const [, setCategories] = useState<ApiCategory[]>([]);
-  const [, setRawProducts] = useState<ApiProduct[]>([]);
+  const [categories, setCategories] = useState<ApiCategory[]>([]);
+  const [rawProducts, setRawProducts] = useState<ApiProduct[]>([]);
   const [mappedProducts, setMappedProducts] = useState<Product[]>([]);
+  const [reviews, setReviews] = useState<ReviewItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -42,13 +48,14 @@ export default function Home() {
         const API_BASE = API_BASE_URL;
 
         // Fetch all home page routes simultaneously in a single Promise.all
-        const [categoriesRes, productsRes] = await Promise.all([
+        const [categoriesRes, productsRes, reviewsRes] = await Promise.all([
           fetch(`${API_BASE}/api/categories`, { signal: AbortSignal.timeout(6000) }).catch(
             () => null,
           ),
           fetch(`${API_BASE}/api/products?limit=100`, { signal: AbortSignal.timeout(6000) }).catch(
             () => null,
           ),
+          fetch(`${API_BASE}/api/reviews`, { signal: AbortSignal.timeout(6000) }).catch(() => null),
         ]);
 
         if (!isMounted) return;
@@ -105,6 +112,14 @@ export default function Home() {
             setMappedProducts(mapped);
           }
         }
+
+        // 3. Process Reviews
+        if (reviewsRes?.ok) {
+          const revJson = (await reviewsRes.json()) as { success?: boolean; data?: ReviewItem[] };
+          if (Array.isArray(revJson.data) && revJson.data.length > 0) {
+            setReviews(revJson.data);
+          }
+        }
       } catch (err) {
         console.error('Failed to load home page data with Promise.all:', err);
       } finally {
@@ -125,6 +140,7 @@ export default function Home() {
     <>
       <Hero />
       <TopServices />
+      <FeaturedCategories categories={categories} products={rawProducts} loading={loading} />
       <PopularProducts
         title="Trending Health Products"
         products={mappedProducts}
@@ -133,7 +149,7 @@ export default function Home() {
       <AdBanners />
       <DoctorConsultBanner />
       <MoreProducts products={mappedProducts} loading={loading} />
-      <CustomerTestimonials />
+      <CustomerTestimonials reviews={reviews} />
     </>
   );
 }

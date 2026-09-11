@@ -1,5 +1,26 @@
 export type AdminTab =
-  'analytics' | 'products' | 'inventory' | 'categories' | 'queries' | 'orders' | 'promotions';
+  | 'analytics'
+  | 'products'
+  | 'inventory'
+  | 'categories'
+  | 'queries'
+  | 'orders'
+  | 'promotions'
+  | 'reviews';
+
+export interface AdminReview {
+  id: string;
+  name: string;
+  rating: number;
+  comment: string;
+  avatarText?: string | null;
+  designation?: string | null;
+  productId?: string | null;
+  isApproved: boolean;
+  displayOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface ContactQuery {
   id: string;
