@@ -21,6 +21,7 @@ const tabTitles: Record<AdminTab, string> = {
   orders: 'Orders Management',
   promotions: 'Promotions & Banners',
   reviews: 'Reviews & Testimonials',
+  employees: 'Employee & Staff Management',
 };
 
 export default function AdminHeader({ activeTab, mobileOpen, onToggleMobile }: AdminHeaderProps) {

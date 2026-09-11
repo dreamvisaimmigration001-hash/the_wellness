@@ -16,7 +16,7 @@ interface AccountHeaderProps {
 }
 
 export default function AccountHeader({ user, onSignOut }: AccountHeaderProps) {
-  const isAdmin = user.role === 'admin';
+  const isStaff = user.role === 'admin' || user.role === 'employee';
 
   return (
     <div className="relative bg-white/80 border border-wellness-gray-200 rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl glass-premium overflow-hidden">
@@ -48,13 +48,13 @@ export default function AccountHeader({ user, onSignOut }: AccountHeaderProps) {
       </div>
 
       <div className="flex items-center gap-3 z-10">
-        {isAdmin && (
+        {isStaff && (
           <Link
             href="/admin"
             className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-wellness-green hover:bg-wellness-navy px-3.5 py-2 rounded-xl transition-all shadow-sm cursor-pointer"
           >
             <ShieldCheck size={12} />
-            <span>Admin Panel</span>
+            <span>{user.role === 'admin' ? 'Admin Panel' : 'Staff Portal'}</span>
           </Link>
         )}
 

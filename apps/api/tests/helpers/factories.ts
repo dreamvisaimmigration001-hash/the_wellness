@@ -51,7 +51,7 @@ export const factories = {
     return newUser;
   },
 
-  async assignRole(userId: string, roleName: 'customer' | 'admin') {
+  async assignRole(userId: string, roleName: 'customer' | 'admin' | 'employee') {
     await db.update(user).set({ role: roleName }).where(eq(user.id, userId));
   },
 

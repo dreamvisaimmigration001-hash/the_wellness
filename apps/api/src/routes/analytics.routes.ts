@@ -8,8 +8,8 @@ import { resolveRoles, requireRole } from '../middleware/authorization.middlewar
 
 const router = Router();
 
-// Enforce admin authentication & authorization for all analytics routes
-router.use(requireAuth, resolveRoles, requireRole('admin'));
+// Enforce admin/employee authorization for all analytics routes
+router.use(requireAuth, resolveRoles, requireRole('admin', 'employee'));
 
 // GET /api/analytics - Get real-time dashboard analytics & summary
 router.get(

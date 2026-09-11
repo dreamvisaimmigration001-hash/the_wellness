@@ -1,6 +1,6 @@
 import { pgTable, text, timestamp, boolean, pgEnum } from 'drizzle-orm/pg-core';
 
-export const userRoleEnum = pgEnum('user_role', ['customer', 'admin']);
+export const userRoleEnum = pgEnum('user_role', ['customer', 'admin', 'employee']);
 
 // Better Auth core tables
 export const user = pgTable('user', {

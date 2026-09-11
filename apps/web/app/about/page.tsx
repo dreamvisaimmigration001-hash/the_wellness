@@ -288,7 +288,7 @@ export default function AboutPage() {
                     alt={leader.name}
                     fill
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                    className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                    className="object-cover grayscale-0 md:grayscale md:group-hover:grayscale-0 transition-all duration-500 group-hover:scale-105"
                   />
                 </div>
                 <h3 className="text-xl font-heading font-bold text-wellness-navy mb-1">

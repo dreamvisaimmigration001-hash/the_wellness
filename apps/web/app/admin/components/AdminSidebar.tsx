@@ -10,6 +10,7 @@ import {
   ShoppingBag,
   Percent,
   Star,
+  Users,
   LogOut,
 } from 'lucide-react';
 import React from 'react';
@@ -22,6 +23,7 @@ interface AdminSidebarProps {
   queriesCount: number;
   ordersCount: number;
   adminEmail?: string;
+  userRole?: string;
   mobileOpen: boolean;
   onCloseMobile: () => void;
   onSignOut: () => void;
@@ -33,6 +35,7 @@ export default function AdminSidebar({
   queriesCount,
   ordersCount,
   adminEmail,
+  userRole,
   mobileOpen,
   onCloseMobile,
   onSignOut,
@@ -56,6 +59,9 @@ export default function AdminSidebar({
     },
     { id: 'promotions' as const, label: 'Promotions & Banners', icon: <Percent size={15} /> },
     { id: 'reviews' as const, label: 'Reviews & Testimonials', icon: <Star size={15} /> },
+    ...(userRole === 'admin'
+      ? [{ id: 'employees' as const, label: 'Employee Management', icon: <Users size={15} /> }]
+      : []),
   ];
 
   return (
@@ -141,12 +147,14 @@ export default function AdminSidebar({
         <div className="p-4 border-t border-white/10 space-y-2">
           <div className="p-3 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-full bg-wellness-green/20 text-wellness-light-green flex items-center justify-center font-bold text-xs uppercase shrink-0 border border-wellness-green/30">
-              AD
+              {userRole === 'admin' ? 'AD' : 'ST'}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-extrabold text-white truncate">Administrator</p>
+              <p className="text-[10px] font-extrabold text-white truncate">
+                {userRole === 'admin' ? 'Administrator' : 'Staff Member'}
+              </p>
               <p className="text-[8px] text-white/50 truncate font-mono">
-                {adminEmail || 'Administrator'}
+                {adminEmail || (userRole === 'admin' ? 'Administrator' : 'Employee')}
               </p>
             </div>
           </div>

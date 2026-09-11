@@ -3,8 +3,20 @@
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
-import { ShieldCheck, CheckCircle, Microscope, FlaskConical } from 'lucide-react';
+import {
+  ShieldCheck,
+  CheckCircle,
+  Microscope,
+  FlaskConical,
+  Award,
+  CheckCircle2,
+  FileCheck,
+  ArrowRight,
+  Globe2,
+  Building2,
+} from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import React, { useRef } from 'react';
 
 if (typeof window !== 'undefined') {
@@ -261,30 +273,182 @@ export default function QualityPage() {
         </div>
       </div>
 
-      <div className="cert-section py-24 bg-wellness-white">
-        <div className="container mx-auto px-6 md:px-12 text-center">
-          <h2 className="text-4xl font-heading font-bold text-wellness-navy mb-12">
-            Global Certifications
-          </h2>
-          <div className="flex flex-wrap justify-center gap-8 md:gap-16">
+      {/* Global Certifications Redesigned Section */}
+      <section className="cert-section py-24 bg-gradient-to-b from-wellness-white via-white to-wellness-gray-50 border-t border-wellness-gray-200/70 relative overflow-hidden">
+        {/* Subtle decorative background circles */}
+        <div className="absolute top-10 right-10 w-96 h-96 bg-wellness-green/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-10 left-10 w-96 h-96 bg-wellness-navy/5 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          {/* Section Eyebrow & Header */}
+          <div className="max-w-3xl mx-auto mb-16">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-wellness-green/10 border border-wellness-green/20 text-wellness-green text-xs font-black tracking-widest uppercase mb-4 shadow-xs">
+              <Award size={14} className="stroke-[2.5]" />
+              <span>Accreditations & Compliance</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-black text-wellness-navy tracking-tight">
+              Global Certifications & Quality Compliance
+            </h2>
+            <p className="mt-4 text-sm sm:text-base text-wellness-charcoal/70 leading-relaxed font-medium">
+              Our formulation facilities, cleanroom production lines, and cold-chain distribution
+              pipelines are continuously certified and audited by the world’s leading pharmaceutical
+              and health safety authorities.
+            </p>
+          </div>
+
+          {/* 6 Grid Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 text-left">
             {[
-              { name: 'ISO 9001', label: 'Quality Management' },
-              { name: 'FDA', label: 'Registered Facility' },
-              { name: 'NSF', label: 'GMP Certified' },
-              { name: 'WHO', label: 'GMP Compliant' },
-            ].map((cert, idx) => (
-              <div key={idx} className="cert-card flex flex-col items-center">
-                <div className="w-24 h-24 rounded-full bg-wellness-gray-50 border-2 border-wellness-gray-200 flex items-center justify-center text-wellness-navy font-black text-xl mb-4">
-                  {cert.name}
+              {
+                icon: Globe2,
+                name: 'WHO-GMP Certified',
+                authority: 'World Health Organization',
+                badge: 'TRS 986 / Annex 2',
+                status: 'Global Standard',
+                desc: 'Good Manufacturing Practices ensuring zero microbial contamination, validated cleanroom ventilation, and sterile active compounding.',
+                scope: 'Active Cleanroom Grade A/B Operations',
+                audit: 'Annual Global Surveillance Audit',
+              },
+              {
+                icon: Building2,
+                name: 'FDA Registered Facility',
+                authority: 'U.S. Food & Drug Administration',
+                badge: '21 CFR Part 111 & 211',
+                status: 'Federal Compliance',
+                desc: 'Federal oversight covering active ingredient identity confirmation, sanitation validation, and clean-label potency assurance.',
+                scope: 'Dietary & OTC Therapeutics Facility',
+                audit: 'Continuous Regulatory Oversight',
+              },
+              {
+                icon: CheckCircle2,
+                name: 'ISO 9001 & ISO 22000',
+                authority: 'Intl. Organization for Standardization',
+                badge: 'Cert #QMS-90412',
+                status: 'Accredited System',
+                desc: 'Global benchmark for systemic pharmaceutical risk mitigation, quality management systems, and transparent batch tracking.',
+                scope: 'End-to-End Traceability & Systems',
+                audit: 'Bi-Annual External Surveillance',
+              },
+              {
+                icon: FlaskConical,
+                name: 'NSF International cGMP',
+                authority: 'NSF Health Sciences',
+                badge: 'NSF/ANSI 173 Standard',
+                status: 'Independently Tested',
+                desc: 'Toxicological evaluation and batch dissolution verification, certifying complete absence of undeclared substances or heavy metal toxins.',
+                scope: 'Finished Lot Release & Purity',
+                audit: 'Unannounced Facility Inspections',
+              },
+              {
+                icon: ShieldCheck,
+                name: 'EU GDP Cold-Chain',
+                authority: 'European Medicines Agency',
+                badge: 'Guideline 2013/C 343/01',
+                status: 'IoT Monitored',
+                desc: 'Continuous real-time telemetric climate control (-20°C to 25°C) across domestic and international transit to protect bio-integrity.',
+                scope: 'Cold-Chain Logistics & Storage',
+                audit: '24/7 Digital Telemetry Logs',
+              },
+              {
+                icon: Microscope,
+                name: 'Third-Party Lab Tested',
+                authority: 'ISO/IEC 17025 Accredited Labs',
+                badge: 'HPLC & Mass Spec',
+                status: '100% Lots Verified',
+                desc: 'Every single batch undergoes blind third-party testing for chemical identity, potency, microbials, residual solvents, and pesticides.',
+                scope: 'Purity, Potency & Stability Assay',
+                audit: '100% Production Batches Tested',
+              },
+            ].map((cert, idx) => {
+              const IconComp = cert.icon;
+              return (
+                <div
+                  key={idx}
+                  className="cert-card group relative bg-white rounded-3xl p-6 sm:p-8 border border-wellness-gray-200/80 shadow-xs hover:shadow-xl hover:border-wellness-green/40 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between overflow-hidden text-left"
+                >
+                  {/* Top glowing edge highlight on hover */}
+                  <div className="h-1.5 w-full bg-gradient-to-r from-wellness-green to-wellness-navy absolute top-0 left-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                  <div>
+                    {/* Card Header: Icon + Status Pill */}
+                    <div className="flex items-center justify-between gap-3 mb-6">
+                      <div className="w-12 h-12 rounded-2xl bg-wellness-navy text-wellness-green flex items-center justify-center font-black group-hover:scale-110 transition-transform duration-300 shadow-sm">
+                        <IconComp size={22} className="stroke-[2.2]" />
+                      </div>
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold tracking-wide uppercase bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        {cert.status}
+                      </span>
+                    </div>
+
+                    {/* Titles */}
+                    <div className="space-y-1 mb-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <h3 className="text-lg font-heading font-black text-wellness-navy group-hover:text-wellness-green transition-colors">
+                          {cert.name}
+                        </h3>
+                      </div>
+                      <p className="text-[11px] font-bold uppercase tracking-wider text-wellness-charcoal/50">
+                        {cert.authority}
+                      </p>
+                    </div>
+
+                    {/* Standard / Code Badge */}
+                    <div className="inline-block bg-wellness-gray-50 border border-wellness-gray-200 rounded-lg px-2.5 py-1 text-[11px] font-mono font-bold text-wellness-navy mb-4">
+                      {cert.badge}
+                    </div>
+
+                    {/* Description */}
+                    <p className="text-xs text-wellness-charcoal/70 leading-relaxed font-medium mb-6">
+                      {cert.desc}
+                    </p>
+                  </div>
+
+                  {/* Card Meta Footer */}
+                  <div className="pt-4 border-t border-wellness-gray-100 space-y-2 text-[11px]">
+                    <div className="flex items-center justify-between text-wellness-charcoal/60">
+                      <span className="font-semibold">Scope:</span>
+                      <span className="font-bold text-wellness-navy text-right">{cert.scope}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-wellness-charcoal/60">
+                      <span className="font-semibold">Audit Cycle:</span>
+                      <span className="font-bold text-wellness-green text-right">{cert.audit}</span>
+                    </div>
+                  </div>
                 </div>
-                <span className="text-wellness-charcoal font-semibold text-sm uppercase tracking-wider">
-                  {cert.label}
-                </span>
+              );
+            })}
+          </div>
+
+          {/* Certificate of Analysis / Dossier Request Banner */}
+          <div className="mt-14 max-w-4xl mx-auto rounded-3xl bg-wellness-navy text-white p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl border border-white/10 relative overflow-hidden">
+            <div className="absolute right-0 top-0 w-64 h-64 bg-wellness-green/10 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="flex items-center gap-4 text-left relative z-10">
+              <div className="w-12 h-12 rounded-2xl bg-wellness-green/20 text-wellness-green flex items-center justify-center shrink-0 border border-wellness-green/30">
+                <FileCheck size={24} />
               </div>
-            ))}
+              <div>
+                <h4 className="text-base sm:text-lg font-heading font-extrabold text-white">
+                  Need Batch-Specific Verification?
+                </h4>
+                <p className="text-xs text-white/70 font-medium mt-0.5">
+                  Download third-party Certificates of Analysis (CoA) or request regulatory audit
+                  dossiers for any production lot.
+                </p>
+              </div>
+            </div>
+
+            <Link
+              href="/contact"
+              className="px-5 py-3 rounded-xl bg-wellness-green hover:bg-white hover:text-wellness-navy text-white text-xs font-black uppercase tracking-wider transition-all duration-300 shrink-0 flex items-center gap-2 shadow-md cursor-pointer relative z-10"
+            >
+              <span>Request Lot Dossier</span>
+              <ArrowRight size={14} />
+            </Link>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

@@ -46,8 +46,8 @@ router.get(
     if (!userId) {
       throw new UnauthorizedError();
     }
-    const isAdmin = req.auth?.roles.includes('admin') ?? false;
-    const orders = await orderService.getOrders(isAdmin ? undefined : userId);
+    const isStaff = req.auth?.roles.some((r) => r === 'admin' || r === 'employee') ?? false;
+    const orders = await orderService.getOrders(isStaff ? undefined : userId);
     res.json({ success: true, data: orders });
   }),
 );
@@ -63,18 +63,18 @@ router.get(
     if (!userId) {
       throw new UnauthorizedError();
     }
-    const isAdmin = req.auth?.roles.includes('admin') ?? false;
-    const order = await orderService.getOrderById(id, userId, isAdmin);
+    const isStaff = req.auth?.roles.some((r) => r === 'admin' || r === 'employee') ?? false;
+    const order = await orderService.getOrderById(id, userId, isStaff);
     res.json({ success: true, data: order });
   }),
 );
 
-// PATCH /api/orders/:id/status - Update order status (Requires Auth / Admin)
+// PATCH /api/orders/:id/status - Update order status (Requires Auth / Admin or Employee)
 router.patch(
   '/:id/status',
   requireAuth,
   resolveRoles,
-  requireRole('admin'),
+  requireRole('admin', 'employee'),
   asyncHandler(async (req: Request, res) => {
     const id = z.string().uuid('Invalid order ID format').parse(req.params.id);
     const body = z

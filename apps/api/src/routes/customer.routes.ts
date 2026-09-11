@@ -5,6 +5,7 @@ import { asyncHandler, UnauthorizedError } from '@wellness/utils';
 import { CreateAddressSchema } from '@wellness/validation';
 
 import { requireAuth } from '../middleware/auth.middleware';
+import { resolveRoles, requireRole } from '../middleware/authorization.middleware';
 import { customerService } from '../services/customer.service';
 
 const router = Router();
@@ -89,6 +90,9 @@ router.post(
 
 router.get(
   '/inquiries',
+  requireAuth,
+  resolveRoles,
+  requireRole('admin', 'employee'),
   asyncHandler(async (req: Request, res) => {
     const inquiries = await customerService.getInquiries();
     res.json({ success: true, data: inquiries });
@@ -97,6 +101,9 @@ router.get(
 
 router.patch(
   '/inquiries/:id/status',
+  requireAuth,
+  resolveRoles,
+  requireRole('admin', 'employee'),
   asyncHandler(async (req: Request, res) => {
     const { id } = req.params;
     const body = (req.body ?? {}) as Record<string, unknown>;

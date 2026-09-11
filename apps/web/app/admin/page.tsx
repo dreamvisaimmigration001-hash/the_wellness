@@ -9,6 +9,7 @@ import AdminSidebar from './components/AdminSidebar';
 import EditProductModal from './components/EditProductModal';
 import AnalyticsTab from './components/tabs/AnalyticsTab';
 import CategoriesTab from './components/tabs/CategoriesTab';
+import EmployeesTab from './components/tabs/EmployeesTab';
 import InventoryTab from './components/tabs/InventoryTab';
 import OrdersTab from './components/tabs/OrdersTab';
 import ProductsTab from './components/tabs/ProductsTab';
@@ -27,6 +28,7 @@ import type {
   ApiOrderDTO,
   NewProductFormState,
   QuickUpdateProductPayload,
+  EmployeeUser,
 } from './types';
 
 import AlertModal, { AlertModalVariant } from '@/components/ui/AlertModal';
@@ -131,6 +133,9 @@ export default function AdminPage() {
   const [promotionsList, setPromotionsList] = useState<PromotionItem[]>([]);
   const [reviewsList, setReviewsList] = useState<AdminReview[]>([]);
   const [isLoadingReviews, setIsLoadingReviews] = useState(false);
+
+  const [usersList, setUsersList] = useState<EmployeeUser[]>([]);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
 
   const [apiAnalytics, setApiAnalytics] = useState<ApiAnalyticsSummary | null>(null);
   const [selectedProductAnalysis, setSelectedProductAnalysis] =
@@ -604,6 +609,67 @@ export default function AdminPage() {
     }
   };
 
+  const loadUsers = useCallback(async () => {
+    try {
+      setIsLoadingUsers(true);
+      const API_BASE = API_BASE_URL;
+      const res = await fetch(`${API_BASE}/api/admin/employees`, {
+        credentials: 'include',
+      });
+      if (res.ok) {
+        const json = (await res.json()) as { success: boolean; data: EmployeeUser[] };
+        if (json.success && Array.isArray(json.data)) {
+          setUsersList(json.data);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load users:', e);
+    } finally {
+      setIsLoadingUsers(false);
+    }
+  }, []);
+
+  const handleUpdateUserRole = async (
+    userId: string,
+    newRole: 'customer' | 'admin' | 'employee',
+  ): Promise<void> => {
+    try {
+      const API_BASE = API_BASE_URL;
+      const res = await fetch(`${API_BASE}/api/admin/employees/${userId}/role`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ role: newRole }),
+      });
+      const json = (await res.json()) as { success: boolean; error?: string };
+      if (res.ok && json.success) {
+        showNotice(`User role updated to ${newRole}!`, 'success');
+        await loadUsers();
+      } else {
+        showNotice(json.error || 'Failed to update user role', 'error');
+      }
+    } catch (e) {
+      console.error('Error updating user role:', e);
+      showNotice('Network error while updating user role', 'error');
+    }
+  };
+
+  const handleAddEmployee = async (data: { name: string; email: string }): Promise<void> => {
+    const API_BASE = API_BASE_URL;
+    const res = await fetch(`${API_BASE}/api/admin/employees`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(data),
+    });
+    const json = (await res.json()) as { success: boolean; error?: string };
+    if (!res.ok || !json.success) {
+      throw new Error(json.error || 'Failed to add employee');
+    }
+    showNotice(`Employee ${data.name} saved successfully!`, 'success');
+    await loadUsers();
+  };
+
   useEffect(() => {
     void loadProducts();
     void loadCategories();
@@ -622,6 +688,12 @@ export default function AdminPage() {
     loadPromotions,
     loadReviews,
   ]);
+
+  useEffect(() => {
+    if (activeTab === 'employees') {
+      void loadUsers();
+    }
+  }, [activeTab, loadUsers]);
 
   // --- Handlers ---
   const handleAdminSignIn = async () => {
@@ -1401,6 +1473,8 @@ export default function AdminPage() {
   // Guard Clauses
   const userRole = (session?.user as { role?: string } | undefined)?.role;
   const isAdmin = userRole === 'admin';
+  const isEmployee = userRole === 'employee';
+  const isAuthorized = isAdmin || isEmployee;
 
   if (sessionLoading) {
     return (
@@ -1413,7 +1487,7 @@ export default function AdminPage() {
     );
   }
 
-  if (!isAdmin) {
+  if (!isAuthorized) {
     return (
       <AdminAuthRequired
         sessionUser={session?.user}
@@ -1458,6 +1532,7 @@ export default function AdminPage() {
         queriesCount={queries.length}
         ordersCount={orders.length}
         adminEmail={session?.user.email}
+        userRole={userRole}
         mobileOpen={mobileSidebarOpen}
         onCloseMobile={() => {
           setMobileSidebarOpen(false);
@@ -1578,6 +1653,17 @@ export default function AdminPage() {
               onAddReview={handleAddReview}
               onToggleApproval={handleToggleReviewApproval}
               onDeleteReview={handleDeleteReview}
+            />
+          )}
+
+          {activeTab === 'employees' && isAdmin && (
+            <EmployeesTab
+              users={usersList}
+              isLoadingUsers={isLoadingUsers}
+              onRefreshUsers={loadUsers}
+              onUpdateRole={handleUpdateUserRole}
+              onAddEmployee={handleAddEmployee}
+              currentUserId={session?.user.id}
             />
           )}
         </main>

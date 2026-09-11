@@ -47,14 +47,12 @@ export default function AdminAuthRequired({
 
         <div className="mb-6 space-y-1">
           <h1 className="text-xl font-heading font-bold text-wellness-navy">
-            {isUnauthorizedUser
-              ? 'Insufficient Privileges'
-              : 'Administrator Authorization Required'}
+            {isUnauthorizedUser ? 'Insufficient Privileges' : 'Staff Authorization Required'}
           </h1>
           <p className="text-xs text-wellness-charcoal/60 leading-relaxed font-semibold">
             {isUnauthorizedUser
-              ? 'Your authenticated account is not authorized as a clinical administrator. Please switch to an authorized administrative account.'
-              : 'Please sign in with verified clinical administrator credentials to access inventory controls, orders, and diagnostic analytics.'}
+              ? 'Your authenticated account is not authorized as staff or clinical administrator. Please switch to an authorized employee or administrator account.'
+              : 'Please sign in with verified administrative or employee credentials to access inventory controls, orders, and diagnostic analytics.'}
           </p>
         </div>
 

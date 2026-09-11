@@ -33,9 +33,9 @@ export default function AccountPage() {
 
   const userRole = user?.role;
 
-  // Redirect admin users to admin portal
+  // Redirect admin and employee users to staff portal
   useEffect(() => {
-    if (userRole === 'admin') {
+    if (userRole === 'admin' || userRole === 'employee') {
       router.push('/admin');
     }
   }, [userRole, router]);

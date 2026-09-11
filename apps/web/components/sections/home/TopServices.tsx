@@ -1,7 +1,6 @@
 'use client';
 
-import { Stethoscope, UserCheck, Truck, ClipboardList, ArrowRight } from 'lucide-react';
-import Link from 'next/link';
+import { Stethoscope, UserCheck, Truck, ClipboardList } from 'lucide-react';
 import React from 'react';
 
 const SERVICES = [
@@ -9,25 +8,21 @@ const SERVICES = [
     title: 'Find Specialist',
     description: 'Consult certified doctors & pharmacists from home.',
     icon: Stethoscope,
-    href: '/products',
   },
   {
     title: 'Consultation Near You',
     description: 'Book trusted clinic appointments & specialist guidance easily.',
     icon: UserCheck,
-    href: '/products',
   },
   {
     title: 'Quick Delivery 24/7',
     description: 'Doorstep medicines delivered in temperature-safe packaging.',
     icon: Truck,
-    href: '/products',
   },
   {
     title: 'Diagnostic Health Tests',
     description: 'Accurate clinical diagnostics and routine health checkups.',
     icon: ClipboardList,
-    href: '/account',
   },
 ];
 
@@ -48,17 +43,16 @@ export default function TopServices() {
           {SERVICES.map((service) => {
             const Icon = service.icon;
             return (
-              <Link
+              <div
                 key={service.title}
-                href={service.href}
-                className="group p-6 rounded-2xl bg-[#EAF3FE] hover:bg-[#E0EEFE] border border-[#D5E6FC] transition-all duration-300 flex flex-col justify-between min-h-[170px] shadow-xs hover:shadow-md cursor-pointer"
+                className="group p-6 rounded-2xl bg-[#EAF3FE] border border-[#D5E6FC] transition-all duration-300 flex flex-col justify-between min-h-[160px] shadow-xs"
               >
                 <div className="space-y-3">
-                  <div className="w-11 h-11 rounded-xl bg-white text-[#1D4ED8] flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
+                  <div className="w-11 h-11 rounded-xl bg-white text-[#1D4ED8] flex items-center justify-center shadow-xs transition-transform group-hover:scale-105">
                     <Icon size={22} className="stroke-[2.2]" />
                   </div>
                   <div>
-                    <h3 className="font-heading font-bold text-base text-[#0F2744] group-hover:text-[#1D4ED8] transition-colors">
+                    <h3 className="font-heading font-bold text-base text-[#0F2744]">
                       {service.title}
                     </h3>
                     <p className="text-xs text-slate-600 mt-1 leading-relaxed font-medium">
@@ -66,13 +60,7 @@ export default function TopServices() {
                     </p>
                   </div>
                 </div>
-
-                <div className="pt-4 flex justify-end">
-                  <div className="w-8 h-8 rounded-full bg-[#1D4ED8] text-white flex items-center justify-center shadow-xs group-hover:bg-[#0F2744] group-hover:translate-x-0.5 transition-all">
-                    <ArrowRight size={14} className="stroke-[2.5]" />
-                  </div>
-                </div>
-              </Link>
+              </div>
             );
           })}
         </div>

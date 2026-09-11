@@ -1,6 +1,6 @@
 'use client';
 
-import { Lock, Package } from 'lucide-react';
+import { Package } from 'lucide-react';
 import Image from 'next/image';
 import React from 'react';
 
@@ -81,12 +81,6 @@ export default function OrderSummary({
           <span>Total Amount</span>
           <span>₹{totalCost.toFixed(2)}</span>
         </div>
-      </div>
-
-      {/* Trust badge */}
-      <div className="flex items-center gap-2.5 justify-center pt-2 text-[10px] text-wellness-charcoal/40 font-bold uppercase tracking-wider border-t border-wellness-gray-200/50">
-        <Lock size={12} />
-        <span>256-bit SSL Encryption</span>
       </div>
     </div>
   );

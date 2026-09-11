@@ -6,7 +6,19 @@ export type AdminTab =
   | 'queries'
   | 'orders'
   | 'promotions'
-  | 'reviews';
+  | 'reviews'
+  | 'employees';
+
+export interface EmployeeUser {
+  id: string;
+  name: string;
+  email: string;
+  role: 'customer' | 'admin' | 'employee';
+  emailVerified: boolean;
+  image?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface AdminReview {
   id: string;

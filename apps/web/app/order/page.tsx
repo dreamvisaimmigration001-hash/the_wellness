@@ -674,43 +674,51 @@ export default function OrderPage() {
           </div>
         )}
 
-        {/* Mobile Collapsible Order Summary */}
-        <div className="lg:hidden mb-6 bg-wellness-gray-50 border border-wellness-gray-200 rounded-2xl overflow-hidden shadow-xs">
-          <button
-            type="button"
-            onClick={() => {
-              setMobileSummaryOpen((prev) => !prev);
-            }}
-            className="w-full px-4 py-3.5 flex items-center justify-between text-left cursor-pointer hover:bg-wellness-gray-100/60 transition-colors"
-          >
-            <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-wellness-navy">
-              <Package size={16} className="text-wellness-green shrink-0" />
-              <span>{mobileSummaryOpen ? 'Hide order summary' : 'Show order summary'}</span>
-              <ChevronDown
-                size={15}
-                className={`transition-transform duration-200 ${mobileSummaryOpen ? 'rotate-180' : ''}`}
-              />
-            </div>
-            <span className="text-xs sm:text-sm font-bold text-wellness-navy font-mono">
-              ₹{totalCost.toFixed(2)}
-            </span>
-          </button>
-          {mobileSummaryOpen && (
-            <div className="border-t border-wellness-gray-200 p-4">
-              <OrderSummary
-                cartItems={cartItems}
-                cartSubtotal={cartSubtotal}
-                shippingCost={shippingCost}
-                taxCost={taxCost}
-                totalCost={totalCost}
-              />
-            </div>
-          )}
-        </div>
+        {/* Mobile Collapsible Order Summary (Hidden on Payment step since PaymentStep displays it directly) */}
+        {currentStep !== 'payment' && (
+          <div className="lg:hidden mb-6 bg-wellness-gray-50 border border-wellness-gray-200 rounded-2xl overflow-hidden shadow-xs">
+            <button
+              type="button"
+              onClick={() => {
+                setMobileSummaryOpen((prev) => !prev);
+              }}
+              className="w-full px-4 py-3.5 flex items-center justify-between text-left cursor-pointer hover:bg-wellness-gray-100/60 transition-colors"
+            >
+              <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-wellness-navy">
+                <Package size={16} className="text-wellness-green shrink-0" />
+                <span>{mobileSummaryOpen ? 'Hide order summary' : 'Show order summary'}</span>
+                <ChevronDown
+                  size={15}
+                  className={`transition-transform duration-200 ${mobileSummaryOpen ? 'rotate-180' : ''}`}
+                />
+              </div>
+              <span className="text-xs sm:text-sm font-bold text-wellness-navy font-mono">
+                ₹{totalCost.toFixed(2)}
+              </span>
+            </button>
+            {mobileSummaryOpen && (
+              <div className="border-t border-wellness-gray-200 p-4">
+                <OrderSummary
+                  cartItems={cartItems}
+                  cartSubtotal={cartSubtotal}
+                  shippingCost={shippingCost}
+                  taxCost={taxCost}
+                  totalCost={totalCost}
+                />
+              </div>
+            )}
+          </div>
+        )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+        <div
+          className={
+            currentStep === 'payment'
+              ? 'max-w-2xl mx-auto'
+              : 'grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12'
+          }
+        >
           {/* Main Step Form Area */}
-          <div className="lg:col-span-7">
+          <div className={currentStep === 'payment' ? 'w-full' : 'lg:col-span-7'}>
             <AnimatePresence mode="wait">
               {currentStep === 'review' && (
                 <ReviewStep key="review-step" items={cartItems} onSubmit={handleReviewSubmit} />
@@ -749,8 +757,12 @@ export default function OrderPage() {
               {currentStep === 'payment' && (
                 <PaymentStep
                   key="payment-step"
-                  shippingForm={shippingForm}
+                  cartItems={cartItems}
+                  cartSubtotal={cartSubtotal}
+                  shippingCost={shippingCost}
+                  taxCost={taxCost}
                   totalCost={totalCost}
+                  shippingForm={shippingForm}
                   paymentError={paymentError}
                   isSubmitting={isSubmitting}
                   onPayment={() => {
@@ -764,16 +776,18 @@ export default function OrderPage() {
             </AnimatePresence>
           </div>
 
-          {/* Desktop Sidebar Order Summary */}
-          <div className="hidden lg:block lg:col-span-5">
-            <OrderSummary
-              cartItems={cartItems}
-              cartSubtotal={cartSubtotal}
-              shippingCost={shippingCost}
-              taxCost={taxCost}
-              totalCost={totalCost}
-            />
-          </div>
+          {/* Desktop Sidebar Order Summary (Shown on review & shipping steps) */}
+          {currentStep !== 'payment' && (
+            <div className="hidden lg:block lg:col-span-5">
+              <OrderSummary
+                cartItems={cartItems}
+                cartSubtotal={cartSubtotal}
+                shippingCost={shippingCost}
+                taxCost={taxCost}
+                totalCost={totalCost}
+              />
+            </div>
+          )}
         </div>
       </div>
 

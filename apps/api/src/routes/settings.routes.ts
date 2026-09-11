@@ -20,13 +20,13 @@ bindProcedure(
   }),
 );
 
-// PUT /api/settings - Admin update of site settings
+// PUT /api/settings - Staff update of site settings
 bindProcedure(
   router,
   updateSettingsProcedure,
   requireAuth,
   resolveRoles,
-  requireRole('admin'),
+  requireRole('admin', 'employee'),
   asyncHandler(async (req, res) => {
     const input = updateSiteSettingsSchema.parse(req.body);
     const updated = await settingsService.updateSettings(input);
