@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Package, Lock } from 'lucide-react';
+import { Package, Lock, ChevronDown } from 'lucide-react';
 import { AnimatePresence } from 'motion/react';
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
@@ -40,10 +40,8 @@ export default function OrderPage() {
   const { cartItems, cartSubtotal, hasRxItems, clearCart } = useCart();
   const { data: session } = authClient.useSession();
   const [currentStep, setCurrentStep] = useState<Step>('review');
-  const [rxFile, setRxFile] = useState<File | null>(null);
-  const [rxFileName, setRxFileName] = useState<string>('');
-  const [rxError, setRxError] = useState<string>('');
   const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
+  const [mobileSummaryOpen, setMobileSummaryOpen] = useState<boolean>(false);
 
   // Shipping Form State (react-hook-form)
   const {
@@ -332,26 +330,6 @@ export default function OrderPage() {
   const taxCost = Math.round(cartSubtotal * 0.1); // 10% tax
   const totalCost = Math.round(cartSubtotal + shippingCost + taxCost);
 
-  // Handle Prescription Upload
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        setRxError('File size exceeds the 5MB limit.');
-        return;
-      }
-      setRxFile(file);
-      setRxFileName(file.name);
-      setRxError('');
-    }
-  };
-
-  const triggerSimulatedUpload = () => {
-    setRxFileName('medical_prescription_certified.pdf');
-    setRxFile(new File([], 'medical_prescription_certified.pdf'));
-    setRxError('');
-  };
-
   const submitOrderToApi = async (paymentDetails: {
     transactionId?: string;
     razorpayOrderId?: string;
@@ -547,7 +525,7 @@ export default function OrderPage() {
               date: new Date().toISOString(),
               status: 'confirmed',
               hasRxItems,
-              rxFileName: hasRxItems ? rxFileName || 'medical_prescription_certified.pdf' : null,
+              rxFileName: null,
             };
 
             clearCart();
@@ -598,10 +576,6 @@ export default function OrderPage() {
   const handleReviewSubmit = () => {
     if (!session?.user) {
       setShowAuthModal(true);
-      return;
-    }
-    if (hasRxItems && !rxFile) {
-      setRxError('Please upload a valid prescription before proceeding.');
       return;
     }
     setCurrentStep('shipping');
@@ -700,20 +674,46 @@ export default function OrderPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        {/* Mobile Collapsible Order Summary */}
+        <div className="lg:hidden mb-6 bg-wellness-gray-50 border border-wellness-gray-200 rounded-2xl overflow-hidden shadow-xs">
+          <button
+            type="button"
+            onClick={() => {
+              setMobileSummaryOpen((prev) => !prev);
+            }}
+            className="w-full px-4 py-3.5 flex items-center justify-between text-left cursor-pointer hover:bg-wellness-gray-100/60 transition-colors"
+          >
+            <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-wellness-navy">
+              <Package size={16} className="text-wellness-green shrink-0" />
+              <span>{mobileSummaryOpen ? 'Hide order summary' : 'Show order summary'}</span>
+              <ChevronDown
+                size={15}
+                className={`transition-transform duration-200 ${mobileSummaryOpen ? 'rotate-180' : ''}`}
+              />
+            </div>
+            <span className="text-xs sm:text-sm font-bold text-wellness-navy font-mono">
+              ₹{totalCost.toFixed(2)}
+            </span>
+          </button>
+          {mobileSummaryOpen && (
+            <div className="border-t border-wellness-gray-200 p-4">
+              <OrderSummary
+                cartItems={cartItems}
+                cartSubtotal={cartSubtotal}
+                shippingCost={shippingCost}
+                taxCost={taxCost}
+                totalCost={totalCost}
+              />
+            </div>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
           {/* Main Step Form Area */}
           <div className="lg:col-span-7">
             <AnimatePresence mode="wait">
               {currentStep === 'review' && (
-                <ReviewStep
-                  key="review-step"
-                  hasRxItems={hasRxItems}
-                  rxFileName={rxFileName}
-                  rxError={rxError}
-                  onFileChange={handleFileChange}
-                  onSimulateUpload={triggerSimulatedUpload}
-                  onSubmit={handleReviewSubmit}
-                />
+                <ReviewStep key="review-step" items={cartItems} onSubmit={handleReviewSubmit} />
               )}
 
               {currentStep === 'shipping' && (
@@ -764,8 +764,8 @@ export default function OrderPage() {
             </AnimatePresence>
           </div>
 
-          {/* Sidebar Order Summary */}
-          <div className="lg:col-span-5">
+          {/* Desktop Sidebar Order Summary */}
+          <div className="hidden lg:block lg:col-span-5">
             <OrderSummary
               cartItems={cartItems}
               cartSubtotal={cartSubtotal}

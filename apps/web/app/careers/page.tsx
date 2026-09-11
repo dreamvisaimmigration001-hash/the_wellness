@@ -11,7 +11,6 @@ import {
   CheckCircle2,
   Mail,
   Building2,
-  Sparkles,
 } from 'lucide-react';
 import Link from 'next/link';
 import React, { useState } from 'react';
@@ -148,10 +147,6 @@ export default function CareersPage() {
       {/* Hero Section */}
       <section className="container mx-auto px-6 md:px-12 max-w-6xl mb-20">
         <div className="text-center max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-wellness-green/10 text-wellness-navy text-xs font-bold uppercase tracking-wider mb-6">
-            <Sparkles size={14} className="text-wellness-green" />
-            Careers at The Wellness
-          </div>
           <h1 className="text-5xl md:text-6xl font-heading font-extrabold text-wellness-navy tracking-tight leading-tight mb-6">
             Build the Future of <br className="hidden sm:inline" />
             <span className="text-wellness-green">Scientific Wellness</span>
@@ -264,7 +259,9 @@ export default function CareersPage() {
             {departments.map((dept) => (
               <button
                 key={dept}
-                onClick={() => setSelectedDept(dept)}
+                onClick={() => {
+                  setSelectedDept(dept);
+                }}
                 className={`text-xs font-bold px-4 py-2 rounded-lg transition-all cursor-pointer ${
                   selectedDept === dept
                     ? 'bg-wellness-navy text-white shadow-sm'
@@ -311,7 +308,9 @@ export default function CareersPage() {
 
                 <div className="flex sm:flex-row lg:flex-col gap-3 shrink-0">
                   <button
-                    onClick={() => setActiveModalPosition(pos)}
+                    onClick={() => {
+                      setActiveModalPosition(pos);
+                    }}
                     className="bg-wellness-navy hover:bg-wellness-green text-white text-xs font-bold px-6 py-3 rounded-xl transition-colors cursor-pointer text-center"
                   >
                     View Details & Apply
@@ -362,7 +361,9 @@ export default function CareersPage() {
                 </p>
               </div>
               <button
-                onClick={() => setActiveModalPosition(null)}
+                onClick={() => {
+                  setActiveModalPosition(null);
+                }}
                 className="text-wellness-charcoal/50 hover:text-wellness-navy font-bold text-xl p-2 cursor-pointer"
               >
                 &times;

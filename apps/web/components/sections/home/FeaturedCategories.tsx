@@ -1,21 +1,21 @@
 'use client';
 
 import {
+  Pill,
   HeartPulse,
   Brain,
   Wind,
   Sparkles,
   Baby,
   Activity,
-  Pill,
+  Layers,
+  ArrowRight,
   type LucideIcon,
 } from 'lucide-react';
 import Link from 'next/link';
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
-import { API_BASE_URL } from '@/lib/config';
-
-interface ApiCategory {
+export interface ApiCategory {
   id: string;
   name: string;
   slug?: string;
@@ -23,12 +23,25 @@ interface ApiCategory {
   isActive?: boolean;
 }
 
-interface ApiProduct {
+export interface ApiProduct {
   id: string;
   name: string;
   categoryId?: string | null;
   categoryName?: string | null;
   category?: string | null;
+  sellingPrice?: string | number;
+  mrp?: string | number;
+  type?: string | null;
+  description?: string | null;
+  primaryImage?: string | null;
+  image?: string | null;
+  isBestSeller?: boolean;
+  isNewest?: boolean;
+  isFeatured?: boolean;
+  availableQty?: number;
+  stockQty?: number;
+  inventoryQty?: number;
+  stockStatus?: 'in_stock' | 'out_of_stock';
 }
 
 interface CategoryItem {
@@ -36,228 +49,223 @@ interface CategoryItem {
   name: string;
   slug: string;
   icon: LucideIcon;
-  color: string;
+  bgColor: string;
+  textColor: string;
+  borderColor: string;
   count: number;
 }
 
-interface CategoryTheme {
-  icon: LucideIcon;
-  color: string;
+interface FeaturedCategoriesProps {
+  categories?: ApiCategory[];
+  products?: ApiProduct[];
+  loading?: boolean;
 }
 
-const DEFAULT_THEMES: CategoryTheme[] = [
-  { icon: HeartPulse, color: 'bg-red-50 text-red-600 border-red-200' },
-  { icon: Wind, color: 'bg-teal-50 text-teal-600 border-teal-200' },
-  { icon: Brain, color: 'bg-purple-50 text-purple-600 border-purple-200' },
-  { icon: Activity, color: 'bg-blue-50 text-blue-600 border-blue-200' },
-  { icon: Sparkles, color: 'bg-amber-50 text-amber-600 border-amber-200' },
-  { icon: Baby, color: 'bg-indigo-50 text-indigo-600 border-indigo-200' },
-  { icon: Pill, color: 'bg-emerald-50 text-emerald-600 border-emerald-200' },
-];
-
-function getCategoryTheme(name: string, index: number): CategoryTheme {
+function getCategoryVisuals(
+  name: string,
+  index: number,
+): {
+  icon: LucideIcon;
+  bgColor: string;
+  textColor: string;
+  borderColor: string;
+} {
   const lower = name.toLowerCase();
   if (lower.includes('cardio') || lower.includes('heart')) {
-    return { icon: HeartPulse, color: 'bg-red-50 text-red-600 border-red-200' };
+    return {
+      icon: HeartPulse,
+      bgColor: 'bg-red-50',
+      textColor: 'text-red-700',
+      borderColor: 'border-red-200',
+    };
   }
-  if (lower.includes('respira') || lower.includes('lung') || lower.includes('wind')) {
-    return { icon: Wind, color: 'bg-teal-50 text-teal-600 border-teal-200' };
+  if (lower.includes('respira') || lower.includes('lung') || lower.includes('inhaler')) {
+    return {
+      icon: Wind,
+      bgColor: 'bg-teal-50',
+      textColor: 'text-teal-700',
+      borderColor: 'border-teal-200',
+    };
   }
-  if (lower.includes('neuro') || lower.includes('brain') || lower.includes('mental')) {
-    return { icon: Brain, color: 'bg-purple-50 text-purple-600 border-purple-200' };
+  if (lower.includes('neuro') || lower.includes('brain')) {
+    return {
+      icon: Brain,
+      bgColor: 'bg-purple-50',
+      textColor: 'text-purple-700',
+      borderColor: 'border-purple-200',
+    };
   }
-  if (lower.includes('infect') || lower.includes('immune') || lower.includes('anti')) {
-    return { icon: Activity, color: 'bg-blue-50 text-blue-600 border-blue-200' };
+  if (lower.includes('baby') || lower.includes('child') || lower.includes('pediatric')) {
+    return {
+      icon: Baby,
+      bgColor: 'bg-pink-50',
+      textColor: 'text-pink-700',
+      borderColor: 'border-pink-200',
+    };
   }
-  if (lower.includes('pediatric') || lower.includes('child') || lower.includes('baby')) {
-    return { icon: Baby, color: 'bg-indigo-50 text-indigo-600 border-indigo-200' };
+  if (lower.includes('vitamin') || lower.includes('supplement') || lower.includes('nutrition')) {
+    return {
+      icon: Sparkles,
+      bgColor: 'bg-amber-50',
+      textColor: 'text-amber-700',
+      borderColor: 'border-amber-200',
+    };
   }
-  if (lower.includes('wellness') || lower.includes('supplement') || lower.includes('vitamin')) {
-    return { icon: Sparkles, color: 'bg-amber-50 text-amber-600 border-amber-200' };
-  }
-  if (lower.includes('otc') || lower.includes('pill') || lower.includes('tablet')) {
-    return { icon: Pill, color: 'bg-emerald-50 text-emerald-600 border-emerald-200' };
+  if (lower.includes('rx') || lower.includes('prescription') || lower.includes('medicine')) {
+    return {
+      icon: Pill,
+      bgColor: 'bg-emerald-50',
+      textColor: 'text-emerald-700',
+      borderColor: 'border-emerald-200',
+    };
   }
 
-  return DEFAULT_THEMES[index % DEFAULT_THEMES.length];
+  const palette = [
+    {
+      icon: Activity,
+      bgColor: 'bg-emerald-50',
+      textColor: 'text-emerald-700',
+      borderColor: 'border-emerald-200',
+    },
+    {
+      icon: Pill,
+      bgColor: 'bg-blue-50',
+      textColor: 'text-blue-700',
+      borderColor: 'border-blue-200',
+    },
+    {
+      icon: Layers,
+      bgColor: 'bg-indigo-50',
+      textColor: 'text-indigo-700',
+      borderColor: 'border-indigo-200',
+    },
+    {
+      icon: Sparkles,
+      bgColor: 'bg-teal-50',
+      textColor: 'text-teal-700',
+      borderColor: 'border-teal-200',
+    },
+  ];
+
+  const defaultItem = {
+    icon: Activity,
+    bgColor: 'bg-emerald-50',
+    textColor: 'text-emerald-700',
+    borderColor: 'border-emerald-200',
+  };
+
+  return palette[index % palette.length] ?? defaultItem;
 }
 
-export default function FeaturedCategories() {
-  const [categories, setCategories] = useState<CategoryItem[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function FeaturedCategories({
+  categories = [],
+  products = [],
+  loading = false,
+}: FeaturedCategoriesProps) {
+  const categoryItems: CategoryItem[] = React.useMemo(() => {
+    return categories.map((cat, idx) => {
+      const matchedCount = products.filter((p) => {
+        if (p.categoryId && p.categoryId === cat.id) return true;
+        const pCat = (p.categoryName || p.category || '').toLowerCase();
+        return pCat === cat.name.toLowerCase();
+      }).length;
 
-  useEffect(() => {
-    let isMounted = true;
+      const visuals = getCategoryVisuals(cat.name, idx);
 
-    async function fetchData() {
-      try {
-        const API_BASE = API_BASE_URL;
+      return {
+        id: cat.id,
+        name: cat.name,
+        slug: cat.slug || cat.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+        icon: visuals.icon,
+        bgColor: visuals.bgColor,
+        textColor: visuals.textColor,
+        borderColor: visuals.borderColor,
+        count: matchedCount,
+      };
+    });
+  }, [categories, products]);
 
-        const [catRes, prodRes] = await Promise.all([
-          fetch(`${API_BASE}/api/categories`, {
-            signal: AbortSignal.timeout(12000),
-          }).catch(() => null),
-          fetch(`${API_BASE}/api/products?limit=100`, {
-            signal: AbortSignal.timeout(12000),
-          }).catch(() => null),
-        ]);
-
-        let apiCategories: ApiCategory[] = [];
-        if (catRes && catRes.ok) {
-          const catJson = (await catRes.json()) as {
-            data?: ApiCategory[];
-            categories?: ApiCategory[];
-          };
-          apiCategories = catJson.data || catJson.categories || [];
-        }
-
-        let apiProducts: ApiProduct[] = [];
-        if (prodRes && prodRes.ok) {
-          const prodJson = (await prodRes.json()) as {
-            data?: { products?: ApiProduct[]; items?: ApiProduct[] };
-            products?: ApiProduct[];
-          };
-          apiProducts = prodJson.data?.products || prodJson.data?.items || prodJson.products || [];
-        }
-
-        if (!isMounted) return;
-
-        // Group categories from real database records
-        const categoryMap = new Map<string, { id: string; name: string; slug: string }>();
-
-        // 1. Add categories from API
-        apiCategories.forEach((cat) => {
-          if (cat.name && cat.isActive !== false) {
-            categoryMap.set(cat.name.toLowerCase(), {
-              id: cat.id,
-              name: cat.name,
-              slug: cat.slug || cat.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-            });
-          }
-        });
-
-        // 2. Add any additional categories present in products
-        apiProducts.forEach((p) => {
-          const catName = p.categoryName || p.category;
-          if (catName && catName !== 'All' && !categoryMap.has(catName.toLowerCase())) {
-            categoryMap.set(catName.toLowerCase(), {
-              id: p.categoryId || catName.toLowerCase(),
-              name: catName,
-              slug: catName.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-            });
-          }
-        });
-
-        // Map categories to display items with real counts
-        const items: CategoryItem[] = Array.from(categoryMap.values()).map((cat, idx) => {
-          const count = apiProducts.filter((p) => {
-            if (p.categoryId && p.categoryId === cat.id) return true;
-            const pCat = (
-              p.categoryName ||
-              p.category ||
-              (cat.name === 'OTC & Wellness' ? 'OTC & Wellness' : '')
-            ).toLowerCase();
-            return (
-              pCat === cat.name.toLowerCase() ||
-              (cat.name === 'OTC & Wellness' && !p.categoryName && !p.category) ||
-              (cat.name.length >= 4 && pCat.includes(cat.name.toLowerCase()))
-            );
-          }).length;
-
-          const theme = getCategoryTheme(cat.name, idx);
-
-          return {
-            id: cat.id,
-            name: cat.name,
-            slug: cat.slug,
-            icon: theme.icon,
-            color: theme.color,
-            count,
-          };
-        });
-
-        setCategories(items);
-      } catch (err) {
-        console.error('Failed to fetch categories:', err);
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    }
-
-    void fetchData();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  if (!loading && categories.length === 0) {
+  if (!loading && categoryItems.length === 0) {
     return null;
   }
 
   return (
-    <section className="py-16 md:py-20 bg-white border-b border-wellness-gray-200">
-      <div className="container mx-auto px-6 md:px-12">
+    <section className="py-12 md:py-16 bg-[#FAF9F6] border-b border-wellness-gray-200/60">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center max-w-xl mx-auto mb-12 space-y-2">
-          <h2 className="text-3xl md:text-4xl font-heading font-black text-wellness-navy uppercase tracking-tight">
-            Explore Featured Categories
-          </h2>
-          <p className="text-wellness-charcoal/70 text-sm font-medium">
-            Discover tailored pharmaceutical solutions across key healthcare categories.
-          </p>
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h2 className="text-2xl sm:text-3xl font-heading font-black text-wellness-navy">
+              Shop by Health Category
+            </h2>
+          </div>
+
+          <Link
+            href="/products"
+            className="group hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-wellness-navy hover:text-wellness-green transition-colors"
+          >
+            <span>View All Categories</span>
+            <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+          </Link>
         </div>
 
         {/* Loading Skeletons */}
         {loading && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+            {[1, 2, 3, 4].map((i) => (
               <div
                 key={i}
-                className="flex flex-col items-center justify-between p-5 bg-wellness-gray-50 rounded-2xl border border-wellness-gray-200/80 animate-pulse h-40 text-center"
-              >
-                <div className="w-12 h-12 rounded-xl bg-wellness-gray-200 mb-3" />
-                <div className="w-20 h-4 rounded bg-wellness-gray-200 mb-2" />
-                <div className="w-12 h-3 rounded bg-wellness-gray-200" />
-              </div>
+                className="h-36 rounded-2xl bg-wellness-gray-100 animate-pulse border border-wellness-gray-200/60"
+              />
             ))}
           </div>
         )}
 
         {/* Categories Grid from live API */}
-        {!loading && categories.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
-            {categories.map((cat) => {
-              const IconComponent = cat.icon;
+        {!loading && categoryItems.length > 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+            {categoryItems.map((item) => {
+              const IconComponent = item.icon;
               return (
                 <Link
-                  key={cat.id}
-                  href={`/products?category=${encodeURIComponent(cat.name)}`}
-                  className="group flex flex-col items-center justify-between p-5 bg-wellness-gray-50 hover:bg-white rounded-2xl border border-wellness-gray-200/80 hover:border-wellness-green/40 hover:shadow-md transition-all duration-200 h-full text-center"
+                  key={item.id}
+                  href={`/products?category=${encodeURIComponent(item.name)}`}
+                  className="group flex flex-col items-center text-center p-4 sm:p-5 rounded-2xl bg-white border border-wellness-gray-200/80 hover:border-wellness-green/60 hover:shadow-md transition-all duration-200 cursor-pointer"
                 >
+                  {/* Icon Bubble */}
                   <div
-                    className={`w-12 h-12 rounded-xl ${cat.color} border flex items-center justify-center mb-3 shadow-xs`}
+                    className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center ${item.bgColor} ${item.textColor} border ${item.borderColor} shadow-xs group-hover:scale-105 transition-transform duration-200 mb-3`}
                   >
-                    <IconComponent size={22} />
+                    <IconComponent size={26} className="stroke-[2]" />
                   </div>
 
-                  <div>
-                    <h3 className="font-heading font-bold text-wellness-navy group-hover:text-wellness-green transition-colors text-sm mb-1">
-                      {cat.name}
-                    </h3>
-                    <span className="text-[11px] font-semibold text-wellness-charcoal/50 group-hover:text-wellness-charcoal/80 transition-colors">
-                      {cat.count > 0
-                        ? `${String(cat.count)} ${cat.count === 1 ? 'Product' : 'Products'}`
-                        : 'Explore'}
+                  {/* Category Name */}
+                  <h3 className="font-heading font-bold text-xs sm:text-sm text-wellness-navy group-hover:text-wellness-green transition-colors line-clamp-2 leading-tight min-h-[32px] flex items-center justify-center">
+                    {item.name}
+                  </h3>
+
+                  {/* Items Count Badge */}
+                  {item.count > 0 && (
+                    <span className="text-[10px] text-wellness-charcoal/50 font-semibold mt-1">
+                      {item.count} {item.count === 1 ? 'Product' : 'Products'}
                     </span>
-                  </div>
+                  )}
                 </Link>
               );
             })}
           </div>
         )}
+
+        {/* Mobile View All Link */}
+        <div className="sm:hidden text-center mt-6">
+          <Link
+            href="/products"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-wellness-navy bg-white border border-wellness-gray-200 px-5 py-2.5 rounded-xl shadow-xs"
+          >
+            <span>View All Categories</span>
+            <ArrowRight size={14} />
+          </Link>
+        </div>
       </div>
     </section>
   );

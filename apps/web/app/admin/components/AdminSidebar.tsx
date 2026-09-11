@@ -98,66 +98,66 @@ export default function AdminSidebar({
           </button>
         </div>
 
-      {/* Navigation list */}
-      <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
-        {tabs.map((tab) => {
-          const isActive = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => {
-                onSelectTab(tab.id);
-                onCloseMobile();
-              }}
-              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-[10px] font-extrabold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
-                isActive
-                  ? 'bg-wellness-green text-wellness-navy shadow-md shadow-wellness-green/20 font-black'
-                  : 'text-white/70 hover:text-white hover:bg-white/10'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                {tab.icon}
-                <span>{tab.label}</span>
-              </div>
-              {tab.badge && (
-                <span
-                  className={`text-[9px] font-mono font-black px-2 py-0.5 rounded-full ${
-                    isActive
-                      ? 'bg-wellness-navy/20 text-wellness-navy'
-                      : 'bg-wellness-light-green/20 text-wellness-light-green border border-wellness-light-green/20'
-                  }`}
-                >
-                  {tab.badge}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </nav>
+        {/* Navigation list */}
+        <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  onSelectTab(tab.id);
+                  onCloseMobile();
+                }}
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-[10px] font-extrabold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
+                  isActive
+                    ? 'bg-wellness-green text-wellness-navy shadow-md shadow-wellness-green/20 font-black'
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  {tab.icon}
+                  <span>{tab.label}</span>
+                </div>
+                {tab.badge && (
+                  <span
+                    className={`text-[9px] font-mono font-black px-2 py-0.5 rounded-full ${
+                      isActive
+                        ? 'bg-wellness-navy/20 text-wellness-navy'
+                        : 'bg-wellness-light-green/20 text-wellness-light-green border border-wellness-light-green/20'
+                    }`}
+                  >
+                    {tab.badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
 
-      {/* User profile brief & Footer controls */}
-      <div className="p-4 border-t border-white/10 space-y-2">
-        <div className="p-3 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full bg-wellness-green/20 text-wellness-light-green flex items-center justify-center font-bold text-xs uppercase shrink-0 border border-wellness-green/30">
-            AD
+        {/* User profile brief & Footer controls */}
+        <div className="p-4 border-t border-white/10 space-y-2">
+          <div className="p-3 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-full bg-wellness-green/20 text-wellness-light-green flex items-center justify-center font-bold text-xs uppercase shrink-0 border border-wellness-green/30">
+              AD
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-extrabold text-white truncate">Administrator</p>
+              <p className="text-[8px] text-white/50 truncate font-mono">
+                {adminEmail || 'Administrator'}
+              </p>
+            </div>
           </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-extrabold text-white truncate">Administrator</p>
-            <p className="text-[8px] text-white/50 truncate font-mono">
-              {adminEmail || 'Administrator'}
-            </p>
-          </div>
+
+          <button
+            onClick={onSignOut}
+            className="w-full flex items-center justify-center gap-1.5 text-red-300 hover:text-white bg-red-500/15 hover:bg-red-600 py-2.5 rounded-xl text-[9px] font-extrabold uppercase tracking-wider transition-all cursor-pointer border border-red-500/20"
+          >
+            <LogOut size={12} />
+            <span>Sign Out</span>
+          </button>
         </div>
-
-        <button
-          onClick={onSignOut}
-          className="w-full flex items-center justify-center gap-1.5 text-red-300 hover:text-white bg-red-500/15 hover:bg-red-600 py-2.5 rounded-xl text-[9px] font-extrabold uppercase tracking-wider transition-all cursor-pointer border border-red-500/20"
-        >
-          <LogOut size={12} />
-          <span>Sign Out</span>
-        </button>
-      </div>
-    </aside>
-  </>
+      </aside>
+    </>
   );
 }

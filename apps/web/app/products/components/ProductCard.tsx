@@ -82,7 +82,7 @@ export default function ProductCard({ product, onAddToCart }: ProductCardProps) 
       </div>
 
       {/* Card Content Area */}
-      <div className="p-6 flex flex-col flex-grow justify-between">
+      <div className="p-4 sm:p-6 flex flex-col flex-grow justify-between">
         <div className="space-y-2">
           {/* Category */}
           <div className="flex items-center justify-between gap-2">
@@ -117,7 +117,7 @@ export default function ProductCard({ product, onAddToCart }: ProductCardProps) 
               Price
             </span>
             <div className="flex items-center gap-2 flex-wrap justify-end">
-              <span className="text-lg font-black text-wellness-navy">
+              <span className="text-base sm:text-lg font-black text-wellness-navy">
                 ₹{sp.toLocaleString('en-IN')}
               </span>
               {mrp > sp && (
@@ -129,10 +129,10 @@ export default function ProductCard({ product, onAddToCart }: ProductCardProps) 
           </div>
 
           {/* Visible Dual Buttons */}
-          <div className="grid grid-cols-2 gap-2.5">
+          <div className="grid grid-cols-2 gap-2 sm:gap-2.5">
             <Link
               href={`/products/${product.id}`}
-              className="py-3 px-2 border border-wellness-gray-200 hover:border-wellness-navy bg-white hover:bg-wellness-navy hover:text-white text-[10px] font-extrabold uppercase tracking-widest text-wellness-navy text-center rounded-xl transition-all duration-300 shadow-sm cursor-pointer flex items-center justify-center gap-1.5"
+              className="py-2.5 sm:py-3 px-2 min-h-[40px] border border-wellness-gray-200 hover:border-wellness-navy bg-white hover:bg-wellness-navy hover:text-white text-[10px] font-extrabold uppercase tracking-widest text-wellness-navy text-center rounded-xl transition-all duration-300 shadow-sm cursor-pointer flex items-center justify-center gap-1.5"
             >
               <Eye size={12} className="stroke-[2.5]" />
               <span>Details</span>
@@ -146,7 +146,7 @@ export default function ProductCard({ product, onAddToCart }: ProductCardProps) 
                   onAddToCart(product, 1);
                 }
               }}
-              className={`py-3 px-2 text-[10px] font-extrabold uppercase tracking-widest text-center rounded-xl transition-all duration-300 shadow-sm flex items-center justify-center gap-1.5 ${
+              className={`py-2.5 sm:py-3 px-2 min-h-[40px] text-[10px] font-extrabold uppercase tracking-widest text-center rounded-xl transition-all duration-300 shadow-sm flex items-center justify-center gap-1.5 ${
                 isOutOfStock
                   ? 'bg-wellness-gray-200 text-wellness-charcoal/40 cursor-not-allowed border border-wellness-gray-300'
                   : 'bg-wellness-green hover:bg-wellness-navy text-white hover:shadow-md cursor-pointer active:scale-95'

@@ -202,7 +202,7 @@ export default function ShippingStep({
                   <input
                     type="text"
                     {...registerShipping('fullName')}
-                    className={`w-full px-4 py-3 rounded-lg border bg-wellness-white focus:outline-none focus:border-wellness-green transition-all ${
+                    className={`w-full px-4 py-3 rounded-lg border bg-wellness-white text-base sm:text-sm focus:outline-none focus:border-wellness-green transition-all ${
                       shippingErrors.fullName ? 'border-red-400' : 'border-wellness-gray-200'
                     }`}
                     placeholder="John Doe"
@@ -221,7 +221,7 @@ export default function ShippingStep({
                   <input
                     type="email"
                     {...registerShipping('email')}
-                    className={`w-full px-4 py-3 rounded-lg border bg-wellness-white focus:outline-none focus:border-wellness-green transition-all ${
+                    className={`w-full px-4 py-3 rounded-lg border bg-wellness-white text-base sm:text-sm focus:outline-none focus:border-wellness-green transition-all ${
                       shippingErrors.email ? 'border-red-400' : 'border-wellness-gray-200'
                     }`}
                     placeholder="john@example.com"
@@ -241,7 +241,7 @@ export default function ShippingStep({
                 <input
                   type="tel"
                   {...registerShipping('phone')}
-                  className={`w-full px-4 py-3 rounded-lg border bg-wellness-white focus:outline-none focus:border-wellness-green transition-all ${
+                  className={`w-full px-4 py-3 rounded-lg border bg-wellness-white text-base sm:text-sm focus:outline-none focus:border-wellness-green transition-all ${
                     shippingErrors.phone ? 'border-red-400' : 'border-wellness-gray-200'
                   }`}
                   placeholder="+91 98765 43210"
@@ -339,7 +339,7 @@ export default function ShippingStep({
                   <input
                     type="text"
                     {...registerShipping('state')}
-                    className={`w-full px-4 py-3 rounded-lg border bg-white focus:outline-none focus:border-wellness-green transition-all ${
+                    className={`w-full px-4 py-3 rounded-lg border bg-white text-base sm:text-sm focus:outline-none focus:border-wellness-green transition-all ${
                       shippingErrors.state ? 'border-red-400' : 'border-wellness-gray-200'
                     }`}
                     placeholder="e.g. Delhi"
@@ -358,7 +358,7 @@ export default function ShippingStep({
                   <input
                     type="text"
                     {...registerShipping('city')}
-                    className={`w-full px-4 py-3 rounded-lg border bg-white focus:outline-none focus:border-wellness-green transition-all ${
+                    className={`w-full px-4 py-3 rounded-lg border bg-white text-base sm:text-sm focus:outline-none focus:border-wellness-green transition-all ${
                       shippingErrors.city ? 'border-red-400' : 'border-wellness-gray-200'
                     }`}
                     placeholder="e.g. New Delhi"
@@ -380,7 +380,7 @@ export default function ShippingStep({
               <input
                 type="text"
                 {...registerShipping('address')}
-                className={`w-full px-4 py-3 rounded-lg border bg-wellness-white focus:outline-none focus:border-wellness-green transition-all ${
+                className={`w-full px-4 py-3 rounded-lg border bg-wellness-white text-base sm:text-sm focus:outline-none focus:border-wellness-green transition-all ${
                   shippingErrors.address ? 'border-red-400' : 'border-wellness-gray-200'
                 }`}
                 placeholder="House / Flat No., Street Name, Area, Landmark"

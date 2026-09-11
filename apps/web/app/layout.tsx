@@ -1,5 +1,5 @@
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
 
 import './globals.css';
@@ -9,6 +9,13 @@ import { CartProvider } from '@/context/CartContext';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 const jakarta = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-heading' });
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: '#0a192f',
+};
 
 export const metadata: Metadata = {
   title: 'The Wellness | Better Health. Backed by Science.',
@@ -35,7 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       data-scroll-behavior="smooth"
     >
       <body
-        className="bg-wellness-white text-wellness-charcoal antialiased flex flex-col min-h-screen"
+        className="bg-wellness-white text-wellness-charcoal antialiased flex flex-col min-h-screen overflow-x-hidden"
         suppressHydrationWarning
       >
         <AppRouterCacheProvider>

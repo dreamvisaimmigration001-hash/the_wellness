@@ -122,8 +122,7 @@ export default function OrdersTab({ orders }: OrdersTabProps) {
               day: 'numeric',
               year: 'numeric',
             });
-            const statusKey =
-              ord.status && ord.status in STATUS_CONFIG ? ord.status : 'pending';
+            const statusKey = ord.status && ord.status in STATUS_CONFIG ? ord.status : 'pending';
             const statusMeta = STATUS_CONFIG[statusKey];
 
             return (

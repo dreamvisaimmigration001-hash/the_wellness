@@ -2,11 +2,9 @@
 
 import { ArrowRight, Tag } from 'lucide-react';
 import Link from 'next/link';
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef } from 'react';
 
-import { API_BASE_URL } from '@/lib/config';
-
-interface PromotionItem {
+export interface PromotionItem {
   id: string;
   title: string;
   description?: string | null;
@@ -16,98 +14,102 @@ interface PromotionItem {
   badge?: string | null;
 }
 
-export default function PromoBanners() {
+interface PromoBannersProps {
+  promotions?: PromotionItem[];
+  loading?: boolean;
+}
+
+export default function PromoBanners({ promotions = [], loading = false }: PromoBannersProps) {
   const container = useRef<HTMLDivElement>(null);
-  const [promotions, setPromotions] = useState<PromotionItem[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    let isMounted = true;
-    async function fetchPromos() {
-      try {
-        const res = await fetch(`${API_BASE_URL}/api/promotions`, {
-          signal: AbortSignal.timeout(8000),
-        });
-        if (res.ok) {
-          const json = (await res.json()) as {
-            success?: boolean;
-            data?: Array<PromotionItem & { isActive?: boolean }>;
-          };
-          if (json.success && Array.isArray(json.data) && isMounted) {
-            const active = json.data.filter((p) => p.isActive !== false);
-            setPromotions(active);
-          }
-        }
-      } catch {
-        // ignore
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    }
-    void fetchPromos();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+  if (!loading && promotions.length === 0) {
+    return null;
+  }
 
-  if (loading || promotions.length === 0) {
+  if (loading) {
     return null;
   }
 
   return (
-    <section ref={container} className="py-20 bg-white border-b border-wellness-gray-200">
-      <div className="container mx-auto px-6 md:px-12">
+    <section
+      ref={container}
+      className="py-12 md:py-16 bg-[#FAF9F6] border-b border-wellness-gray-200/60"
+    >
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Section Header */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-3">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="w-2 h-2 rounded-full bg-wellness-green" />
+              <span className="text-[11px] font-extrabold uppercase tracking-widest text-wellness-green">
+                Featured Value Offers
+              </span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-heading font-black text-wellness-navy">
+              Special Therapeutic Ranges
+            </h2>
+          </div>
+          <p className="text-xs text-wellness-charcoal/60 max-w-sm font-medium">
+            Curated clinical bundles and monthly subscription refills delivered with verified cold
+            chain.
+          </p>
+        </div>
+
         {/* Banners Grid */}
-        <div className="promo-grid grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {promotions.map((item) => {
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {promotions.map((item, idx) => {
             const tag = item.discountPercentage
               ? `${String(item.discountPercentage)}% OFF`
-              : item.badge || 'PROMOTION';
+              : item.badge || 'SPECIAL OFFER';
             const desc =
               item.description || 'Special clinical promotion and verified formulations.';
             const link = item.targetUrl || '/products';
 
+            const bgGradients = [
+              'from-wellness-navy via-[#142d50] to-[#1a3a60]',
+              'from-emerald-950 via-[#0a382c] to-teal-950',
+              'from-[#1e293b] via-[#334155] to-[#1e293b]',
+            ];
+
             return (
               <div
                 key={item.id}
-                className="promo-banner-card group relative overflow-hidden rounded-[32px] p-8 border bg-gradient-to-br from-wellness-navy to-[#183153] border-wellness-navy/35 text-white flex flex-col justify-between min-h-[280px] shadow-lg"
+                className={`group relative overflow-hidden rounded-[28px] p-6 sm:p-8 border border-wellness-navy/20 bg-gradient-to-br ${
+                  bgGradients[idx % bgGradients.length]
+                } text-white flex flex-col justify-between min-h-[250px] shadow-md hover:shadow-xl transition-all duration-300`}
               >
-                {/* Glowing Orb Overlay */}
-                <div className="absolute -right-12 -top-12 w-40 h-40 rounded-full blur-2xl pointer-events-none -z-10 bg-wellness-green/20" />
+                {/* Glowing Orb */}
+                <div className="absolute -right-8 -top-8 w-36 h-36 rounded-full blur-2xl pointer-events-none -z-10 bg-wellness-green/20" />
 
-                {/* Top Text Details */}
-                <div className="space-y-4">
-                  <span className="inline-block bg-white/10 backdrop-blur-md px-3.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider">
+                {/* Top Tag & Info */}
+                <div className="space-y-3">
+                  <span className="inline-block bg-white/15 backdrop-blur-md px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-wider">
                     {tag}
                   </span>
 
-                  <div className="space-y-2">
-                    <h3 className="text-xl md:text-2xl font-heading font-bold leading-tight tracking-tight max-w-[200px]">
+                  <div className="space-y-1.5">
+                    <h3 className="text-lg sm:text-xl font-heading font-bold leading-tight tracking-tight">
                       {item.title}
                     </h3>
-                    <p className="text-xs text-white/70 font-semibold leading-relaxed max-w-[220px]">
-                      {desc}
-                    </p>
+                    <p className="text-xs text-white/75 font-normal leading-relaxed">{desc}</p>
                   </div>
                 </div>
 
-                {/* Bottom CTA & Icon */}
-                <div className="flex justify-between items-end mt-6">
+                {/* Bottom CTA */}
+                <div className="flex justify-between items-end mt-6 pt-4 border-t border-white/10">
                   <Link
                     href={link}
-                    className="inline-flex items-center gap-1.5 bg-white text-wellness-navy text-xs font-black uppercase tracking-wider px-5 py-3 rounded-xl hover:bg-wellness-green hover:text-white transition-all duration-300"
+                    className="inline-flex items-center gap-1.5 bg-white text-wellness-navy text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-xl hover:bg-wellness-green hover:text-white transition-all duration-300 shadow-sm"
                   >
-                    <span>Shop Now</span>
+                    <span>Shop Range</span>
                     <ArrowRight
-                      size={14}
+                      size={13}
                       className="group-hover:translate-x-1 transition-transform"
                     />
                   </Link>
 
-                  <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-white/50 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
-                    <Tag size={24} className="stroke-[1.8]" />
+                  <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white/60 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                    <Tag size={18} />
                   </div>
                 </div>
               </div>

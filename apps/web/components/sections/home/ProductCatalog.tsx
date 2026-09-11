@@ -283,10 +283,6 @@ export default function ProductCatalog() {
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 md:mb-16 gap-6">
           <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-wellness-green/10 text-wellness-green text-xs font-black uppercase tracking-wider mb-3.5">
-              <Layers size={14} className="stroke-[2.5]" />
-              <span>Product Catalog</span>
-            </div>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-black text-wellness-navy tracking-tight mb-4">
               Explore by Category
             </h2>

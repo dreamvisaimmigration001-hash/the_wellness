@@ -1,6 +1,6 @@
 'use client';
 
-import { Menu, ShoppingBag, User, X } from 'lucide-react';
+import { Menu, Search, ShoppingBag, User, X } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
 
@@ -10,6 +10,8 @@ interface NavUserActionsProps {
   session: unknown;
   mobileMenuOpen: boolean;
   setMobileMenuOpen: (open: boolean) => void;
+  mobileSearchOpen?: boolean;
+  setMobileSearchOpen?: (open: boolean) => void;
 }
 
 export default function NavUserActions({
@@ -18,9 +20,24 @@ export default function NavUserActions({
   session,
   mobileMenuOpen,
   setMobileMenuOpen,
+  mobileSearchOpen,
+  setMobileSearchOpen,
 }: NavUserActionsProps) {
   return (
-    <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+    <div className="flex items-center gap-1.5 sm:gap-4 shrink-0">
+      {/* Mobile Search Toggle */}
+      {setMobileSearchOpen && (
+        <button
+          onClick={() => {
+            setMobileSearchOpen(!mobileSearchOpen);
+          }}
+          className="md:hidden p-2 rounded-full text-wellness-navy hover:bg-wellness-gray-100 transition-colors cursor-pointer"
+          aria-label="Toggle Search"
+        >
+          <Search size={20} />
+        </button>
+      )}
+
       {/* Cart Drawer Toggle */}
       <button
         onClick={toggleCart}

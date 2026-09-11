@@ -16,6 +16,7 @@ import {
   ChevronRight,
   Pill,
   ShieldCheck,
+  X,
 } from 'lucide-react';
 import React from 'react';
 
@@ -34,6 +35,7 @@ interface ProductFilterSidebarProps {
   onSelectPrice: (price: ProductPriceRange) => void;
   onSelectHighlight: (highlight: ProductHighlight) => void;
   getCategoryCount: (cat: string) => number;
+  onClose?: () => void;
 }
 
 const getCategoryIcon = (category: string) => {
@@ -66,10 +68,11 @@ export default function ProductFilterSidebar({
   onSelectPrice,
   onSelectHighlight,
   getCategoryCount,
+  onClose,
 }: ProductFilterSidebarProps) {
   return (
     <div className="w-full lg:w-64 shrink-0 space-y-6">
-      <div className="lg:sticky lg:top-40 bg-white p-6 rounded-2xl border border-wellness-gray-200 shadow-sm space-y-6">
+      <div className="lg:sticky lg:top-40 bg-white p-5 sm:p-6 rounded-2xl border border-wellness-gray-200 shadow-sm space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-wellness-gray-100 pb-3">
           <div className="flex items-center gap-2">
@@ -78,15 +81,26 @@ export default function ProductFilterSidebar({
               Filters
             </h3>
           </div>
-          {hasActiveFilters && (
-            <button
-              onClick={onResetFilters}
-              className="text-[10px] font-black text-red-500 hover:text-red-700 transition-colors uppercase tracking-widest flex items-center gap-1 cursor-pointer"
-            >
-              <RotateCcw size={10} />
-              <span>Reset</span>
-            </button>
-          )}
+          <div className="flex items-center gap-3">
+            {hasActiveFilters && (
+              <button
+                onClick={onResetFilters}
+                className="text-[10px] font-black text-red-500 hover:text-red-700 transition-colors uppercase tracking-widest flex items-center gap-1 cursor-pointer"
+              >
+                <RotateCcw size={10} />
+                <span>Reset</span>
+              </button>
+            )}
+            {onClose && (
+              <button
+                onClick={onClose}
+                className="lg:hidden text-wellness-charcoal/50 hover:text-wellness-navy p-1 rounded-md hover:bg-wellness-gray-100 transition-colors cursor-pointer"
+                aria-label="Close filters"
+              >
+                <X size={18} />
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Directory-Tree Category Menu */}

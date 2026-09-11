@@ -25,7 +25,7 @@ function mapApiOrderToOrderData(ord: ApiOrder): OrderData {
   if (rawStreet.includes(' | ')) {
     const parts = rawStreet.split(' | ');
     if (parts.length >= 3) {
-      if (!ord.shippingAddress?.fullName || ord.shippingAddress?.fullName === 'Customer') {
+      if (!ord.shippingAddress?.fullName || ord.shippingAddress.fullName === 'Customer') {
         parsedFullName = parts[0];
       }
       if (!parsedPhone) {

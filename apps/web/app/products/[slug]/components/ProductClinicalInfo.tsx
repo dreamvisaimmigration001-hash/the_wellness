@@ -20,12 +20,12 @@ export default function ProductClinicalInfo({ product }: ProductClinicalInfoProp
         {product.category}
       </div>
 
-      <h1 className="text-4xl md:text-5xl font-heading font-bold text-wellness-navy mb-3 tracking-tight font-sans">
+      <h1 className="text-2xl sm:text-4xl md:text-5xl font-heading font-bold text-wellness-navy mb-3 tracking-tight font-sans">
         {product.name}
       </h1>
 
       <div className="flex items-center gap-3 mb-6 flex-wrap">
-        <span className="text-3xl font-black text-wellness-navy">
+        <span className="text-2xl sm:text-3xl font-black text-wellness-navy">
           ₹{sp.toLocaleString('en-IN')}
         </span>
         {mrp > sp && (
@@ -85,7 +85,7 @@ export default function ProductClinicalInfo({ product }: ProductClinicalInfoProp
             {product.tags.map((tag, index) => (
               <span
                 key={index}
-                className="bg-wellness-gray-100 text-wellness-navy border border-wellness-gray-205 px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider"
+                className="bg-wellness-gray-100 text-wellness-navy border border-wellness-gray-200 px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider"
               >
                 #{tag}
               </span>

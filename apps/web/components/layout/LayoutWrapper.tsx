@@ -35,7 +35,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
       <Suspense fallback={null}>
         <Navbar />
       </Suspense>
-      <main className="flex-grow pt-[var(--header-height,148px)] transition-[padding-top] duration-300 ease-in-out">
+      <main className="flex-grow pt-[var(--header-height,64px)] md:pt-[var(--header-height,110px)] transition-[padding-top] duration-200 ease-in-out">
         {children}
       </main>
       <CartDrawer />

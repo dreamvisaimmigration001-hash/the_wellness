@@ -3,49 +3,17 @@
 import { motion } from 'motion/react';
 import Image from 'next/image';
 import Link from 'next/link';
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
-import { API_BASE_URL } from '@/lib/config';
+interface SpecialPromoBannerProps {
+  banner?: { imageUrl: string; targetUrl?: string } | null;
+  loading?: boolean;
+}
 
-export default function SpecialPromoBanner() {
-  const [banner, setBanner] = useState<{ imageUrl: string; targetUrl?: string } | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let isMounted = true;
-    async function fetchBanner() {
-      try {
-        const API_BASE = API_BASE_URL;
-        const res = await fetch(`${API_BASE}/api/promotions?active=true`);
-        if (res.ok) {
-          const result = (await res.json()) as {
-            success?: boolean;
-            data?: Array<{ imageUrl?: string; targetUrl?: string; isActive?: boolean }>;
-          };
-          if (result.success && Array.isArray(result.data) && result.data.length > 0) {
-            const first = result.data.find((p) => p.imageUrl && p.isActive !== false);
-            if (isMounted && first?.imageUrl) {
-              setBanner({
-                imageUrl: first.imageUrl,
-                targetUrl: first.targetUrl || '/products',
-              });
-            }
-          }
-        }
-      } catch (err) {
-        console.error('Failed to fetch promotional banner:', err);
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    }
-    void fetchBanner();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
+export default function SpecialPromoBanner({
+  banner = null,
+  loading = false,
+}: SpecialPromoBannerProps) {
   if (loading || !banner) {
     return null;
   }

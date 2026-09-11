@@ -8,17 +8,12 @@ import React, { useState, useRef } from 'react';
 import { useCart } from '@/context/CartContext';
 import { Product } from '@/lib/products';
 
-interface PopularProductsProps {
-  title?: string;
+interface MoreProductsProps {
   products?: Product[];
   loading?: boolean;
 }
 
-export default function PopularProducts({
-  title = 'Trending Health Products',
-  products = [],
-  loading = false,
-}: PopularProductsProps) {
+export default function MoreProducts({ products = [], loading = false }: MoreProductsProps) {
   const { addToCart } = useCart();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -27,6 +22,9 @@ export default function PopularProducts({
   if (!loading && products.length === 0) {
     return null;
   }
+
+  // Reverse or offset products for variety from the first carousel
+  const displayProducts = products.length > 5 ? [...products].reverse() : products;
 
   const checkScroll = () => {
     if (scrollContainerRef.current) {
@@ -48,7 +46,9 @@ export default function PopularProducts({
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* Centered Title */}
         <div className="text-center mb-8">
-          <h2 className="text-2xl sm:text-3xl font-heading font-black text-[#0F2744]">{title}</h2>
+          <h2 className="text-2xl sm:text-3xl font-heading font-black text-[#0F2744]">
+            More Products For You
+          </h2>
           <div className="w-12 h-1 bg-slate-300 rounded-full mx-auto mt-2.5" />
         </div>
 
@@ -96,13 +96,13 @@ export default function PopularProducts({
               onScroll={checkScroll}
               className="flex gap-4 overflow-x-auto no-scrollbar py-2 scroll-smooth snap-x snap-mandatory px-1"
             >
-              {products.map((product) => {
+              {displayProducts.map((product) => {
                 const stock = product.availableQty ?? product.stockQty ?? 0;
                 const isOutOfStock = stock <= 0 || product.stockStatus === 'out_of_stock';
 
                 return (
                   <div
-                    key={product.id}
+                    key={`more-${product.id}`}
                     className="w-[200px] sm:w-[220px] md:w-[240px] shrink-0 snap-start bg-white border border-slate-200/90 rounded-2xl p-4 flex flex-col justify-between hover:shadow-lg transition-all duration-300 group"
                   >
                     <div>

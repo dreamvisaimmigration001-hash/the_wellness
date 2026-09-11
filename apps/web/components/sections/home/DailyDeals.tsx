@@ -7,36 +7,9 @@ import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 
 import { useCart } from '@/context/CartContext';
-import { API_BASE_URL } from '@/lib/config';
 import { Product } from '@/lib/products';
 
-type ApiProduct = {
-  id: string;
-  name: string;
-  categoryName?: string;
-  category?: string;
-  type?: string;
-  description?: string;
-  primaryImage?: string;
-  image?: string;
-  sellingPrice?: string | number;
-  mrp?: string | number;
-  availableQty?: number;
-  stockQty?: number;
-  stockStatus?: 'in_stock' | 'out_of_stock';
-  status?: 'listed' | 'unlisted' | 'discontinued';
-};
-
-type ApiResponse = {
-  success?: boolean;
-  products?: ApiProduct[];
-  data?: {
-    products?: ApiProduct[];
-    items?: ApiProduct[];
-  };
-};
-
-type DealsConfig = {
+export type DealsConfig = {
   enabled: boolean;
   discountPercentage?: number | null;
   discountText?: string | null;
@@ -45,91 +18,26 @@ type DealsConfig = {
   endTime?: string | null;
 };
 
-export default function DailyDeals() {
+interface DailyDealsProps {
+  products?: Product[];
+  dealsConfig?: DealsConfig | null;
+  loading?: boolean;
+}
+
+export default function DailyDeals({
+  products = [],
+  dealsConfig = null,
+  loading = false,
+}: DailyDealsProps) {
   const { addToCart } = useCart();
   const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
   const [isExpired, setIsExpired] = useState(false);
-  const [dealsConfig, setDealsConfig] = useState<DealsConfig | null>(null);
-  const [productsList, setProductsList] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  // Load Deals configuration and products
-  useEffect(() => {
-    let isMounted = true;
-    async function loadDeals() {
-      try {
-        const API_BASE = API_BASE_URL;
-
-        // 1. Fetch site settings for deals
-        try {
-          const settingsRes = await fetch(`${API_BASE}/api/settings`);
-          if (settingsRes.ok) {
-            const settingsJson = (await settingsRes.json()) as {
-              success?: boolean;
-              data?: {
-                deals?: DealsConfig;
-              };
-            };
-            if (settingsJson.success && settingsJson.data?.deals && isMounted) {
-              setDealsConfig(settingsJson.data.deals);
-            }
-          }
-        } catch (settingsErr) {
-          console.warn('Failed to load deals settings from API:', settingsErr);
-        }
-
-        // 2. Fetch products
-        const res = await fetch(`${API_BASE}/api/products`, { signal: AbortSignal.timeout(5000) });
-        if (res.ok) {
-          const json = (await res.json()) as ApiResponse;
-          const items = json.data?.products || json.data?.items || json.products || [];
-          if (Array.isArray(items) && isMounted) {
-            const mapped: Product[] = items.map((item) => {
-              const sp = item.sellingPrice;
-              const price = typeof sp === 'number' ? sp : parseFloat(sp || '0');
-              const mrpVal = item.mrp;
-              const mrp = typeof mrpVal === 'number' ? mrpVal : parseFloat(mrpVal || '0');
-              const itemType =
-                item.type === 'Prescription (Rx)'
-                  ? ('Prescription (Rx)' as const)
-                  : ('Over-The-Counter (OTC)' as const);
-
-              return {
-                id: item.id,
-                name: item.name,
-                category: item.categoryName || item.category || 'Uncategorized',
-                type: itemType,
-                description: item.description || 'No clinical description provided.',
-                benefits: [],
-                ingredients: [],
-                image:
-                  item.primaryImage || item.image || '/images/products/product_placeholder.png',
-                price,
-                mrp,
-                availableQty: item.availableQty ?? item.stockQty,
-                stockStatus: item.stockStatus,
-              };
-            });
-            // Filter to only products that are in stock
-            const inStock = mapped.filter(
-              (p) => (p.availableQty ?? 0) > 0 && p.stockStatus !== 'out_of_stock',
-            );
-            setProductsList(inStock.slice(0, 3));
-          }
-        }
-      } catch (err) {
-        console.error('Failed to load daily deals from API:', err);
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    }
-    void loadDeals();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+  const dealsProducts = React.useMemo(() => {
+    return products
+      .filter((p) => (p.availableQty ?? 0) > 0 && p.stockStatus !== 'out_of_stock')
+      .slice(0, 3);
+  }, [products]);
 
   // Countdown timer based on configured endTime
   useEffect(() => {
@@ -170,7 +78,7 @@ export default function DailyDeals() {
   const formatNumber = (num: number) => String(num).padStart(2, '0');
 
   // If deals are disabled, expired, or no deal products exist, do not render section
-  if (!loading && (dealsConfig?.enabled === false || isExpired || productsList.length === 0)) {
+  if (!loading && (dealsConfig?.enabled === false || isExpired || dealsProducts.length === 0)) {
     return null;
   }
 
@@ -179,14 +87,14 @@ export default function DailyDeals() {
   }
 
   return (
-    <section className="py-24 bg-wellness-gray-50/70 border-b border-wellness-gray-200">
-      <div className="container mx-auto px-6 md:px-12">
+    <section className="py-14 sm:py-24 bg-wellness-gray-50/70 border-b border-wellness-gray-200 overflow-hidden">
+      <div className="container mx-auto px-4 sm:px-6 md:px-12">
         {/* Section Banner Header */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="deals-header flex flex-col lg:flex-row lg:items-center justify-between mb-16 gap-8 bg-wellness-navy text-white p-8 md:p-12 rounded-[36px] shadow-xl relative overflow-hidden"
+          className="deals-header flex flex-col lg:flex-row lg:items-center justify-between mb-12 sm:mb-16 gap-6 sm:gap-8 bg-wellness-navy text-white p-6 sm:p-8 md:p-12 rounded-[28px] sm:rounded-[36px] shadow-xl relative overflow-hidden"
         >
           {/* Background Glow */}
           <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-wellness-green/20 rounded-full blur-3xl pointer-events-none" />
@@ -201,25 +109,25 @@ export default function DailyDeals() {
                     : 'Limited Time Offers')}
               </span>
             </div>
-            <h2 className="text-3xl md:text-5xl font-heading font-black tracking-tight text-white">
+            <h2 className="text-2xl sm:text-3xl md:text-5xl font-heading font-black tracking-tight text-white">
               {dealsConfig?.title || 'Daily Clinical Deals'}
             </h2>
-            <p className="text-white/70 text-sm md:text-base font-semibold">
+            <p className="text-white/70 text-xs sm:text-sm md:text-base font-semibold">
               {dealsConfig?.description ||
                 'Exclusive daily discounts on essential medications and healthcare formulations.'}
             </p>
           </div>
 
           {/* Countdown Clock */}
-          <div className="z-10 bg-white/10 backdrop-blur-md border border-white/15 p-5 md:p-6 rounded-3xl flex items-center gap-4 shrink-0">
-            <div className="text-wellness-green p-3 bg-white/10 rounded-2xl">
-              <Clock size={28} />
+          <div className="z-10 bg-white/10 backdrop-blur-md border border-white/15 p-4 sm:p-5 md:p-6 rounded-2xl sm:rounded-3xl flex items-center gap-3 sm:gap-4 shrink-0 w-full sm:w-auto">
+            <div className="text-wellness-green p-2.5 sm:p-3 bg-white/10 rounded-xl sm:rounded-2xl shrink-0">
+              <Clock size={24} className="sm:w-7 sm:h-7" />
             </div>
             <div>
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-white/60 block mb-1">
+              <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-widest text-white/60 block mb-0.5 sm:mb-1">
                 Deals Expire In
               </span>
-              <div className="flex items-center gap-2 text-2xl md:text-3xl font-black font-mono tracking-wider text-white">
+              <div className="flex items-center gap-1.5 sm:gap-2 text-xl sm:text-2xl md:text-3xl font-black font-mono tracking-wider text-white">
                 <span>{formatNumber(timeLeft.hours)}</span>
                 <span className="text-wellness-green font-bold animate-pulse">:</span>
                 <span>{formatNumber(timeLeft.minutes)}</span>
@@ -232,7 +140,7 @@ export default function DailyDeals() {
 
         {/* Deals Grid */}
         <div className="deals-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {productsList.map((product, index) => {
+          {dealsProducts.map((product, index) => {
             const stock = product.availableQty ?? product.inventoryQty ?? product.stockQty ?? 0;
             const isOutOfStock = stock <= 0 || product.stockStatus === 'out_of_stock';
 

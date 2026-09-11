@@ -1,14 +1,6 @@
 'use client';
 
-import {
-  Truck,
-  ShieldCheck,
-  Award,
-  Headphones,
-  ArrowRight,
-  Sparkles,
-  CheckCircle2,
-} from 'lucide-react';
+import { Truck, ShieldCheck, Award, Headphones, ArrowRight, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import React, { useState } from 'react';
 
@@ -32,9 +24,9 @@ export default function CTA() {
 
       <div className="container mx-auto px-6 md:px-12 relative z-10">
         {/* E-Commerce Trust Badges Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pb-14 border-b border-white/10">
-          <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-wellness-green shrink-0">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 pb-10 sm:pb-14 border-b border-white/10">
+          <div className="flex items-center gap-3.5 bg-white/5 sm:bg-transparent p-3 sm:p-0 rounded-xl">
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white/10 flex items-center justify-center text-wellness-green shrink-0">
               <Truck size={22} />
             </div>
             <div>
@@ -43,8 +35,8 @@ export default function CTA() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-wellness-green shrink-0">
+          <div className="flex items-center gap-3.5 bg-white/5 sm:bg-transparent p-3 sm:p-0 rounded-xl">
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white/10 flex items-center justify-center text-wellness-green shrink-0">
               <ShieldCheck size={22} />
             </div>
             <div>
@@ -53,8 +45,8 @@ export default function CTA() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-wellness-green shrink-0">
+          <div className="flex items-center gap-3.5 bg-white/5 sm:bg-transparent p-3 sm:p-0 rounded-xl">
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white/10 flex items-center justify-center text-wellness-green shrink-0">
               <Award size={22} />
             </div>
             <div>
@@ -63,8 +55,8 @@ export default function CTA() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-wellness-green shrink-0">
+          <div className="flex items-center gap-3.5 bg-white/5 sm:bg-transparent p-3 sm:p-0 rounded-xl">
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white/10 flex items-center justify-center text-wellness-green shrink-0">
               <Headphones size={22} />
             </div>
             <div>
@@ -77,10 +69,6 @@ export default function CTA() {
         {/* E-Commerce Offer & Lead Capture */}
         <div className="pt-14 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           <div className="lg:col-span-7 space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-wellness-green/20 text-wellness-light-green text-xs font-bold uppercase tracking-wider">
-              <Sparkles size={13} />
-              <span>Special Welcome Offer</span>
-            </div>
             <h2 className="text-3xl md:text-5xl font-heading font-black tracking-tight text-white leading-tight">
               Get ₹150 off your first healthcare order.
             </h2>
@@ -98,10 +86,10 @@ export default function CTA() {
                 <ArrowRight size={15} />
               </Link>
               <Link
-                href="/products?type=Prescription"
+                href="/products"
                 className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold uppercase tracking-wider px-6 py-3.5 rounded-xl transition-colors border border-white/15"
               >
-                <span>Upload Prescription</span>
+                <span>Browse Catalog</span>
               </Link>
             </div>
           </div>

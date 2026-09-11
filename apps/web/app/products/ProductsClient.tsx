@@ -1,5 +1,7 @@
 'use client';
 
+import { SlidersHorizontal } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import React, { useState, useEffect, useCallback } from 'react';
 
@@ -319,12 +321,16 @@ export default function ProductsClient() {
     }).length;
   };
 
-  const hasActiveFilters =
-    activeCategory !== 'All' ||
-    activeType !== 'All' ||
-    activePrice !== 'All' ||
-    activeHighlight !== 'All' ||
-    searchQuery.trim() !== '';
+  const activeFiltersCount =
+    (activeCategory !== 'All' ? 1 : 0) +
+    (activeType !== 'All' ? 1 : 0) +
+    (activePrice !== 'All' ? 1 : 0) +
+    (activeHighlight !== 'All' ? 1 : 0) +
+    (searchQuery.trim() !== '' ? 1 : 0);
+
+  const hasActiveFilters = activeFiltersCount > 0;
+
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
   const handleAddToCart = (product: Product, quantity = 1) => {
     void addToCart(product, quantity);
@@ -336,24 +342,92 @@ export default function ProductsClient() {
       <ProductHeroBanner activeCategory={activeCategory} />
 
       {/* 2. Main Overlapping Content Overlay */}
-      <div className="relative z-20 max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 -mt-24 md:-mt-32 pb-24">
-        <div className="bg-white rounded-[32px] md:rounded-[40px] shadow-[0_20px_60px_rgba(12,27,51,0.06)] p-6 sm:p-10 border border-wellness-gray-200/50">
-          <div className="flex flex-col lg:flex-row gap-12">
-            {/* Left Sidebar Filter Section */}
-            <ProductFilterSidebar
-              categories={categories}
-              activeCategory={activeCategory}
-              activeType={activeType}
-              activePrice={activePrice}
-              activeHighlight={activeHighlight}
-              hasActiveFilters={hasActiveFilters}
-              onResetFilters={handleResetFilters}
-              onSelectCategory={handleCategoryChange}
-              onSelectType={setActiveType}
-              onSelectPrice={setActivePrice}
-              onSelectHighlight={setActiveHighlight}
-              getCategoryCount={getCategoryCount}
-            />
+      <div className="relative z-20 max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 -mt-10 sm:-mt-20 md:-mt-28 pb-24">
+        <div className="bg-white rounded-[24px] sm:rounded-[32px] md:rounded-[40px] shadow-[0_20px_60px_rgba(12,27,51,0.06)] p-4 sm:p-6 lg:p-10 border border-wellness-gray-200/50">
+          {/* Mobile Filter Action Bar & Horizontal Category Chips Strip */}
+          <div className="lg:hidden mb-6 space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileFilterOpen(true);
+                }}
+                className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold border transition-colors shadow-xs cursor-pointer ${
+                  activeFiltersCount > 0
+                    ? 'bg-wellness-navy text-white border-wellness-navy'
+                    : 'bg-white text-wellness-navy border-wellness-gray-200 hover:bg-wellness-gray-50'
+                }`}
+              >
+                <SlidersHorizontal size={14} />
+                <span>Filters & Refine</span>
+                {activeFiltersCount > 0 && (
+                  <span className="bg-wellness-green text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center">
+                    {activeFiltersCount}
+                  </span>
+                )}
+              </button>
+
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={handleResetFilters}
+                  className="text-[11px] font-bold text-red-500 hover:text-red-700 uppercase tracking-wider cursor-pointer"
+                >
+                  Reset All
+                </button>
+              )}
+            </div>
+
+            {/* Horizontal Category Chips Bar */}
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 flex-nowrap">
+              {['All', ...categories.filter((c) => c.toLowerCase() !== 'all')].map((cat) => {
+                const isSelected = activeCategory.toLowerCase() === cat.toLowerCase();
+                const count = getCategoryCount(cat);
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => {
+                      handleCategoryChange(cat);
+                    }}
+                    className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 border whitespace-nowrap ${
+                      isSelected
+                        ? 'bg-wellness-green text-white border-wellness-green shadow-xs'
+                        : 'bg-wellness-gray-100 text-wellness-navy border-wellness-gray-200/60 hover:bg-wellness-gray-200'
+                    }`}
+                  >
+                    <span>{cat}</span>
+                    <span
+                      className={`text-[9px] px-1.5 py-0.2 rounded-full ${
+                        isSelected ? 'bg-white/20 text-white' : 'bg-white text-wellness-charcoal/60'
+                      }`}
+                    >
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
+            {/* Desktop Left Sidebar Filter Section */}
+            <div className="hidden lg:block shrink-0">
+              <ProductFilterSidebar
+                categories={categories}
+                activeCategory={activeCategory}
+                activeType={activeType}
+                activePrice={activePrice}
+                activeHighlight={activeHighlight}
+                hasActiveFilters={hasActiveFilters}
+                onResetFilters={handleResetFilters}
+                onSelectCategory={handleCategoryChange}
+                onSelectType={setActiveType}
+                onSelectPrice={setActivePrice}
+                onSelectHighlight={setActiveHighlight}
+                getCategoryCount={getCategoryCount}
+              />
+            </div>
 
             {/* Right Content Section */}
             <ProductGrid
@@ -366,6 +440,48 @@ export default function ProductsClient() {
             />
           </div>
         </div>
+
+        {/* Mobile Filter Drawer Modal */}
+        <AnimatePresence>
+          {mobileFilterOpen && (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.5 }}
+                exit={{ opacity: 0 }}
+                onClick={() => {
+                  setMobileFilterOpen(false);
+                }}
+                className="fixed inset-0 bg-black z-[120] lg:hidden cursor-pointer"
+              />
+              <motion.div
+                initial={{ x: '-100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '-100%' }}
+                transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+                className="fixed left-0 top-0 bottom-0 w-[88vw] max-w-sm bg-white z-[130] p-4 sm:p-6 overflow-y-auto lg:hidden shadow-2xl"
+              >
+                <ProductFilterSidebar
+                  categories={categories}
+                  activeCategory={activeCategory}
+                  activeType={activeType}
+                  activePrice={activePrice}
+                  activeHighlight={activeHighlight}
+                  hasActiveFilters={hasActiveFilters}
+                  onResetFilters={handleResetFilters}
+                  onSelectCategory={handleCategoryChange}
+                  onSelectType={setActiveType}
+                  onSelectPrice={setActivePrice}
+                  onSelectHighlight={setActiveHighlight}
+                  getCategoryCount={getCategoryCount}
+                  onClose={() => {
+                    setMobileFilterOpen(false);
+                  }}
+                />
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
 
         {/* Newsletter & Trust Badges */}
         <ProductCatalogFooter />

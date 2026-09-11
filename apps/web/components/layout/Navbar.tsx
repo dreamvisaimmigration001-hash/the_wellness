@@ -23,6 +23,7 @@ export default function Navbar() {
   const { data: session } = authClient.useSession();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showBanner, setShowBanner] = useState(false);
@@ -35,7 +36,7 @@ export default function Navbar() {
   const [navCategories, setNavCategories] = useState<string[]>([]);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const headerRef = useRef<HTMLHeadingElement>(null);
+  const navBarContentRef = useRef<HTMLDivElement>(null);
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const mobileSearchContainerRef = useRef<HTMLDivElement>(null);
 
@@ -114,7 +115,7 @@ export default function Navbar() {
 
   // Dynamically set --header-height CSS variable on mount and resize
   useEffect(() => {
-    if (!headerRef.current) return;
+    if (!navBarContentRef.current) return;
 
     const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
@@ -125,7 +126,7 @@ export default function Navbar() {
       }
     });
 
-    observer.observe(headerRef.current);
+    observer.observe(navBarContentRef.current);
     return () => {
       observer.disconnect();
     };
@@ -205,73 +206,110 @@ export default function Navbar() {
   };
 
   return (
-    <header
-      ref={headerRef}
-      className="fixed top-0 left-0 right-0 z-[100] w-full flex flex-col border-b border-wellness-gray-200 bg-white shadow-sm"
-    >
-      {/* 1. Promo Offer Banner */}
-      <AnnouncementBar
-        showBanner={showBanner}
-        onClose={() => {
-          setShowBanner(false);
-          localStorage.setItem('offer_banner_closed', 'true');
-        }}
-      />
+    <header className="fixed top-0 left-0 right-0 z-[100] w-full flex flex-col">
+      <div
+        ref={navBarContentRef}
+        className="w-full flex flex-col border-b border-wellness-gray-200 bg-white shadow-sm"
+      >
+        {/* 1. Promo Offer Banner */}
+        <AnnouncementBar
+          showBanner={showBanner}
+          onClose={() => {
+            setShowBanner(false);
+            localStorage.setItem('offer_banner_closed', 'true');
+          }}
+        />
 
-      {/* 2. Main Header Middle Bar */}
-      <div className="bg-white py-4 w-full">
-        <div className="px-6 md:px-12 flex items-center justify-between gap-6 max-w-7xl mx-auto w-full">
-          {/* Logo */}
-          <Link
-            href="/"
-            className="text-xl sm:text-2xl font-heading font-black tracking-tight flex items-center gap-2 group/logo text-wellness-navy shrink-0"
-          >
-            <div className="w-8 h-8 rounded-bl-xl rounded-tr-xl bg-wellness-green flex items-center justify-center transition-all duration-500 group-hover/logo:rotate-180 group-hover/logo:bg-wellness-navy shadow-md shadow-wellness-green/20">
-              <div className="w-3 h-3 rounded-full bg-white transition-transform duration-500 group-hover/logo:scale-75" />
-            </div>
-            <span>
-              The Wellness<span className="text-wellness-green font-medium">.</span>
-            </span>
-          </Link>
+        {/* 2. Main Header Middle Bar */}
+        <div className="bg-white py-3.5 sm:py-4 w-full">
+          <div className="px-4 sm:px-6 md:px-12 flex items-center justify-between gap-3 sm:gap-6 max-w-7xl mx-auto w-full">
+            {/* Logo */}
+            <Link
+              href="/"
+              className="text-lg sm:text-2xl font-heading font-black tracking-tight flex items-center gap-2 group/logo text-wellness-navy shrink-0"
+            >
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-bl-xl rounded-tr-xl bg-wellness-green flex items-center justify-center transition-all duration-500 group-hover/logo:rotate-180 group-hover/logo:bg-wellness-navy shadow-md shadow-wellness-green/20">
+                <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-white transition-transform duration-500 group-hover/logo:scale-75" />
+              </div>
+              <span>
+                The Wellness<span className="text-wellness-green font-medium">.</span>
+              </span>
+            </Link>
 
-          {/* Search Bar with Live Autocomplete Suggestions */}
-          <NavbarSearch
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            suggestions={suggestions}
-            isLoadingSuggestions={isLoadingSuggestions}
-            showSuggestions={showSuggestions}
-            setShowSuggestions={setShowSuggestions}
-            focusedIndex={focusedIndex}
-            setFocusedIndex={setFocusedIndex}
-            onSearchSubmit={handleSearchSubmit}
-            onSuggestionClick={handleSuggestionClick}
-            onKeyDown={handleKeyDown}
-            containerRef={searchContainerRef}
-          />
+            {/* Search Bar with Live Autocomplete Suggestions */}
+            <NavbarSearch
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              suggestions={suggestions}
+              isLoadingSuggestions={isLoadingSuggestions}
+              showSuggestions={showSuggestions}
+              setShowSuggestions={setShowSuggestions}
+              focusedIndex={focusedIndex}
+              setFocusedIndex={setFocusedIndex}
+              onSearchSubmit={handleSearchSubmit}
+              onSuggestionClick={handleSuggestionClick}
+              onKeyDown={handleKeyDown}
+              containerRef={searchContainerRef}
+            />
 
-          {/* User & Cart Actions */}
-          <NavUserActions
-            cartCount={cartCount}
-            toggleCart={toggleCart}
-            session={session}
-            mobileMenuOpen={mobileMenuOpen}
-            setMobileMenuOpen={setMobileMenuOpen}
-          />
+            {/* User & Cart Actions */}
+            <NavUserActions
+              cartCount={cartCount}
+              toggleCart={toggleCart}
+              session={session}
+              mobileMenuOpen={mobileMenuOpen}
+              setMobileMenuOpen={(open) => {
+                setMobileMenuOpen(open);
+                if (open) setMobileSearchOpen(false);
+              }}
+              mobileSearchOpen={mobileSearchOpen}
+              setMobileSearchOpen={(open) => {
+                setMobileSearchOpen(open);
+                if (open) setMobileMenuOpen(false);
+              }}
+            />
+          </div>
         </div>
+
+        {/* Mobile Search Expandable Row */}
+        {mobileSearchOpen && (
+          <div className="px-4 pb-3 pt-1 border-t border-wellness-gray-100 bg-white md:hidden animate-in fade-in slide-in-from-top-1 duration-150">
+            <NavbarSearch
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              suggestions={suggestions}
+              isLoadingSuggestions={isLoadingSuggestions}
+              showSuggestions={showSuggestions}
+              setShowSuggestions={setShowSuggestions}
+              focusedIndex={focusedIndex}
+              setFocusedIndex={setFocusedIndex}
+              onSearchSubmit={(e) => {
+                handleSearchSubmit(e);
+                setMobileSearchOpen(false);
+              }}
+              onSuggestionClick={(item) => {
+                handleSuggestionClick(item);
+                setMobileSearchOpen(false);
+              }}
+              onKeyDown={handleKeyDown}
+              containerRef={mobileSearchContainerRef}
+              isMobile
+            />
+          </div>
+        )}
+
+        {/* 3. Bottom Navigation & Categories Bar */}
+        <NavDesktopBar
+          pathname={pathname}
+          categoryDropdownOpen={categoryDropdownOpen}
+          setCategoryDropdownOpen={setCategoryDropdownOpen}
+          onSelectCategory={selectCategory}
+          dropdownRef={dropdownRef}
+          categories={navCategories}
+        />
       </div>
 
-      {/* 3. Bottom Navigation & Categories Bar */}
-      <NavDesktopBar
-        pathname={pathname}
-        categoryDropdownOpen={categoryDropdownOpen}
-        setCategoryDropdownOpen={setCategoryDropdownOpen}
-        onSelectCategory={selectCategory}
-        dropdownRef={dropdownRef}
-        categories={navCategories}
-      />
-
-      {/* 4. Mobile Menu Drawer */}
+      {/* 4. Mobile Menu Drawer (Decoupled from height observation) */}
       <MobileNavDrawer
         mobileMenuOpen={mobileMenuOpen}
         setMobileMenuOpen={setMobileMenuOpen}

@@ -3,7 +3,7 @@
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
-import { Stethoscope, Brain, Heart, Award, ShieldCheck } from 'lucide-react';
+import { Stethoscope, Brain, Heart, Award } from 'lucide-react';
 import Image from 'next/image';
 import React, { useRef } from 'react';
 
@@ -82,10 +82,6 @@ export default function ScientificAdvisory() {
 
       <div className="container mx-auto px-6 md:px-12 relative z-10">
         <div className="advisory-header text-center max-w-3xl mx-auto mb-20 space-y-4">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-wellness-green/10 text-wellness-green font-bold text-xs uppercase tracking-wider mb-2">
-            <ShieldCheck size={12} className="stroke-[2.5]" />
-            <span>Clinical Trust</span>
-          </div>
           <h2 className="text-4xl md:text-5xl font-heading font-bold text-wellness-navy tracking-tight">
             Scientific & Medical Advisory Board
           </h2>

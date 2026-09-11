@@ -137,7 +137,7 @@ export default function ProductAddToCartBar({
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4 pt-4">
+      <div className="flex flex-col sm:flex-row gap-4 pt-4 pb-20 sm:pb-0">
         <button className="bg-wellness-gray-100 text-wellness-navy border border-wellness-gray-200 px-8 py-4 rounded-md font-semibold hover:bg-wellness-gray-200 transition-colors flex items-center justify-center gap-2 shadow-sm cursor-pointer text-sm">
           <FileText size={20} />
           Prescribing Information
@@ -148,6 +148,40 @@ export default function ProductAddToCartBar({
             Important Safety Info
           </button>
         )}
+      </div>
+
+      {/* Mobile Sticky Bottom Action Bar */}
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-wellness-gray-200 p-3 shadow-2xl flex items-center justify-between gap-3">
+        <div>
+          <span className="text-[10px] text-wellness-charcoal/50 font-bold uppercase block">
+            Total Price
+          </span>
+          <span className="text-base font-black text-wellness-navy">
+            ₹{(product.price * quantity).toLocaleString('en-IN')}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            disabled={isOutOfStock}
+            onClick={onAddToCart}
+            className={`px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-colors shadow-sm ${
+              isOutOfStock
+                ? 'bg-wellness-gray-200 text-wellness-charcoal/40 cursor-not-allowed'
+                : 'bg-wellness-green text-white hover:bg-wellness-navy active:scale-95'
+            }`}
+          >
+            <ShoppingCart size={14} />
+            <span>{isOutOfStock ? 'Out of Stock' : 'Add'}</span>
+          </button>
+          {!isOutOfStock && (
+            <button
+              onClick={onBuyNow}
+              className="px-3.5 py-2.5 rounded-xl font-bold text-xs bg-wellness-navy text-white hover:bg-wellness-green transition-colors shadow-sm active:scale-95"
+            >
+              Buy Now
+            </button>
+          )}
+        </div>
       </div>
     </>
   );

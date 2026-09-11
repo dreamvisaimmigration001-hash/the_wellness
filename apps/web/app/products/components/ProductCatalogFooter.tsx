@@ -14,10 +14,6 @@ export default function ProductCatalogFooter() {
         <div className="absolute left-[-10%] bottom-0 w-64 h-64 bg-wellness-light-green/5 glow-orb opacity-20"></div>
 
         <div className="relative z-10 max-w-2xl mx-auto text-center space-y-6">
-          <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 px-3.5 py-1.5 rounded-full text-[10px] font-extrabold uppercase tracking-widest text-wellness-green">
-            <Sparkles size={12} />
-            Stay Informed
-          </div>
           <h3 className="text-2xl md:text-3xl font-heading font-black text-white uppercase tracking-tight">
             Subscribe to Clinical Updates
           </h3>
