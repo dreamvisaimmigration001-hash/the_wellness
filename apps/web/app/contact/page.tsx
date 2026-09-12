@@ -456,7 +456,7 @@ export default function ContactPage() {
               },
               {
                 q: 'How can I apply for a career or partnership at The Wellness?',
-                a: 'We are always looking for passionate researchers, clinicians, and specialists. Please visit our Careers page or contact our corporate partnerships team directly at partnerships@thewellness.com.',
+                a: 'We are always looking for passionate researchers, clinicians, and specialists. Please contact our corporate partnerships and talent team directly at partnerships@thewellness.com.',
               },
             ].map((faq, idx) => {
               const isOpen = openFaqIndex === idx;

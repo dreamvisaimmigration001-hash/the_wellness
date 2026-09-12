@@ -146,14 +146,6 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/careers"
-                  className="hover:text-white hover:translate-x-1 transition-all duration-200 inline-block"
-                >
-                  Careers & Culture
-                </Link>
-              </li>
-              <li>
-                <Link
                   href="/contact"
                   className="hover:text-white hover:translate-x-1 transition-all duration-200 inline-block"
                 >

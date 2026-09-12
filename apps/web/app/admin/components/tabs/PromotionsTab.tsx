@@ -375,11 +375,7 @@ export default function PromotionsTab({
     ]);
   };
 
-  const handleUpdateMarqueeItem = (
-    index: number,
-    field: keyof MarqueeItemData,
-    value: string,
-  ) => {
+  const handleUpdateMarqueeItem = (index: number, field: keyof MarqueeItemData, value: string) => {
     setMarqueeItems((prev) => {
       const copy = [...prev];
       copy[index] = { ...copy[index], [field]: value };

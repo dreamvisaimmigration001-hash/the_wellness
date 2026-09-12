@@ -86,10 +86,12 @@ export default function ProductGrid({
           <div className="w-12 h-12 rounded-full bg-wellness-gray-100 flex items-center justify-center mb-4 text-wellness-charcoal/30">
             <Search size={24} />
           </div>
-          <p className="text-base font-bold text-wellness-navy">No products found</p>
+          <p className="text-base font-bold text-wellness-navy">
+            {totalApiProductsCount === 0 ? 'Catalog Updating Soon' : 'No products found'}
+          </p>
           <p className="text-xs text-wellness-charcoal/60 mt-1 max-w-sm">
             {totalApiProductsCount === 0
-              ? 'No products currently exist in the backend database. Add products in the Admin Portal.'
+              ? 'Our product catalog is currently being updated with new clinical formulations. Please check back soon.'
               : 'Try adjusting your search criteria or resetting the category filters.'}
           </p>
         </div>

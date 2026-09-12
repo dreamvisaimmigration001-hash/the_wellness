@@ -1,6 +1,6 @@
 'use client';
 
-import { User, Sparkles, ShieldCheck, LogOut } from 'lucide-react';
+import { User, ShieldCheck, LogOut } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
@@ -36,10 +36,6 @@ export default function AccountHeader({ user, onSignOut }: AccountHeaderProps) {
             <h1 className="text-2xl font-heading font-extrabold text-wellness-navy">
               Hello, {user.name}
             </h1>
-            <span className="inline-flex items-center gap-1 text-[10px] uppercase font-bold text-wellness-green tracking-widest bg-wellness-green/10 px-2.5 py-0.5 rounded-full">
-              <Sparkles size={8} />
-              <span>Explorer Tier</span>
-            </span>
           </div>
           <p className="text-sm text-wellness-charcoal/60">
             Logged in as <span className="font-semibold text-wellness-navy">{user.email}</span>

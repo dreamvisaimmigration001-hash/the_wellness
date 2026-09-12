@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 
 import AdminAuthRequired from './components/AdminAuthRequired';
 import AdminHeader from './components/AdminHeader';
@@ -129,6 +129,15 @@ export default function AdminPage() {
 
   const [queries, setQueries] = useState<ContactQuery[]>([]);
   const [isRefreshingQueries, setIsRefreshingQueries] = useState(false);
+
+  const pendingQueriesCount = useMemo(
+    () => queries.filter((q) => q.status === 'pending').length,
+    [queries],
+  );
+  const pendingOrdersCount = useMemo(
+    () => orders.filter((o) => o.status === 'pending').length,
+    [orders],
+  );
 
   const [promotionsList, setPromotionsList] = useState<PromotionItem[]>([]);
   const [reviewsList, setReviewsList] = useState<AdminReview[]>([]);
@@ -1529,8 +1538,8 @@ export default function AdminPage() {
       <AdminSidebar
         activeTab={activeTab}
         onSelectTab={setActiveTab}
-        queriesCount={queries.length}
-        ordersCount={orders.length}
+        queriesCount={pendingQueriesCount}
+        ordersCount={pendingOrdersCount}
         adminEmail={session?.user.email}
         userRole={userRole}
         mobileOpen={mobileSidebarOpen}

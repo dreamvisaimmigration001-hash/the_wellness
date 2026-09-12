@@ -1,6 +1,6 @@
 'use client';
 
-import { UserCheck, Check, Lock, LogOut } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { motion } from 'motion/react';
 import React from 'react';
 
@@ -29,61 +29,22 @@ export default function ProfileTab({ user, onSignOut }: ProfileTabProps) {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-wellness-charcoal/80">
-        <div className="space-y-4">
-          <div>
-            <p className="text-wellness-charcoal/40 font-bold uppercase tracking-wider text-[9px]">
-              Account Name
-            </p>
-            <p className="text-sm font-bold text-wellness-navy mt-1">{user.name}</p>
-          </div>
-          <div>
-            <p className="text-wellness-charcoal/40 font-bold uppercase tracking-wider text-[9px]">
-              Primary Email
-            </p>
-            <p className="text-sm font-medium text-wellness-navy mt-1">{user.email}</p>
-          </div>
-          <div>
-            <p className="text-wellness-charcoal/40 font-bold uppercase tracking-wider text-[9px]">
-              Security Status
-            </p>
-            <p className="text-sm font-medium text-wellness-navy mt-1 flex items-center gap-1.5">
-              <UserCheck size={14} className="text-wellness-green" />
-              <span>Active Client Session</span>
-            </p>
-          </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs text-wellness-charcoal/80">
+        <div>
+          <p className="text-wellness-charcoal/40 font-bold uppercase tracking-wider text-[9px]">
+            Account Name
+          </p>
+          <p className="text-sm font-bold text-wellness-navy mt-1">{user.name}</p>
         </div>
-
-        <div className="space-y-4">
-          <div>
-            <p className="text-wellness-charcoal/40 font-bold uppercase tracking-wider text-[9px]">
-              Verification Status
-            </p>
-            <span className="inline-flex items-center gap-1 text-[10px] uppercase font-bold text-wellness-green bg-wellness-green/10 px-2 py-0.5 rounded mt-1">
-              <Check size={10} className="stroke-[2.5]" />
-              <span>Better Auth Client Verified</span>
-            </span>
-          </div>
-          <div>
-            <p className="text-wellness-charcoal/40 font-bold uppercase tracking-wider text-[9px]">
-              Prescription (Rx) Credentials
-            </p>
-            <p className="text-sm font-medium text-wellness-navy mt-1">Status: Active</p>
-          </div>
-          <div>
-            <p className="text-wellness-charcoal/40 font-bold uppercase tracking-wider text-[9px]">
-              Security & SSL
-            </p>
-            <p className="text-sm font-medium text-wellness-navy mt-1 flex items-center gap-1.5">
-              <Lock size={12} className="text-wellness-green" />
-              <span>256-bit Secure Session Active</span>
-            </p>
-          </div>
+        <div>
+          <p className="text-wellness-charcoal/40 font-bold uppercase tracking-wider text-[9px]">
+            Primary Email
+          </p>
+          <p className="text-sm font-medium text-wellness-navy mt-1">{user.email}</p>
         </div>
       </div>
 
-      <div className="border-t border-wellness-gray-200 pt-6 flex justify-between items-center text-xs font-semibold text-wellness-charcoal/50">
-        <span>Account Tier: Explorer Member</span>
+      <div className="border-t border-wellness-gray-200 pt-6 flex justify-end items-center text-xs font-semibold text-wellness-charcoal/50">
         <button
           onClick={() => {
             void onSignOut();

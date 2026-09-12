@@ -28,69 +28,90 @@ export default function QualityPage() {
 
   useGSAP(
     () => {
-      const ctx = gsap.context(() => {
-        gsap.from('.quality-hero', {
-          y: 40,
-          opacity: 0,
-          duration: 1,
-          ease: 'power3.out',
-        });
+      gsap.from('.quality-hero', {
+        y: 40,
+        opacity: 0,
+        duration: 1,
+        ease: 'power3.out',
+        clearProps: 'all',
+      });
 
-        gsap.from('.quality-card', {
+      gsap.fromTo(
+        '.quality-card',
+        { y: 40, opacity: 0 },
+        {
           scrollTrigger: {
             trigger: '.quality-grid',
-            start: 'top 80%',
+            start: 'top 85%',
+            once: true,
           },
-          y: 50,
-          opacity: 0,
-          duration: 0.8,
-          stagger: 0.15,
+          y: 0,
+          opacity: 1,
+          duration: 0.7,
+          stagger: 0.12,
           ease: 'power2.out',
-        });
+          clearProps: 'all',
+        },
+      );
 
-        const progressBars = gsap.utils.toArray<HTMLElement>('.progress-fill');
-        progressBars.forEach((bar) => {
-          const targetWidth = bar.getAttribute('data-width');
-          if (!targetWidth) return;
-          gsap.to(bar, {
-            scrollTrigger: {
-              trigger: bar,
-              start: 'top 85%',
-            },
-            width: targetWidth,
-            duration: 1.5,
-            ease: 'power3.out',
-          });
-        });
-
-        // New animations
-        gsap.from('.cert-card', {
+      const progressBars = gsap.utils.toArray<HTMLElement>('.progress-fill');
+      progressBars.forEach((bar) => {
+        const targetWidth = bar.getAttribute('data-width');
+        if (!targetWidth) return;
+        gsap.to(bar, {
           scrollTrigger: {
-            trigger: '.cert-section',
-            start: 'top 80%',
+            trigger: bar,
+            start: 'top 85%',
+            once: true,
           },
-          y: 40,
-          opacity: 0,
-          duration: 0.8,
-          stagger: 0.1,
-          ease: 'power2.out',
+          width: targetWidth,
+          duration: 1.5,
+          ease: 'power3.out',
         });
+      });
 
-        gsap.from('.process-step', {
+      gsap.fromTo(
+        '.process-step',
+        { x: -30, opacity: 0 },
+        {
           scrollTrigger: {
             trigger: '.process-section',
-            start: 'top 75%',
+            start: 'top 80%',
+            once: true,
           },
-          x: -40,
-          opacity: 0,
-          duration: 0.8,
-          stagger: 0.15,
+          x: 0,
+          opacity: 1,
+          duration: 0.7,
+          stagger: 0.12,
           ease: 'power2.out',
-        });
-      }, container);
+          clearProps: 'all',
+        },
+      );
+
+      gsap.fromTo(
+        '.cert-card',
+        { y: 30, opacity: 0 },
+        {
+          scrollTrigger: {
+            trigger: '.cert-section',
+            start: 'top 85%',
+            once: true,
+          },
+          y: 0,
+          opacity: 1,
+          duration: 0.7,
+          stagger: 0.1,
+          ease: 'power2.out',
+          clearProps: 'all',
+        },
+      );
+
+      const timer = setTimeout(() => {
+        ScrollTrigger.refresh();
+      }, 300);
 
       return () => {
-        ctx.revert();
+        clearTimeout(timer);
       };
     },
     { scope: container },
