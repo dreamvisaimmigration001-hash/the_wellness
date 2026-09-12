@@ -9,55 +9,174 @@ import {
   Award,
   HeartPulse,
   Lock,
+  CheckCircle2,
+  Zap,
+  Shield,
+  Star,
+  FileCheck,
+  Pill,
+  Heart,
+  BadgeCheck,
+  Activity,
+  type LucideIcon,
 } from 'lucide-react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
-const MARQUEE_ITEMS = [
+import { API_BASE_URL } from '@/lib/config';
+
+export const MARQUEE_ICONS: Record<string, LucideIcon | undefined> = {
+  ShieldCheck,
+  Truck,
+  FlaskConical,
+  Stethoscope,
+  Sparkles,
+  Award,
+  HeartPulse,
+  Lock,
+  CheckCircle2,
+  Zap,
+  Shield,
+  Star,
+  FileCheck,
+  Pill,
+  Heart,
+  BadgeCheck,
+  Activity,
+};
+
+export function getMarqueeIcon(iconName?: string): LucideIcon {
+  if (!iconName) return ShieldCheck;
+  return MARQUEE_ICONS[iconName] ?? ShieldCheck;
+}
+
+export const DEFAULT_MARQUEE_ITEMS = [
   {
-    icon: ShieldCheck,
+    id: '1',
+    icon: 'ShieldCheck',
     title: 'WHO-GMP Certified',
     subtitle: 'Grade A/B Cleanrooms',
   },
   {
-    icon: Truck,
+    id: '2',
+    icon: 'Truck',
     title: 'Cold-Chain Delivery',
     subtitle: 'Temp-Monitored Transit',
   },
   {
-    icon: FlaskConical,
+    id: '3',
+    icon: 'FlaskConical',
     title: '3rd-Party Lab Tested',
     subtitle: '100% Batch Released',
   },
   {
-    icon: Stethoscope,
+    id: '4',
+    icon: 'Stethoscope',
     title: 'Clinical Specialist Oversight',
     subtitle: 'Physician Approved',
   },
   {
-    icon: Sparkles,
+    id: '5',
+    icon: 'Sparkles',
     title: 'High Bioavailability',
     subtitle: 'Active Therapeutic Yield',
   },
   {
-    icon: Award,
+    id: '6',
+    icon: 'Award',
     title: 'ISO 9001:2015 Accredited',
     subtitle: 'End-to-End Traceability',
   },
   {
-    icon: HeartPulse,
+    id: '7',
+    icon: 'HeartPulse',
     title: 'Evidence-Based Formulations',
     subtitle: 'Pure Clinical Potency',
   },
   {
-    icon: Lock,
+    id: '8',
+    icon: 'Lock',
     title: 'Tamper-Evident Medical Packaging',
     subtitle: 'Batch Coded & Sealed',
   },
 ];
 
-export default function MarqueeBanner() {
-  // Duplicate array to achieve infinite seamless 50% translation loop
-  const displayItems = [...MARQUEE_ITEMS, ...MARQUEE_ITEMS];
+export interface MarqueeItemData {
+  id?: string | null;
+  icon: string;
+  title: string;
+  subtitle: string;
+}
+
+export interface MarqueeBannerProps {
+  previewSettings?: {
+    enabled: boolean;
+    speed?: number | null;
+    items: MarqueeItemData[];
+  };
+}
+
+export default function MarqueeBanner({ previewSettings }: MarqueeBannerProps = {}) {
+  const [marqueeItems, setMarqueeItems] = useState<MarqueeItemData[]>(DEFAULT_MARQUEE_ITEMS);
+  const [enabled, setEnabled] = useState(true);
+  const [speed, setSpeed] = useState<number>(35);
+
+  useEffect(() => {
+    // If preview settings are supplied directly, do not fetch
+    if (previewSettings) return;
+
+    let isMounted = true;
+    async function loadSettings() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/settings`);
+        if (res.ok) {
+          const json = (await res.json()) as {
+            success?: boolean;
+            data?: {
+              marquee?: {
+                enabled: boolean;
+                speed?: number | null;
+                items: MarqueeItemData[];
+              };
+            };
+          };
+
+          if (json.success && json.data?.marquee && isMounted) {
+            const m = json.data.marquee;
+            setEnabled(m.enabled);
+            if (typeof m.speed === 'number' && m.speed > 0) {
+              setSpeed(m.speed);
+            }
+            if (Array.isArray(m.items) && m.items.length > 0) {
+              setMarqueeItems(m.items);
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to load marquee settings, using defaults:', err);
+      }
+    }
+
+    void loadSettings();
+    return () => {
+      isMounted = false;
+    };
+  }, [previewSettings]);
+
+  const isCurrentlyEnabled = previewSettings?.enabled ?? enabled;
+  const activeItems = previewSettings?.items ?? marqueeItems;
+  const activeSpeed = previewSettings?.speed ?? speed;
+
+  // If disabled and not in preview mode, don't render on the storefront
+  if (!isCurrentlyEnabled && !previewSettings) {
+    return null;
+  }
+
+  // Duplicate array to achieve seamless infinite translation loop
+  const rawItems = activeItems.length > 0 ? activeItems : DEFAULT_MARQUEE_ITEMS;
+  const displayItems =
+    rawItems.length < 5
+      ? [...rawItems, ...rawItems, ...rawItems, ...rawItems]
+      : [...rawItems, ...rawItems];
 
   return (
     <aside
@@ -69,9 +188,12 @@ export default function MarqueeBanner() {
       <div className="pointer-events-none absolute inset-y-0 right-0 w-16 sm:w-32 md:w-44 bg-gradient-to-l from-[#060e1a] to-transparent z-10" />
 
       {/* Marquee Track */}
-      <div className="flex animate-marquee items-center gap-8 sm:gap-12">
+      <div
+        className="flex animate-marquee items-center gap-8 sm:gap-12"
+        style={{ animationDuration: `${String(activeSpeed)}s` }}
+      >
         {displayItems.map((item, idx) => {
-          const Icon = item.icon;
+          const Icon = getMarqueeIcon(item.icon);
           return (
             <div
               key={`${item.title}-${String(idx)}`}

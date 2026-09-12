@@ -82,4 +82,36 @@ describe('Employee Admin Permissions Access', () => {
     const body = res.body as { success: boolean };
     expect(body.success).toBe(true);
   });
+
+  it('allows employee to update site settings including marquee banner', async () => {
+    const res = await request(app)
+      .put('/api/settings')
+      .set('Cookie', [`better-auth.session_token=${employeeToken}`])
+      .send({
+        marquee: {
+          enabled: true,
+          speed: 30,
+          items: [
+            { icon: 'ShieldCheck', title: 'WHO-GMP Certified', subtitle: 'Grade A/B Cleanrooms' },
+            { icon: 'Truck', title: 'Express Delivery', subtitle: 'Same-day Dispatch' },
+          ],
+        },
+      });
+
+    expect(res.status).toBe(200);
+    const body = res.body as {
+      success: boolean;
+      data: {
+        marquee: {
+          enabled: boolean;
+          speed: number;
+          items: Array<{ title: string; subtitle: string }>;
+        };
+      };
+    };
+    expect(body.success).toBe(true);
+    expect(body.data.marquee.enabled).toBe(true);
+    expect(body.data.marquee.items).toHaveLength(2);
+    expect(body.data.marquee.items[1]?.title).toBe('Express Delivery');
+  });
 });

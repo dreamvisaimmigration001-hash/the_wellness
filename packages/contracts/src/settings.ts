@@ -16,7 +16,21 @@ export type DealsSettingsDTO = {
   endTime?: string | null | undefined;
 };
 
+export type MarqueeItemDTO = {
+  id?: string | null | undefined;
+  icon: string;
+  title: string;
+  subtitle: string;
+};
+
+export type MarqueeSettingsDTO = {
+  enabled: boolean;
+  speed?: number | null | undefined;
+  items: MarqueeItemDTO[];
+};
+
 export type SiteSettingsDTO = {
   announcement: AnnouncementSettingsDTO;
   deals: DealsSettingsDTO;
+  marquee: MarqueeSettingsDTO;
 };

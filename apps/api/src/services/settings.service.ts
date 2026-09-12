@@ -2,6 +2,7 @@ import type {
   SiteSettingsDTO,
   AnnouncementSettingsDTO,
   DealsSettingsDTO,
+  MarqueeSettingsDTO,
 } from '@wellness/contracts';
 import { db, siteSettings, pool } from '@wellness/db';
 import type { UpdateSiteSettingsInput } from '@wellness/validation';
@@ -22,6 +23,51 @@ const DEFAULT_DEALS: DealsSettingsDTO = {
   title: 'Daily Clinical Deals',
   description: 'Exclusive daily discounts on essential medications and healthcare formulations.',
   endTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+};
+
+const DEFAULT_MARQUEE: MarqueeSettingsDTO = {
+  enabled: true,
+  speed: 35,
+  items: [
+    { id: '1', icon: 'ShieldCheck', title: 'WHO-GMP Certified', subtitle: 'Grade A/B Cleanrooms' },
+    { id: '2', icon: 'Truck', title: 'Cold-Chain Delivery', subtitle: 'Temp-Monitored Transit' },
+    {
+      id: '3',
+      icon: 'FlaskConical',
+      title: '3rd-Party Lab Tested',
+      subtitle: '100% Batch Released',
+    },
+    {
+      id: '4',
+      icon: 'Stethoscope',
+      title: 'Clinical Specialist Oversight',
+      subtitle: 'Physician Approved',
+    },
+    {
+      id: '5',
+      icon: 'Sparkles',
+      title: 'High Bioavailability',
+      subtitle: 'Active Therapeutic Yield',
+    },
+    {
+      id: '6',
+      icon: 'Award',
+      title: 'ISO 9001:2015 Accredited',
+      subtitle: 'End-to-End Traceability',
+    },
+    {
+      id: '7',
+      icon: 'HeartPulse',
+      title: 'Evidence-Based Formulations',
+      subtitle: 'Pure Clinical Potency',
+    },
+    {
+      id: '8',
+      icon: 'Lock',
+      title: 'Tamper-Evident Medical Packaging',
+      subtitle: 'Batch Coded & Sealed',
+    },
+  ],
 };
 
 export class SettingsService {
@@ -54,6 +100,7 @@ export class SettingsService {
 
       const rawAnnouncement = map.get('announcement');
       const rawDeals = map.get('deals');
+      const rawMarquee = map.get('marquee');
 
       const announcement =
         typeof rawAnnouncement === 'object' && rawAnnouncement !== null
@@ -62,6 +109,10 @@ export class SettingsService {
       const deals =
         typeof rawDeals === 'object' && rawDeals !== null
           ? (rawDeals as Partial<DealsSettingsDTO>)
+          : {};
+      const marquee =
+        typeof rawMarquee === 'object' && rawMarquee !== null
+          ? (rawMarquee as Partial<MarqueeSettingsDTO>)
           : {};
 
       return {
@@ -73,12 +124,21 @@ export class SettingsService {
           ...DEFAULT_DEALS,
           ...deals,
         },
+        marquee: {
+          ...DEFAULT_MARQUEE,
+          ...marquee,
+          items:
+            Array.isArray(marquee.items) && marquee.items.length > 0
+              ? marquee.items
+              : DEFAULT_MARQUEE.items,
+        },
       };
     } catch (err) {
       console.error('Error fetching settings from db, falling back to defaults:', err);
       return {
         announcement: DEFAULT_ANNOUNCEMENT,
         deals: DEFAULT_DEALS,
+        marquee: DEFAULT_MARQUEE,
       };
     }
   }
@@ -153,6 +213,29 @@ export class SettingsService {
           },
         });
       current.deals = updatedDeals;
+    }
+
+    if (input.marquee) {
+      const updatedMarquee: MarqueeSettingsDTO = {
+        enabled: input.marquee.enabled ?? current.marquee.enabled,
+        speed: input.marquee.speed !== undefined ? input.marquee.speed : current.marquee.speed,
+        items: input.marquee.items ?? current.marquee.items,
+      };
+      await db
+        .insert(siteSettings)
+        .values({
+          key: 'marquee',
+          value: updatedMarquee,
+          updatedAt: new Date(),
+        })
+        .onConflictDoUpdate({
+          target: siteSettings.key,
+          set: {
+            value: updatedMarquee,
+            updatedAt: new Date(),
+          },
+        });
+      current.marquee = updatedMarquee;
     }
 
     return current;

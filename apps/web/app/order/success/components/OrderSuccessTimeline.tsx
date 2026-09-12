@@ -68,10 +68,14 @@ export default function OrderSuccessTimeline({ order }: OrderSuccessTimelineProp
     {
       id: 4,
       title: 'Out for Delivery',
-      desc: isCancelled ? 'Delivery cancelled.' : 'Delivery executive is en route to your address.',
+      desc: isCancelled
+        ? 'Delivery cancelled.'
+        : isDelivered
+          ? 'Package reached delivery address.'
+          : 'Delivery executive is en route to your address.',
       icon: Truck,
       status: isOutForDelivery ? 'current' : isDelivered ? 'completed' : 'upcoming',
-      time: isOutForDelivery ? 'En Route' : 'Pending',
+      time: isOutForDelivery ? 'En Route' : isDelivered ? 'Out for Delivery' : 'Pending',
     },
     {
       id: 5,
@@ -106,7 +110,7 @@ export default function OrderSuccessTimeline({ order }: OrderSuccessTimelineProp
         </div>
         <span
           className={`text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider flex items-center gap-1.5 border ${
-            orderStatus === 'confirmed'
+            orderStatus === 'confirmed' || orderStatus === 'delivered'
               ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
               : orderStatus === 'cancelled'
                 ? 'text-red-600 bg-red-50 border-red-200'
@@ -115,7 +119,7 @@ export default function OrderSuccessTimeline({ order }: OrderSuccessTimelineProp
         >
           <span
             className={`w-2 h-2 rounded-full animate-pulse ${
-              orderStatus === 'confirmed'
+              orderStatus === 'confirmed' || orderStatus === 'delivered'
                 ? 'bg-emerald-500'
                 : orderStatus === 'cancelled'
                   ? 'bg-red-500'

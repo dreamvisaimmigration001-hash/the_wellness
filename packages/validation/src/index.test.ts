@@ -11,6 +11,7 @@ import {
   SearchSchema,
   announcementSettingsSchema,
   dealsSettingsSchema,
+  marqueeSettingsSchema,
   updateSiteSettingsSchema,
 } from './index';
 
@@ -334,8 +335,20 @@ describe('Validation Schemas', () => {
       const result = updateSiteSettingsSchema.safeParse({
         announcement: { enabled: false },
         deals: { discountPercentage: 30 },
+        marquee: {
+          enabled: true,
+          items: [{ icon: 'ShieldCheck', title: 'GMP Certified', subtitle: 'Cleanrooms' }],
+        },
       });
       expect(result.success).toBe(true);
+    });
+
+    it('rejects marquee with empty items list', () => {
+      const result = marqueeSettingsSchema.safeParse({
+        enabled: true,
+        items: [],
+      });
+      expect(result.success).toBe(false);
     });
   });
 });

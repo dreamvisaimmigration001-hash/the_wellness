@@ -10,12 +10,23 @@ import {
   CheckCircle2,
   AlertCircle,
   Flame,
+  Activity,
+  ChevronUp,
+  ChevronDown,
+  Trash2,
+  RefreshCw,
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import React, { useState, useEffect } from 'react';
 
 import { PromotionItem } from '../../types';
 
+import MarqueeBanner, {
+  DEFAULT_MARQUEE_ITEMS,
+  MARQUEE_ICONS,
+  getMarqueeIcon,
+  type MarqueeItemData,
+} from '@/components/layout/MarqueeBanner';
 import { API_BASE_URL } from '@/lib/config';
 
 interface PromotionsTabProps {
@@ -33,7 +44,7 @@ interface PromotionsTabProps {
   }) => void;
 }
 
-type PromoSubTab = 'banners' | 'announcement' | 'deals';
+type PromoSubTab = 'banners' | 'announcement' | 'deals' | 'marquee';
 
 function toLocalDatetimeInput(isoString?: string | null): string {
   if (!isoString) return '';
@@ -84,6 +95,12 @@ export default function PromotionsTab({
   const [dealsEndTime, setDealsEndTime] = useState<string>('');
   const [savingDeals, setSavingDeals] = useState(false);
 
+  // Marquee Banner State
+  const [marqueeEnabled, setMarqueeEnabled] = useState(true);
+  const [marqueeSpeed, setMarqueeSpeed] = useState<number>(35);
+  const [marqueeItems, setMarqueeItems] = useState<MarqueeItemData[]>(DEFAULT_MARQUEE_ITEMS);
+  const [savingMarquee, setSavingMarquee] = useState(false);
+
   // Fetch site settings on mount
   useEffect(() => {
     let isMounted = true;
@@ -109,6 +126,11 @@ export default function PromotionsTab({
                 title?: string | null;
                 description?: string | null;
                 endTime?: string | null;
+              };
+              marquee?: {
+                enabled: boolean;
+                speed?: number | null;
+                items: MarqueeItemData[];
               };
             };
           };
@@ -139,6 +161,17 @@ export default function PromotionsTab({
                 // Default to 24h from now if not set
                 const defaultEnd = new Date(Date.now() + 24 * 60 * 60 * 1000);
                 setDealsEndTime(toLocalDatetimeInput(defaultEnd.toISOString()));
+              }
+            }
+
+            if (json.data.marquee) {
+              const m = json.data.marquee;
+              setMarqueeEnabled(m.enabled);
+              if (typeof m.speed === 'number' && m.speed > 0) {
+                setMarqueeSpeed(m.speed);
+              }
+              if (Array.isArray(m.items) && m.items.length > 0) {
+                setMarqueeItems(m.items);
               }
             }
           }
@@ -330,6 +363,113 @@ export default function PromotionsTab({
     setDealsEndTime(toLocalDatetimeInput(d.toISOString()));
   };
 
+  const handleAddMarqueeItem = () => {
+    setMarqueeItems((prev) => [
+      ...prev,
+      {
+        id: String(Date.now()),
+        icon: 'ShieldCheck',
+        title: 'New Clinical Highlight',
+        subtitle: 'Quality Certified',
+      },
+    ]);
+  };
+
+  const handleUpdateMarqueeItem = (
+    index: number,
+    field: keyof MarqueeItemData,
+    value: string,
+  ) => {
+    setMarqueeItems((prev) => {
+      const copy = [...prev];
+      copy[index] = { ...copy[index], [field]: value };
+      return copy;
+    });
+  };
+
+  const handleDeleteMarqueeItem = (index: number) => {
+    if (marqueeItems.length <= 1) {
+      showNotice('You must keep at least one marquee highlight item.', 'warning');
+      return;
+    }
+    setMarqueeItems((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleMoveMarqueeItem = (index: number, direction: 'up' | 'down') => {
+    setMarqueeItems((prev) => {
+      const targetIndex = direction === 'up' ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= prev.length) return prev;
+      const copy = [...prev];
+      const temp = copy[index];
+      copy[index] = copy[targetIndex];
+      copy[targetIndex] = temp;
+      return copy;
+    });
+  };
+
+  const handleResetMarqueeDefaults = () => {
+    const doReset = () => {
+      setMarqueeItems(DEFAULT_MARQUEE_ITEMS);
+      setMarqueeSpeed(35);
+      showNotice('Marquee items reset to default clinical trust highlights.', 'success');
+    };
+
+    if (confirmAction) {
+      confirmAction({
+        title: 'Reset Marquee to Defaults',
+        message:
+          'Are you sure you want to reset all marquee items back to the standard clinical defaults?',
+        confirmText: 'Yes, Reset',
+        cancelText: 'Cancel',
+        variant: 'warning',
+        onConfirm: doReset,
+      });
+    } else {
+      doReset();
+    }
+  };
+
+  const handleSaveMarquee = async () => {
+    if (marqueeItems.length === 0) {
+      showNotice('At least one marquee item is required.', 'warning');
+      return;
+    }
+    for (let i = 0; i < marqueeItems.length; i++) {
+      if (!marqueeItems[i].title.trim() || !marqueeItems[i].subtitle.trim()) {
+        showNotice(`Item #${String(i + 1)} requires both a title and a subtitle.`, 'warning');
+        return;
+      }
+    }
+
+    try {
+      setSavingMarquee(true);
+      const res = await fetch(`${API_BASE_URL}/api/settings`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          marquee: {
+            enabled: marqueeEnabled,
+            speed: marqueeSpeed,
+            items: marqueeItems,
+          },
+        }),
+      });
+
+      if (res.ok) {
+        showNotice('Marquee banner settings saved to storefront successfully!', 'success');
+      } else {
+        const errJson = (await res.json()) as { message?: string };
+        showNotice(errJson.message || 'Failed to update marquee settings.', 'error');
+      }
+    } catch (err) {
+      console.error('Failed to save marquee settings:', err);
+      showNotice('Failed to update marquee banner settings.', 'error');
+    } finally {
+      setSavingMarquee(false);
+    }
+  };
+
   // Check deals status for live feedback
   const dealsEndMs = dealsEndTime ? new Date(dealsEndTime).getTime() : 0;
   const isDealsExpired = dealsEndMs > 0 && dealsEndMs <= Date.now();
@@ -405,6 +545,21 @@ export default function PromotionsTab({
           >
             <Clock size={14} />
             <span>Daily Deals & Timer</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setSubTab('marquee');
+            }}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+              subTab === 'marquee'
+                ? 'bg-wellness-navy text-white shadow-sm'
+                : 'text-wellness-charcoal/70 hover:text-wellness-navy hover:bg-white/60'
+            }`}
+          >
+            <Activity size={14} />
+            <span>Marquee Banner</span>
           </button>
         </div>
       </div>
@@ -1087,6 +1242,271 @@ export default function PromotionsTab({
             >
               <Save size={15} />
               {savingDeals ? 'Saving Deals...' : 'Save Daily Deals & Timer'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* 4. MARQUEE BANNER SUBTAB */}
+      {/* ========================================================= */}
+      {subTab === 'marquee' && (
+        <div className="bg-white border border-wellness-gray-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-8">
+          {/* Header & Status */}
+          <div className="flex items-center justify-between flex-wrap gap-4 border-b border-wellness-gray-100 pb-6">
+            <div>
+              <h4 className="text-sm font-heading font-black text-wellness-navy uppercase tracking-wider flex items-center gap-2">
+                <Activity size={16} className="text-wellness-green" />
+                Storefront Marquee Banner (Trust Highlights)
+              </h4>
+              <p className="text-xs text-wellness-charcoal/60 mt-1">
+                Manage the animated continuous ticker displayed above the footer across all
+                storefront pages.
+              </p>
+            </div>
+
+            {/* Visibility Toggle */}
+            <div className="flex items-center gap-3 bg-wellness-gray-50 px-4 py-2 rounded-2xl border border-wellness-gray-200">
+              <span className="text-xs font-bold text-wellness-navy">Banner Status:</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setMarqueeEnabled(!marqueeEnabled);
+                }}
+                className={`px-3 py-1 rounded-xl text-[10px] font-extrabold uppercase tracking-wider transition-all cursor-pointer ${
+                  marqueeEnabled
+                    ? 'bg-wellness-green text-white shadow-sm'
+                    : 'bg-wellness-charcoal/20 text-wellness-charcoal/70'
+                }`}
+              >
+                {marqueeEnabled ? 'Active (Visible)' : 'Disabled (Hidden)'}
+              </button>
+            </div>
+          </div>
+
+          {/* Live Preview Container */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-wellness-navy uppercase tracking-wider flex items-center gap-1.5">
+                <Eye size={14} className="text-wellness-green" />
+                Interactive Live Preview
+              </span>
+              <span className="text-[10px] font-semibold text-wellness-charcoal/50">
+                Updates in real-time as you edit items
+              </span>
+            </div>
+
+            <div className="rounded-2xl overflow-hidden border border-slate-800 shadow-md">
+              <MarqueeBanner
+                previewSettings={{
+                  enabled: marqueeEnabled,
+                  speed: marqueeSpeed,
+                  items: marqueeItems,
+                }}
+              />
+            </div>
+
+            {!marqueeEnabled && (
+              <p className="text-[11px] text-amber-600 font-bold flex items-center gap-1 mt-1">
+                <AlertCircle size={13} />
+                The marquee banner is currently toggled OFF and will not be displayed on the
+                storefront.
+              </p>
+            )}
+          </div>
+
+          {/* Global Controls & Tools */}
+          <div className="bg-wellness-gray-50/70 border border-wellness-gray-200 rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4">
+            {/* Speed Control */}
+            <div className="flex items-center gap-3 flex-wrap">
+              <span className="text-xs font-bold text-wellness-navy uppercase tracking-wider">
+                Scroll Speed:
+              </span>
+              <div className="flex items-center gap-1.5 bg-white border border-wellness-gray-200 p-1 rounded-xl shadow-xs">
+                {[
+                  { label: 'Fast (20s)', val: 20 },
+                  { label: 'Standard (35s)', val: 35 },
+                  { label: 'Relaxed (50s)', val: 50 },
+                ].map((speedOpt) => (
+                  <button
+                    key={speedOpt.val}
+                    type="button"
+                    onClick={() => {
+                      setMarqueeSpeed(speedOpt.val);
+                    }}
+                    className={`px-3 py-1 text-[11px] font-bold rounded-lg transition-all cursor-pointer ${
+                      marqueeSpeed === speedOpt.val
+                        ? 'bg-wellness-navy text-white shadow-xs'
+                        : 'text-wellness-charcoal/70 hover:text-wellness-navy hover:bg-wellness-gray-100'
+                    }`}
+                  >
+                    {speedOpt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleResetMarqueeDefaults}
+                className="px-3 py-2 border border-wellness-gray-200 hover:bg-white text-wellness-navy text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
+              >
+                <RefreshCw size={13} />
+                Reset Defaults
+              </button>
+              <button
+                type="button"
+                onClick={handleAddMarqueeItem}
+                className="bg-wellness-navy hover:bg-wellness-green text-white text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shadow-sm"
+              >
+                <Plus size={14} />
+                Add Highlight Item
+              </button>
+            </div>
+          </div>
+
+          {/* Marquee Items List */}
+          <div className="space-y-4">
+            <h5 className="text-xs font-bold text-wellness-navy uppercase tracking-wider flex items-center justify-between">
+              <span>Configured Items ({marqueeItems.length})</span>
+              <span className="text-[10px] text-wellness-charcoal/50 font-normal">
+                Use arrows to rearrange sequence
+              </span>
+            </h5>
+
+            <div className="space-y-3">
+              {marqueeItems.map((item, idx) => {
+                const IconComponent = getMarqueeIcon(item.icon);
+                return (
+                  <div
+                    key={item.id || `item-${String(idx)}`}
+                    className="p-4 bg-white border border-wellness-gray-200 rounded-2xl shadow-xs hover:border-wellness-green/50 transition-all flex flex-col md:flex-row md:items-center gap-4"
+                  >
+                    {/* Index badge & Move buttons */}
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="w-7 h-7 rounded-xl bg-wellness-navy text-white text-[11px] font-black flex items-center justify-center">
+                        #{idx + 1}
+                      </span>
+                      <div className="flex flex-col gap-0.5">
+                        <button
+                          type="button"
+                          disabled={idx === 0}
+                          onClick={() => {
+                            handleMoveMarqueeItem(idx, 'up');
+                          }}
+                          className="w-5 h-5 rounded bg-wellness-gray-100 hover:bg-wellness-navy hover:text-white text-wellness-charcoal disabled:opacity-20 flex items-center justify-center cursor-pointer transition-colors"
+                          title="Move Up"
+                        >
+                          <ChevronUp size={12} />
+                        </button>
+                        <button
+                          type="button"
+                          disabled={idx === marqueeItems.length - 1}
+                          onClick={() => {
+                            handleMoveMarqueeItem(idx, 'down');
+                          }}
+                          className="w-5 h-5 rounded bg-wellness-gray-100 hover:bg-wellness-navy hover:text-white text-wellness-charcoal disabled:opacity-20 flex items-center justify-center cursor-pointer transition-colors"
+                          title="Move Down"
+                        >
+                          <ChevronDown size={12} />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Icon Select */}
+                    <div className="w-full md:w-48 shrink-0 space-y-1">
+                      <label className="block text-[10px] font-bold text-wellness-navy uppercase tracking-wider">
+                        Icon
+                      </label>
+                      <div className="flex items-center gap-2 bg-wellness-gray-50 border border-wellness-gray-200 rounded-xl px-2.5 py-1.5">
+                        <div className="w-6 h-6 rounded-lg bg-wellness-green/15 text-wellness-green flex items-center justify-center shrink-0">
+                          <IconComponent size={14} />
+                        </div>
+                        <select
+                          value={item.icon}
+                          onChange={(e) => {
+                            handleUpdateMarqueeItem(idx, 'icon', e.target.value);
+                          }}
+                          className="w-full bg-transparent text-xs font-semibold text-wellness-navy outline-none cursor-pointer"
+                        >
+                          {Object.keys(MARQUEE_ICONS).map((iconName) => (
+                            <option key={iconName} value={iconName}>
+                              {iconName}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Title */}
+                    <div className="flex-1 space-y-1">
+                      <label className="block text-[10px] font-bold text-wellness-navy uppercase tracking-wider">
+                        Primary Title
+                      </label>
+                      <input
+                        type="text"
+                        value={item.title}
+                        onChange={(e) => {
+                          handleUpdateMarqueeItem(idx, 'title', e.target.value);
+                        }}
+                        placeholder="e.g. WHO-GMP Certified"
+                        className="w-full px-3 py-2 rounded-xl border border-wellness-gray-200 bg-wellness-gray-50 focus:bg-white focus:border-wellness-green outline-none text-xs font-bold text-wellness-navy"
+                      />
+                    </div>
+
+                    {/* Subtitle */}
+                    <div className="flex-1 space-y-1">
+                      <label className="block text-[10px] font-bold text-wellness-navy uppercase tracking-wider">
+                        Subtitle / Detail
+                      </label>
+                      <input
+                        type="text"
+                        value={item.subtitle}
+                        onChange={(e) => {
+                          handleUpdateMarqueeItem(idx, 'subtitle', e.target.value);
+                        }}
+                        placeholder="e.g. Grade A/B Cleanrooms"
+                        className="w-full px-3 py-2 rounded-xl border border-wellness-gray-200 bg-wellness-gray-50 focus:bg-white focus:border-wellness-green outline-none text-xs font-semibold text-wellness-charcoal"
+                      />
+                    </div>
+
+                    {/* Delete action */}
+                    <div className="pt-2 md:pt-4 flex items-center justify-end shrink-0">
+                      <button
+                        type="button"
+                        disabled={marqueeItems.length <= 1}
+                        onClick={() => {
+                          handleDeleteMarqueeItem(idx);
+                        }}
+                        className="w-8 h-8 rounded-xl border border-red-200 bg-red-50 hover:bg-red-600 hover:text-white text-red-600 flex items-center justify-center transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                        title="Delete Item"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Save Bar */}
+          <div className="pt-6 border-t border-wellness-gray-100 flex items-center justify-between flex-wrap gap-4">
+            <p className="text-xs text-wellness-charcoal/60">
+              Changes will take effect immediately across all storefront pages.
+            </p>
+            <button
+              type="button"
+              disabled={savingMarquee}
+              onClick={() => {
+                void handleSaveMarquee();
+              }}
+              className="bg-wellness-green hover:bg-wellness-navy text-white text-xs font-black uppercase tracking-wider px-8 py-4 rounded-xl transition-all cursor-pointer shadow-sm flex items-center gap-2 disabled:opacity-50"
+            >
+              <Save size={15} />
+              {savingMarquee ? 'Saving Marquee Banner...' : 'Save Marquee Banner to Storefront'}
             </button>
           </div>
         </div>
